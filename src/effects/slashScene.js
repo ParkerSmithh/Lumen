@@ -1,5 +1,6 @@
-import { matterPalette } from '../colors';
-import { sweptHit } from './slashGeometry';
+import { matterPalette } from '../colors.js';
+import { sweptHit } from './slashGeometry.js';
+import { slashProgression } from './slashProgression.js';
 
 const shape=[[0,-1.15],[.62,-.38],[.75,.35],[.12,1.12],[-.7,.42],[-.59,-.4]];
 const random=(low,high)=>low+Math.random()*(high-low);
@@ -62,8 +63,8 @@ export function createSlashScene(ctx) {
   }
   function update(dt) {
     dt=Math.min(.04,Math.max(0,dt));elapsed+=dt;
-    const cap=elapsed<5?1:elapsed<10?2:4;
-    if(elapsed>=nextSpawn&&objects.length<cap){spawn();nextSpawn=elapsed+random(2.5,3.8);}
+    const {interval,cap}=slashProgression(elapsed);
+    if(elapsed>=nextSpawn&&objects.length<cap){spawn();nextSpawn=elapsed+interval;}
     for(let i=objects.length-1;i>=0;i--){const o=objects[i];o.age+=dt;o.x+=o.vx*dt;o.y+=o.vy*dt;o.angle+=o.rotation*dt;if(o.age>o.life||o.y<field.y-o.radius||o.x<-o.radius||o.x>width+o.radius)objects.splice(i,1);}
     for(const list of [trails,flashes,fragments])for(let i=list.length-1;i>=0;i--){const item=list[i];item.life-=dt;if(item.vx!==undefined){item.x+=item.vx*dt;item.y+=item.vy*dt;item.vy+=25*dt;item.angle+=item.rotation*dt;}if(item.life<=0)list.splice(i,1);}
     for(const p of particles)if(p.life>0){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.exp(-dt*2);p.vy*=Math.exp(-dt*2);}

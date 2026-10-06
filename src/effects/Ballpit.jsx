@@ -1,3 +1,4 @@
+import { createGrabController } from './grabController';
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -464,6 +465,7 @@ class W {
     }
     for (let idx = r; idx < (t.activeCount ?? t.count); idx++) {
       const base = 3 * idx;
+      if(this.grabController?.has(idx))continue;
       I.fromArray(s, base);
       B.fromArray(o, base);
       B.y -= e.delta * t.gravity * n[idx];
@@ -479,6 +481,7 @@ class W {
       B.fromArray(o, base);
       const radius = n[idx];
       for (let jdx = idx + 1; jdx < (t.activeCount ?? t.count); jdx++) {
+        if(this.grabController?.has(idx)&&this.grabController?.has(jdx))continue;
         const otherBase = 3 * jdx;
         O.fromArray(s, otherBase);
         N.fromArray(o, otherBase);
@@ -494,12 +497,11 @@ class W {
             .multiplyScalar(0.5 * overlap);
           H.copy(j).multiplyScalar(Math.max(B.length(), 1));
           T.copy(j).multiplyScalar(Math.max(N.length(), 1));
-          I.sub(j);
-          B.sub(H);
+          const heldI=this.grabController?.has(idx),heldJ=this.grabController?.has(jdx);
+          if(!heldI){I.addScaledVector(j,heldJ?-2:-1);B.sub(H);}
           I.toArray(s, base);
           B.toArray(o, base);
-          O.add(j);
-          N.add(T);
+          if(!heldJ){O.addScaledVector(j,heldI?2:1);N.add(T);}
           O.toArray(s, otherBase);
           N.toArray(o, otherBase);
         }
@@ -668,12 +670,13 @@ class Z extends d {
   }
   update(e) {
     this.physics.update(e);
+    this.physics.grabController?.step(this.physics,e.delta);
     for (let idx = 0; idx < this.count; idx++) {
       U.position.fromArray(this.physics.positionData, 3 * idx);
       if (idx === 0 && this.config.followCursor === false) {
         U.scale.setScalar(0);
       } else {
-        U.scale.setScalar(this.physics.sizeData[idx]);
+        U.scale.setScalar(this.physics.sizeData[idx]*(this.physics.grabController?.has(idx)?1.04:1));
       }
       U.updateMatrix();
       this.setMatrixAt(idx, U.matrix);
@@ -708,20 +711,21 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   e.style.webkitUserSelect = 'none';
 
   const consumed = {};
+  const grabController=createGrabController();s.physics.grabController=grabController;let lastGrabSequence=null;
   const lastWorld = new a();
   const direction = new a();
   const radial = new a();
   const position = new a();
   const velocity = new a();
   const ndc = { x: 0, y: 0, set(x, y) { this.x = x; this.y = y; } };
-  const lost = event => { event.preventDefault(); consumed.active = false; s.config.controlSphere0 = false; i.onError(new Error('WebGL context lost')); };
+  const lost = event => { grabController.release(s.physics);event.preventDefault(); consumed.active = false; s.config.controlSphere0 = false; i.onError(new Error('WebGL context lost')); };
   e.addEventListener('webglcontextlost', lost);
-  const visibility = () => { if (document.hidden) { consumed.active = false; s.config.controlSphere0 = false; } };
+  const visibility = () => { if (document.hidden) { grabController.release(s.physics);consumed.active = false; s.config.controlSphere0 = false; } };
   document.addEventListener('visibilitychange', visibility);
   function applyInput() {
     const raw = inputRef.current.pointerRef?.current;
     const result = consumeLaunchInput(consumed, raw, performance.now());
-    if (!consumed.active || document.hidden) { s.config.controlSphere0 = false; return; }
+    if (!consumed.active || document.hidden) { grabController.release(s.physics);lastGrabSequence=null;s.config.controlSphere0 = false; return; }
     const creation=raw.creation&&!raw.creation.consumed?raw.creation:null;
     if(creation&&performance.now()-creation.timestamp>250){creation.consumed=true;return;}
     if(!result&&!creation)return;
@@ -729,8 +733,17 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     ndc.set(point.x*2-1,1-point.y*2);
     n.setFromCamera(ndc, i.camera);
     i.camera.getWorldDirection(o.normal);
-    if (!n.ray.intersectPlane(o, r) || !Number.isFinite(r.x + r.y + r.z)) { consumed.active = false; s.config.controlSphere0 = false; return; }
+    if (!n.ray.intersectPlane(o, r) || !Number.isFinite(r.x + r.y + r.z)) { grabController.release(s.physics);consumed.active = false; s.config.controlSphere0 = false; return; }
     s.physics.center.copy(r);
+    if(raw.grab?.active){
+      if(raw.sequence!==lastGrabSequence){
+        if(raw.grab.begin)grabController.begin(r,s.physics,raw.timestamp);else grabController.move(r,raw.timestamp);
+        lastGrabSequence=raw.sequence;
+      }
+      r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;
+      if(grabController.count)inputRef.current.onInteraction?.();return;
+    }
+    if(grabController.count){grabController.move(r,raw.timestamp);grabController.release(s.physics,!!raw.grab?.released);lastGrabSequence=null;r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
     if(creation){creation.consumed=true;spawn(r,creation.color,creation.strength);inputRef.current.onInteraction?.();}
     if(raw.suppressForce||creation){r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
     if (result.baseline) {
@@ -760,6 +773,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   }
   function spawn(point,color,strength=.5){
     if(!s.config.interactiveCreation)return false;
+    grabController.release(s.physics);
     const max=Math.min(s.capacity-1,s.config.maxActive||150),slot=1+(created++%max),offset=slot*3;
     const radius=s.physics.sizeData[slot];
     const p=new a(Math.max(-s.config.maxX+radius,Math.min(s.config.maxX-radius,point.x)),Math.max(-s.config.maxY+radius,Math.min(s.config.maxY-radius,point.y)),Math.max(-s.config.maxZ+radius,Math.min(s.config.maxZ-radius,point.z)));
@@ -798,15 +812,16 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   return {
     three: i,
     spawn,
+    get grabbedCount(){return grabController.count;},
     get spheres() {
       return s;
     },
     setCount(e) {
-      initialize({ ...s.config, count: e });
+      grabController.release(s.physics);initialize({ ...s.config, count: e });s.physics.grabController=grabController;lastGrabSequence=null;
     },
     updateConfig(newProps) {
       if (newProps.count !== undefined && newProps.count !== s.config.count) {
-        initialize({ ...s.config, ...newProps });
+        grabController.release(s.physics);initialize({ ...s.config, ...newProps });s.physics.grabController=grabController;lastGrabSequence=null;
       } else {
         Object.assign(s.config, newProps);
         if (newProps.colors) {
@@ -818,11 +833,11 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
       }
     },
     togglePause() {
-      c = !c;
+      c = !c;if(c)grabController.release(s.physics);
     },
     dispose() {
       if (disposed) return;
-      disposed = true;
+      disposed = true;grabController.release(s.physics);
       e.removeEventListener('webglcontextlost', lost);
       document.removeEventListener('visibilitychange', visibility);
       i.dispose();

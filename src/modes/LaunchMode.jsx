@@ -1,6 +1,7 @@
 import { useEffect,useRef } from 'react';
 import Ballpit from '../effects/Ballpit';
-import { createPushDetector,pushFeatures } from '../tracking/pushDetector';
+import { createPushDetector } from '../tracking/pushDetector';
+import { createGrabDetector,grabFeatures,launchPointFeatures } from '../tracking/grabDetector';
 import { fitContain } from '../tracking/utils';
 import { mapLaunchPointer } from '../tracking/launchInput';
 
@@ -9,8 +10,8 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction}) {
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
   useEffect(()=>{
     let raf,sequence=0,pendingCreation=null,lastHandSequence=null;
-    const push=createPushDetector(),host=hostRef.current;pointerRef.current=null;
-    const reset=()=>{pointerRef.current=null;pendingCreation=null;lastHandSequence=null;push.reset();};
+    const push=createPushDetector(),grab=createGrabDetector(),host=hostRef.current;pointerRef.current=null;
+    const reset=()=>{pointerRef.current=null;pendingCreation=null;lastHandSequence=null;push.reset();grab.reset();};
     const retainCreation=()=>{if(pendingCreation?.consumed)pendingCreation=null;return pendingCreation;};
     const mouse=event=>{
       if(!mouseMode)return;
@@ -40,14 +41,18 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction}) {
         if(!pointer){reset();}
         else if(lastHandSequence!==pointer.sequence){
           lastHandSequence=pointer.sequence;
-          const gesture=push.update({...pointer,features:pushFeatures(hand)},time);
-          if(import.meta.env.DEV)hand.pushDebug=gesture;
+          const held=grab.update({...pointer,features:grabFeatures(hand)},time);
+          if(held.blocksCreation)push.reset();
+          const gesture=held.blocksCreation?{spawn:false,suppressForce:true,state:'GRABBING'}:push.update({...pointer,features:launchPointFeatures(hand)},time);
+          const rect=fitContain(hand.sourceWidth,hand.sourceHeight,host.clientWidth,host.clientHeight);
+          const grabPoint=held.center?{x:(rect.x+held.center.x*rect.width)/host.clientWidth,y:(rect.y+held.center.y*rect.height)/host.clientHeight}:pointer;
+          if(import.meta.env.DEV){hand.pushDebug=gesture;hand.grabDebug=held;}
           if(gesture.spawn){
             const rawTip=(hand.rawLandmarks||hand.landmarks)?.[8],rect=fitContain(hand.sourceWidth,hand.sourceHeight,host.clientWidth,host.clientHeight);
             const x=rawTip?(rect.x+(1-rawTip.x)*rect.width)/host.clientWidth:pointer.x,y=rawTip?(rect.y+rawTip.y*rect.height)/host.clientHeight:pointer.y;
             pendingCreation={x,y,strength:gesture.strength,color:colorRef.current,timestamp:pointer.timestamp,consumed:false};
           }
-          pointerRef.current={...pointer,creation:pendingCreation,suppressForce:gesture.suppressForce};
+          pointerRef.current={...pointer,...(held.active||held.released?grabPoint:{}),grab:held,creation:held.blocksCreation?null:pendingCreation,suppressForce:gesture.suppressForce};
         }
       }
       raf=requestAnimationFrame(tick);

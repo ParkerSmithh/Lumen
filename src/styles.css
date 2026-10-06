@@ -64,3 +64,20 @@ footer{gap:24px}.flow-controls{margin-right:auto}.flow-controls>span{display:non
 .flow-light{pointer-events:none}
 
 .tracking-debug i.predicted-tip{border-color:#ffd84a}.copy-motion-report{position:absolute;left:20px;bottom:120px;background:#171020;pointer-events:auto;padding:8px;font:10px monospace}
+
+/* Gesture reminders sit below the work and above the shell controls. */
+nav{z-index:1}
+.interaction-guide{position:absolute;bottom:105px;left:50%;transform:translateX(-50%);display:flex;justify-content:center;gap:34px;max-width:calc(100% - 40px);width:max-content;pointer-events:none;opacity:.9;transition:opacity 160ms cubic-bezier(.23,1,.32,1)}
+.interaction-guide.quiet{opacity:.48}
+.gesture-instruction{display:flex;align-items:center;gap:10px;min-width:0}
+.gesture-instruction svg{width:38px;height:38px;flex:none;color:#cbb7df}
+.gesture-instruction p{margin:0 0 5px;font-size:9px;line-height:1.2;letter-spacing:.12em;color:#dbcee7;font-weight:500}
+.gesture-instruction span{display:block;font-size:10px;line-height:1.4;color:#b4a5c1}
+.live-caption{bottom:160px}
+@media(max-width:800px){.interaction-guide{bottom:100px;gap:22px}.gesture-instruction{gap:7px}.gesture-instruction svg{width:32px;height:32px}.gesture-instruction p{font-size:8px;letter-spacing:.08em}.gesture-instruction span{font-size:9px}.live-caption{bottom:151px}}
+@media(max-width:480px){.interaction-guide{bottom:111px;gap:13px;max-width:calc(100% - 32px)}.gesture-instruction{flex-direction:column;text-align:center;gap:4px;max-width:128px}.gesture-instruction svg{width:29px;height:29px}.gesture-instruction p{font-size:7px;letter-spacing:.04em;margin-bottom:3px}.gesture-instruction span{font-size:8px;max-width:112px}.live-caption{bottom:199px}}
+@media(max-height:600px) and (min-width:481px){.interaction-guide{bottom:80px;gap:23px}.gesture-instruction svg{width:30px;height:30px}.gesture-instruction p{font-size:8px;margin-bottom:3px}.gesture-instruction span{font-size:9px}.live-caption{bottom:123px}}
+@media(max-height:600px) and (max-width:480px){.interaction-guide{bottom:100px}.live-caption{bottom:178px}}
+@media(prefers-reduced-motion:reduce){.interaction-guide{transition:none}}
+@media(max-width:480px){.interaction-guide{bottom:125px}.gesture-instruction:only-child{flex-direction:row;text-align:left;max-width:none}.gesture-instruction:only-child span{max-width:none}}
+@media(max-height:600px) and (max-width:480px){.interaction-guide{bottom:114px}}

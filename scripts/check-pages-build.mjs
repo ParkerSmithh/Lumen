@@ -61,11 +61,13 @@ try {
   await page.screenshot({ path: '.test-artifacts/repair-entry-1366.png' });
   await page.getByRole('button',{name:'Blue',exact:true}).click();
   await page.getByRole('button', { name: 'Preview light' }).click();
+  await expect(page.getByLabel('Interaction guide')).toContainText('SHOW YOURSELF');
   await page.screenshot({ path: '.test-artifacts/repair-glow-1366.png' });
   for (const mode of ['FLOW', 'SLASH', 'LAUNCH']) {
     await page.getByRole('button', { name: mode, exact: true }).click();
     await expect(page.getByRole('button',{name:'Blue',exact:true})).toHaveAttribute('aria-pressed','true');
     if(await page.locator('[aria-label="Development tracking diagnostics"]').count())throw new Error('Production diagnostic overlay');
+    for(const label of ({FLOW:['POINT + MOVE'],SLASH:['SWIPE TO SLASH'],LAUNCH:['POINT + RAPID PUSH','CLOSE HAND','MOVE + RELEASE']})[mode])await expect(page.getByLabel('Interaction guide')).toContainText(label);
     await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();
     const canvas = mode === 'FLOW' ? '#fluid' : mode === 'SLASH' ? '.slash-artwork' : '.launch-artwork canvas';
     await expect(page.locator(canvas)).toBeVisible();
@@ -96,7 +98,7 @@ try {
     await page.screenshot({ path: `.test-artifacts/repair-entry-${size.width}.png` });
   }
   if (errors.length || failed.length) throw new Error(JSON.stringify({ errors, failed }));
-  console.log(JSON.stringify({ target, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0 }));
+  console.log(JSON.stringify({ target, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified' }));
 } finally {
   await browser?.close();
   if (server) await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve()));

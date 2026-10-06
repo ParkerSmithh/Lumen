@@ -7,6 +7,7 @@ import { GlowMode } from './modes/GlowMode';
 import { FlowMode } from './modes/FlowMode';
 import { SlashMode } from './modes/SlashMode';
 import { ModeBoundary } from './ModeBoundary';
+import { InteractionGuide } from './InteractionGuide';
 
 import { TrackingDiagnostics } from './TrackingDiagnostics';
 import { colors } from './colors';
@@ -32,7 +33,11 @@ export default function App() {
   const tracker = mode === 'GLOW' ? tracking : hands;
   const error = camera.error || modeError || (!mouseMode && !preview ? tracker.error : '');
   const { quiet, understood } = useArtworkGuidance({ mode, mouseMode, cameraStatus: camera.status, trackingStatus: tracker.status, error, preview });
+  const [guideInteraction, setGuideInteraction] = useState(null);
+  const guideScope = `${mode}:${mouseMode}:${camera.status}:${preview}`;
+  const interacted = () => { setGuideInteraction(guideScope); understood(); };
   const detected = tracker.status === 'tracking' || tracker.status === 'drawing';
+  const guideQuiet = !error && (quiet || guideInteraction === guideScope || (!mouseMode && ((mode === 'GLOW' && detected) || (mode === 'FLOW' && tracker.status === 'drawing'))));
   let message;
   if (error) message = error;
   else if (preview) message = '';
@@ -50,7 +55,7 @@ export default function App() {
   const boundaryFailed = (message, reload) => { setModeError(message); setReloadNeeded(reload); };
   const selectMode = next => {
     if (next === mode) return;
-    setMode(next); setPreview(false); setMouseMode(false); setModeError(''); setReloadNeeded(false); setSlashHit(false);
+    setMode(next); setPreview(false); setMouseMode(false); setModeError(''); setReloadNeeded(false); setSlashHit(false); setGuideInteraction(null);
   };
   const entry = mode === 'GLOW' && !active && !preview;
   const caption = <div className={entry ? 'entry-caption' : `live-caption ${quiet && !error ? 'quiet' : ''}`} role="status" aria-live="polite">
@@ -64,10 +69,10 @@ export default function App() {
     <div className="mode-stage" key={`${mode}:${renderAttempt}`}>
       <ModeBoundary onFailure={boundaryFailed}>
         {mode === 'GLOW' ? <GlowMode maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
-          : mode === 'FLOW' ? <FlowMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={understood} />
-          : mode === 'SLASH' ? <SlashMode videoRef={camera.videoRef} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onSlash={hit => { if (hit) setSlashHit(true); understood(); }} />
+          : mode === 'FLOW' ? <FlowMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
+          : mode === 'SLASH' ? <SlashMode videoRef={camera.videoRef} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onSlash={hit => { if (hit) setSlashHit(true); interacted(); }} />
           : <Suspense fallback={<div className="mode-loading" aria-live="polite">Preparing matter…</div>}>
-            <LaunchMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={understood} />
+            <LaunchMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
           </Suspense>}
       </ModeBoundary>
     </div>
@@ -78,6 +83,7 @@ export default function App() {
     {entry && <section className="invitation"><h2>Become<br /><em>light.</em></h2><p>Your body becomes light. Your world stays in view.</p><button className="enter" onClick={enter}>{camera.status === 'error' ? 'Try camera again' : 'Enter with camera'}<span aria-hidden="true">↗</span></button>{!error && <p className="privacy">Your camera brings movement into the work.<br />Video stays on your device. GLOW shows your live scene.</p>}<button className="preview-link" onClick={() => setPreview(true)}>Preview light</button>{caption}</section>}
     {!entry && caption}
     {mode === 'GLOW' && preview && <div className="preview-label">Illustrated preview · camera off <button onClick={() => setPreview(false)} aria-label="Close preview">×</button></div>}
+    <InteractionGuide mode={mode} mouseMode={mouseMode} quiet={guideQuiet} />
     <footer><div className="color-picker"><span>EMISSION <b>{color[0]}</b></span><div role="group" aria-label="Light color">{colors.map(entry => <button key={entry[0]} className="color" style={{ '--swatch': entry[1] }} aria-label={entry[0]} aria-pressed={color[0] === entry[0]} onClick={() => setColor(entry)} />)}</div></div>
       {mode !== 'GLOW' && <div className="flow-controls"><span>{mode === 'FLOW' ? 'LIGHT, IN MOTION' : mode === 'SLASH' ? 'DIGITAL MATTER' : 'MATTER, IN MOTION'}</span><button aria-pressed={mouseMode} onClick={() => { setMouseMode(value => !value); setSlashHit(false); }}>{mouseMode ? 'Use camera interaction' : 'Mouse / touch fallback'}</button></div>}
       <div className="camera-controls">{active ? <button onClick={camera.stop}>Stop camera</button> : preview || mode !== 'GLOW' ? <button onClick={enter}>{camera.status === 'error' ? 'Try camera again' : 'Enter with camera'} <span aria-hidden="true">↗</span></button> : <span>CAMERA PROCESSED ON YOUR DEVICE</span>}<button aria-label="Fullscreen" onClick={() => { (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.())?.catch(() => {}); }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" /></svg></button></div>

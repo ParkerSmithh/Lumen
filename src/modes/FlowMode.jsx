@@ -68,7 +68,7 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction}) {
   },[handRef,mouseMode]);
   return <div className={`artwork flow-artwork ${mouseMode?'':'hand-input'}`} ref={hostRef}>
     <SplashCursor pointerRef={pointerRef} onFailure={onFailure} SIM_RESOLUTION={128} DYE_RESOLUTION={512}
-      DENSITY_DISSIPATION={1.8} VELOCITY_DISSIPATION={2} PRESSURE={.1} CURL={3}
+      DENSITY_DISSIPATION={.25} VELOCITY_DISSIPATION={2} PRESSURE={.1} CURL={3}
       SPLAT_RADIUS={.2} SPLAT_FORCE={6000} COLOR_UPDATE_SPEED={10} SHADING RAINBOW_MODE={false} COLOR={color} />
     <canvas ref={lightRef} className="flow-light" aria-hidden="true"/>
   </div>;
