@@ -2,7 +2,7 @@
 
 ## Final settings
 
-SLASH uses `u = clamp(elapsed / 45, 0, 1)` and smoothstep `s = u²(3 − 2u)`. Its spawn interval is `3.0 − 2.3s` seconds, reaching 0.7 seconds at 45 seconds. The first target appears at one second. Population limits are one before five seconds, two before ten seconds, then `min(8, 2 + floor(6s))`. At capacity it waits for cuts or expired targets, without accumulating a spawn queue. Leaving/re-entering creates a fresh scene and resets progression. Object speeds, lifetimes, forgiving recognition, camera-motion fallback, curved paths and swept collision are preserved.
+SLASH uses `u = clamp(elapsed / 35, 0, 1)` and smoothstep `s = u²(3 − 2u)`. Its spawn interval is `2.0 − 1.6s` seconds, reaching 0.4 seconds at 35 seconds. The first target appears at one second. Population limits are one before three seconds, two before seven seconds, then `min(8, 2 + floor(6s))`. At capacity it waits for cuts or expired targets, without accumulating a spawn queue. Leaving/re-entering creates a fresh scene and resets progression. Object speeds, lifetimes, forgiving recognition, camera-motion fallback, curved paths and swept collision are preserved.
 
 FLOW dye dissipation changes from **1.8 to 0.25**. Velocity dissipation stays **2**; tracking, interpolation, splats, color and force are unchanged. The shader retains dye using `dye / (1 + dissipation × dt)`. At 60 Hz, an ideal isolated dye sample falls to 5% in approximately 1.69 seconds before and 12.01 seconds now: an estimated **10.32 additional seconds**. Actual advection and display visibility vary. Browser captures show recognizable broad S/circle shapes at ten seconds, faint at thirteen, while baseline dye is gone by ten. No geometry/history buffer was added. See [measured persistence and SLASH performance](expansion-spawn-flow.md).
 
@@ -10,7 +10,7 @@ LAUNCH uses an **open → closed hand** grab, matching the 6.3167-second supplie
 
 The mapped grab center is the average wrist/index/middle/pinky MCP position, mirrored once. Grab radius is **1.6 world units plus each sphere's radius**, using depth-weighted proximity (`z × 0.35`) to match apparent screen distance. Up to **12 nearest active spheres** can attach; the hidden controller is excluded. Saved 3D offsets move with the group through an exponential response of **36/s**, constrained to the existing walls. Grabbed instances scale to **1.04×** for feedback while retaining creation color. The original solver handles free balls and collisions; controlled balls bypass gravity integration and do not collide with each other while held.
 
-Release uses recent mapped hand motion with a 45 ms velocity response, converted into the existing solver's per-step units. Speed is bounded by the current `maxVelocity`: **0.15**, or **0.075** under reduced motion. Slow release is gentle; fast release throws. Loss releases with zero added throw momentum. Normal physics resumes on release.
+Release uses a 120 ms mapped palm-movement history. Per-segment speeds are bounded before a component-wise median rejects isolated spikes and their return segments. A 1.6× gain makes release momentum noticeable, converted into the existing solver's per-step units. Multi-ball release adds 6% of release speed radially away from the cluster center before the final speed clamp. Speed is bounded by the current `maxVelocity`: **0.15**, or **0.075** under reduced motion. Slow release is gentle; fast release throws. Loss releases with zero added throw momentum. Normal physics resumes on release.
 
 Grab, open-hand presence and release block creation and reset its baseline. Pointing creation additionally requires two other fingertips to remain within **0.65×** the index's wrist distance, distinguishing pointing from open-hand carrying. The full recorded rapid-fire pipeline still produces **17 creations**; the new grabbing recording produces **zero accidental creations**. Its 109/189 detected frames support three safe grab starts and one explicit open-hand release; two carried gestures end in tracking loss. The first demonstrated closure and some later actions cannot be recovered without valid tracking. These figures describe replay, not live acceptance.
 
@@ -23,7 +23,7 @@ Grab, open-hand presence and release block creation and reset its baseline. Poin
 | SLASH | SWIPE TO SLASH | Swipe your hand through objects |
 | LAUNCH | POINT + RAPID PUSH | Fire balls |
 | LAUNCH | CLOSE HAND | Grab nearby balls |
-| LAUNCH | MOVE + RELEASE | Carry and throw |
+| LAUNCH | MOVE + RELEASE | Throw balls |
 
 Custom outline SVGs depict presence, finger movement, flat hand-edge swiping, bidirectional pushing, a closed fist and release. Text remains accessible and persistent. Interaction reduces guide opacity to 0.48; errors restore prominence. Mouse/touch fallback displays accurate pointer guidance instead of promising hand grabbing. There is no added HUD, dependency or instruction panel.
 
@@ -31,7 +31,7 @@ Screenshots and browser layout checks cover **1366×768**, 480×640 and 800×500
 
 ## Verification and limitations
 
-Unit and browser coverage includes progression/reset/cap, recorded pose classification, gesture separation, rejected frames, one/multiple/remote captures, group offsets, bounded fast/gentle release, color retention, held scale feedback, loss cleanup and actual LaunchMode state wiring. The full suites pass **65 unit tests and 38 browser tests**. Production build and `/Lumen/` verification check exact bundle identity, 12 runtime assets, actual model-worker inference, lazy LAUNCH loading, all mode guides, five viewport sizes and no production diagnostics.
+Unit and browser coverage includes progression/reset/cap, recorded pose classification, gesture separation, rejected frames, one/multiple/remote captures, group offsets, bounded fast/gentle release, color retention, held scale feedback, loss cleanup and actual LaunchMode state wiring. The preceding expansion passed **65 unit tests and 38 browser tests** on its original local Edge environment. Current throwing/intensity verification is recorded in [throwing and intensity report](throwing-intensity-report.md). Production build and `/Lumen/` verification check exact bundle identity, 12 runtime assets, actual model-worker inference, lazy LAUNCH loading, all mode guides, five viewport sizes and no production diagnostics.
 
 Local Edge measured eight-target SLASH update/draw median/p95 **0.20/0.30 ms**. The full Ballpit performance run at 150 active spheres measured physics/input p95 about **0.20 ms**; the existing active cap remains **150**. Measurements are from headless desktop runs and do not establish low-end device or real-camera performance.
 

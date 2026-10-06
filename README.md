@@ -8,8 +8,8 @@ An interactive artwork in body, light, and digital matter. The body becomes both
 | --- | --- | --- |
 | 01 - GLOW | Presence | Your full camera scene stays visible while a six-color filter illuminates your body. |
 | 02 - FLOW | Creation | Your index finger releases selected-color light. |
-| 03 - SLASH | Destruction | A deliberate fast hand movement cuts through luminous crystals. |
-| 04 - LAUNCH | Force | Point and push forward to create one colored ball; retract to reset. Slow movement nudges it; a flick applies stronger force. |
+| 03 - SLASH | Destruction | A deliberate fast hand movement cuts through luminous crystals that appear faster over the first 35 seconds. |
+| 04 - LAUNCH | Force | Point and rapidly push to fire colored balls. Close your hand near balls to grab a cluster, move to carry it, then open to throw. Balls retain gravity, collisions and wall bounce; slow movement nudges and flicks apply stronger force. |
 
 ## Enter the work
 
@@ -30,6 +30,8 @@ npm ci
 npm run setup:assets
 npm run dev
 ```
+
+Browser checks default to Edge. Linux/cloud runners can set `LUMEN_BROWSER_EXECUTABLE` to an installed Chromium path; optional `LUMEN_BROWSER_ARGS` is a JSON array of launch arguments. `LUMEN_TEST_TIMEOUT` and `LUMEN_EXPECT_TIMEOUT` can accommodate slower verification machines without changing the defaults. `LUMEN_REFERENCE_CLOCK=1` lets production verification replay gestures at a consistent render cadence on software GPU workers; target-device timing still needs validation. `LUMEN_OFFLINE_FONTS=1` verifies the documented system-font fallback when optional external fonts cannot load in the runner.
 
 Open http://127.0.0.1:5173. Asset setup requires internet; afterward tracking assets are served locally. Fonts load from Google Fonts with system fallbacks. The included portable runtime can also be used through `run-lumen.ps1` where PowerShell script execution is allowed.
 

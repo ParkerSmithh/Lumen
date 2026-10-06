@@ -1,3 +1,4 @@
+import { browserOptions } from './browser-options.mjs';
 import { createServer } from 'vite';
 import { chromium } from '@playwright/test';
 import fs from 'node:fs';
@@ -25,13 +26,13 @@ window.measureRoot=createRoot(host);window.measureRoot.render(React.createElemen
 }] });
 await server.listen();
 const address = server.httpServer.address();
-const browser = await chromium.launch({ channel: 'msedge', headless: true });
+const browser = await chromium.launch({ ...browserOptions, headless: true });
 const page = await browser.newPage({ viewport: { width: 1000, height: 560 } });
 const errors = [];
 page.on('pageerror', error => { errors.push(error.message); console.log(error.message); });
-const results = { environment: 'Headless Edge, 1000x560, local machine, no camera inference; real wall-clock fluid simulation', flow: [], slash: null };
+const results = { environment: 'Headless browser, 1000x560, no camera inference; real wall-clock fluid simulation', flow: [], slash: null };
 const slashOnly = process.argv.includes('--slash-only');
-if (slashOnly) results.flow = JSON.parse(fs.readFileSync(`${output}/measurements.json`)).flow;
+if (slashOnly && fs.existsSync(`${output}/measurements.json`)) results.flow = JSON.parse(fs.readFileSync(`${output}/measurements.json`)).flow;
 const summarize = samples => {
   const sorted = [...samples].sort((a, b) => a - b);
   return { median: sorted[Math.floor(sorted.length / 2)], p95: sorted[Math.floor(sorted.length * .95)] };

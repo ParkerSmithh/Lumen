@@ -520,21 +520,16 @@ class W {
       }
       if (Math.abs(I.x) + radius > t.maxX) {
         I.x = Math.sign(I.x) * (t.maxX - radius);
-        B.x = -B.x * t.wallBounce;
+        B.x = -Math.sign(I.x) * Math.abs(B.x) * t.wallBounce;
       }
-      if (t.gravity === 0) {
-        if (Math.abs(I.y) + radius > t.maxY) {
-          I.y = Math.sign(I.y) * (t.maxY - radius);
-          B.y = -B.y * t.wallBounce;
-        }
-      } else if (I.y - radius < -t.maxY) {
-        I.y = -t.maxY + radius;
-        B.y = -B.y * t.wallBounce;
+      if (Math.abs(I.y) + radius > t.maxY) {
+        I.y = Math.sign(I.y) * (t.maxY - radius);
+        B.y = -Math.sign(I.y) * Math.abs(B.y) * t.wallBounce;
       }
       const maxBoundary = Math.max(t.maxZ, t.maxSize);
       if (Math.abs(I.z) + radius > maxBoundary) {
-        I.z = Math.sign(I.z) * (t.maxZ - radius);
-        B.z = -B.z * t.wallBounce;
+        I.z = Math.sign(I.z) * (maxBoundary - radius);
+        B.z = -Math.sign(I.z) * Math.abs(B.z) * t.wallBounce;
       }
       I.toArray(s, base);
       B.toArray(o, base);
@@ -574,6 +569,9 @@ class Y extends c {
     };
   }
 }
+
+// Expose the existing solver for CPU benchmarks without allocating a WebGL renderer.
+export { W as BallpitPhysics };
 
 const X = {
   count: 200,

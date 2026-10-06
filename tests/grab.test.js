@@ -12,3 +12,23 @@ test('rejected frames cannot close, open, move a held group, or prolong stale co
 
 test('recorded landmark examples distinguish open presence, closed grab and pointing',()=>{const poses=JSON.parse(fs.readFileSync(new URL('./fixtures/gesture-landmarks.json',import.meta.url)));assert.equal(grabFeatures({rawLandmarks:poses.open}).open,true);assert.equal(launchPointFeatures({rawLandmarks:poses.open}).pointing,false);assert.equal(grabFeatures({rawLandmarks:poses.closed}).closed,true);assert.equal(launchPointFeatures({rawLandmarks:poses.closed}).pointing,false);assert.equal(grabFeatures({rawLandmarks:poses.point}).closed,false);assert.equal(launchPointFeatures({rawLandmarks:poses.point}).pointing,true);});
 test('slow release is gentle while fast release remains bounded',()=>{const p=physics(),g=createGrabController();g.begin({x:0,y:0,z:0},p,0);g.move({x:.01,y:0,z:0},33);g.release(p,true);assert.ok(Math.hypot(...p.velocityData.slice(3,6))<.01);g.begin({x:0,y:0,z:0},p,100);g.move({x:3,y:2,z:0},133);g.release(p,true);assert.ok(Math.hypot(...p.velocityData.slice(3,6))>.1);assert.ok(Math.hypot(...p.velocityData.slice(3,6))<=.150001);});
+
+test('recent history rejects an isolated spike and gives a thrown handful shared momentum with spread',()=>{
+ const run=noisy=>{const p=physics(),g=createGrabController();g.begin({x:0,y:0,z:0},p,0);
+ for(let i=1;i<=5;i++)g.move({x:i*.06+(noisy&&i===4?80:0),y:0,z:0},i*25);
+ g.release(p,true);return p;};
+ const clean=run(false),noisy=run(true);
+ assert.ok(Math.abs(clean.velocityData[3]-noisy.velocityData[3])<1e-6);
+ assert.ok(noisy.velocityData[3]>.03);
+ assert.ok(noisy.velocityData[6]>.03);
+ assert.notDeepEqual([...noisy.velocityData.slice(3,6)],[...noisy.velocityData.slice(6,9)]);
+ for(const i of [1,2])assert.ok(Math.hypot(...noisy.velocityData.slice(i*3,i*3+3))<=.150001);
+});
+test('stationary hand loses old momentum and stale movement cannot determine a throw',()=>{
+ const p=physics(),g=createGrabController();g.begin({x:0,y:0,z:0},p,0);
+ g.move({x:1,y:0,z:0},25);
+ for(let i=2;i<=8;i++)g.move({x:1,y:0,z:0},i*25);
+ g.release(p,true);assert.equal(Math.hypot(...p.velocityData.slice(3,6)),0);
+ g.begin({x:0,y:0,z:0},p,300);g.move({x:50,y:0,z:0},600);g.release(p,true);
+ assert.equal(Math.hypot(...p.velocityData.slice(3,6)),0);
+});

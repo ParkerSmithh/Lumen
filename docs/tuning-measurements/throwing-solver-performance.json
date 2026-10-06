@@ -1,0 +1,45 @@
+{
+  "environment": "Chromium, original Ballpit solver at 60 Hz; CPU only, no rendering or real tracking; 30 warmup and 600 measured updates per population",
+  "results": [
+    {
+      "active": 50,
+      "samples": 600,
+      "cpuMs": {
+        "median": 0,
+        "p95": 0.10000000009313226
+      },
+      "finite": true,
+      "maxSpeed": 0.03229876281032117
+    },
+    {
+      "active": 100,
+      "samples": 600,
+      "cpuMs": {
+        "median": 0.10000000009313226,
+        "p95": 0.2999999998137355
+      },
+      "finite": true,
+      "maxSpeed": 0.028934214407212763
+    },
+    {
+      "active": 150,
+      "samples": 600,
+      "cpuMs": {
+        "median": 0.20000000018626451,
+        "p95": 0.3000000002793968
+      },
+      "finite": true,
+      "maxSpeed": 0.030867154636551528
+    },
+    {
+      "active": 200,
+      "samples": 600,
+      "cpuMs": {
+        "median": 0.39999999990686774,
+        "p95": 0.5
+      },
+      "finite": true,
+      "maxSpeed": 0.02910736681380213
+    }
+  ]
+}

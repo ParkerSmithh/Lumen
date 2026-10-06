@@ -1,10 +1,13 @@
+import { installFrameClock } from './frameClock.js';
 import { test,expect } from '@playwright/test';
 test('SLASH activates, fractures with a deliberate drag, and resets',async({page})=>{
+  await installFrameClock(page);
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto('/');await page.getByRole('button',{name:'SLASH',exact:true}).click();
   await expect(page.getByRole('button',{name:'LAUNCH',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Mouse / touch fallback'}).click();
-  await page.waitForTimeout(1300);
+  const started=await page.evaluate(()=>performance.now());
+  await page.waitForFunction(start=>performance.now()-start>=1300,started,{timeout:30000});
   await page.screenshot({path:'.test-artifacts/slash-crystals.png'});
   // The first crystal enters the middle of the contained camera field.
   const {width,height}=page.viewportSize();

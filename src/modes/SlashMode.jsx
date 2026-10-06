@@ -32,7 +32,7 @@ export function SlashMode({handRef,videoRef,color,mouseMode,onSlash,onFailure}) 
       if(event.pointerType==='touch')event.preventDefault();
     };
     const down=event=>{if(!settings.current.mouseMode||event.target.closest?.('button,nav,header,footer'))return;event.preventDefault();pressed=true;detector.reset();move(event);};
-    const visibility=()=>{if(document.hidden)reset();};
+    const visibility=()=>{last=performance.now();if(document.hidden)reset();};
     window.addEventListener('pointerdown',down);window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',reset);window.addEventListener('pointercancel',reset);window.addEventListener('blur',reset);document.addEventListener('visibilitychange',visibility);
     const draw=time=>{
       if(mode!==settings.current.mouseMode){mode=settings.current.mouseMode;reset();}

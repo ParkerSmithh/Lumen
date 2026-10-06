@@ -1,0 +1,28 @@
+{
+  "environment": "headless Chromium, 1000x560, no live tracking; CPU update/draw excludes deferred GPU work",
+  "maximum": 8,
+  "populations": [
+    {
+      "seconds": 10,
+      "count": 3
+    },
+    {
+      "seconds": 20,
+      "count": 5
+    },
+    {
+      "seconds": 30,
+      "count": 7
+    },
+    {
+      "seconds": 40,
+      "count": 8
+    }
+  ],
+  "active": 8,
+  "hits": 8,
+  "cpuMs": {
+    "median": 0.2999999998137355,
+    "p95": 0.7000000001862645
+  }
+}

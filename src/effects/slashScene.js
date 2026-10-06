@@ -62,7 +62,8 @@ export function createSlashScene(ctx) {
     ctx.shadowBlur=0;ctx.fillStyle=object.palette.bright;ctx.globalAlpha*=.7;ctx.beginPath();ctx.arc(0,-object.radius*.13,2,0,Math.PI*2);ctx.fill();ctx.restore();
   }
   function update(dt) {
-    dt=Math.min(.04,Math.max(0,dt));elapsed+=dt;
+    const elapsedStep=Number.isFinite(dt)?Math.max(0,dt):0;
+    elapsed+=elapsedStep;dt=Math.min(.04,elapsedStep);
     const {interval,cap}=slashProgression(elapsed);
     if(elapsed>=nextSpawn&&objects.length<cap){spawn();nextSpawn=elapsed+interval;}
     for(let i=objects.length-1;i>=0;i--){const o=objects[i];o.age+=dt;o.x+=o.vx*dt;o.y+=o.vy*dt;o.angle+=o.rotation*dt;if(o.age>o.life||o.y<field.y-o.radius||o.x<-o.radius||o.x>width+o.radius)objects.splice(i,1);}

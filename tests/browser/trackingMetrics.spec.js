@@ -11,5 +11,5 @@ test('measure shared worker capture-to-result cadence without inference backlog'
  results.push({requested:cadence,...await page.evaluate(()=>window.__lumenTracking.metrics.report())});
  await page.getByRole('button',{name:'Stop camera'}).click();
  }
- fs.writeFileSync('.test-artifacts/repair-tracking-cadence.json',JSON.stringify({environment:'headless Edge, synthetic 640x480 30 fps scene, actual CPU MediaPipe worker, no real hand',results},null,2));console.log(JSON.stringify(results));
+ fs.writeFileSync('.test-artifacts/repair-tracking-cadence.json',JSON.stringify({environment:`headless ${process.env.LUMEN_BROWSER_EXECUTABLE||process.env.LUMEN_BROWSER_CHANNEL||'msedge'}, synthetic 640x480 30 fps scene, actual CPU MediaPipe worker, no real hand`,results},null,2));console.log(JSON.stringify(results));
 });

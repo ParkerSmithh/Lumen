@@ -1,6 +1,8 @@
-# SLASH progression and FLOW persistence
+# Earlier SLASH progression and FLOW persistence
 
-SLASH now eases its spawn interval from 3.0 seconds to 0.7 seconds over 45 seconds using smoothstep. The first target still appears at one second. Active targets are capped at one before five seconds, two through the opening ten seconds, and progressively up to eight. Existing target speeds, lifetimes, crystal rendering, collision geometry, and curved camera sweep stay unchanged. A newly created scene starts the progression again.
+This records the preceding expansion measurements. The current 2.0→0.4-second, 35-second SLASH curve and current verification are in [throwing and intensity tuning](throwing-intensity-report.md). FLOW retains the values measured here.
+
+SLASH previously eases its spawn interval from 3.0 seconds to 0.7 seconds over 45 seconds using smoothstep. The first target still appears at one second. Active targets are capped at one before five seconds, two through the opening ten seconds, and progressively up to eight. Existing target speeds, lifetimes, crystal rendering, collision geometry, and curved camera sweep stay unchanged. A newly created scene starts the progression again.
 
 FLOW uses the existing fluid dye decay with density dissipation **0.25**, down from **1.8**. Velocity dissipation remains **2**. No pointer, tracking, force, separate stroke history, or simulation changes were needed.
 

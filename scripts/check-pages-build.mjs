@@ -1,14 +1,21 @@
-import { chromium, expect } from '@playwright/test';
+import { installFrameClock } from '../tests/browser/frameClock.js';
+import { browserOptions } from './browser-options.mjs';
+import { chromium, expect as baseExpect } from '@playwright/test';
+const expect = baseExpect.configure({ timeout: Number(process.env.LUMEN_EXPECT_TIMEOUT || 5000) });
 import { preview } from 'vite';
 import { readFile } from 'node:fs/promises';
 
+const referenceClock = process.env.LUMEN_REFERENCE_CLOCK === '1';
+const offlineFonts = process.env.LUMEN_OFFLINE_FONTS === '1';
 const target = process.argv[2] || 'http://127.0.0.1:4173/Lumen/';
 if (!new URL(target).pathname.endsWith('/Lumen/')) throw new Error('Verify the production /Lumen/ path.');
 let server, browser;
 try {
   if (!process.argv[2]) server = await preview({ preview: { host: '127.0.0.1', port: 4173, strictPort: true } });
-  browser = await chromium.launch({ channel: 'msedge', headless: true });
+  browser = await chromium.launch({ ...browserOptions, headless: true });
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
+  if (referenceClock) await installFrameClock(page);
+  if (offlineFonts) await page.route('https://fonts.googleapis.com/**', route => route.fulfill({ status: 200, contentType: 'text/css', body: '/* Verify the supported system font fallback. */' }));
   const errors = [], failed = [], requests = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => requests.push(request.url()));
@@ -71,7 +78,10 @@ try {
     await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();
     const canvas = mode === 'FLOW' ? '#fluid' : mode === 'SLASH' ? '.slash-artwork' : '.launch-artwork canvas';
     await expect(page.locator(canvas)).toBeVisible();
-    await page.waitForTimeout(1400);
+    if (mode === 'SLASH' && referenceClock) {
+      const started = await page.evaluate(() => performance.now());
+      await page.waitForFunction(start => performance.now() - start >= 1400, started, { timeout: 60000 });
+    } else await page.waitForTimeout(1400);
     if (mode === 'SLASH') {
       await page.mouse.move(1366 * .3, 768 * .535); await page.mouse.down();
       for (let x = 1366 * .32; x < 1366 * .72; x += 1366 * .025) { await page.mouse.move(x, 768 * .535); await page.waitForTimeout(16); }
@@ -98,7 +108,7 @@ try {
     await page.screenshot({ path: `.test-artifacts/repair-entry-${size.width}.png` });
   }
   if (errors.length || failed.length) throw new Error(JSON.stringify({ errors, failed }));
-  console.log(JSON.stringify({ target, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified' }));
+  console.log(JSON.stringify({ target, referenceClock, offlineFonts, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified' }));
 } finally {
   await browser?.close();
   if (server) await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve()));
