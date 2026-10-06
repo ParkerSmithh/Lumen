@@ -1,8 +1,9 @@
 ﻿import { useEffect, useRef } from 'react';
 import SplashCursor from '../effects/SplashCursor';
 import { fitContain } from '../tracking/utils';
-export function FlowMode({handRef,mouseMode,onFailure}) {
+export function FlowMode({handRef,mouseMode,onFailure,onInteraction}) {
   const hostRef=useRef(null),pointerRef=useRef(null);
+  const interactionRef=useRef(onInteraction);interactionRef.current=onInteraction;
   useEffect(()=>{
     let raf,sequence=0,lastMouse=null;
     pointerRef.current=null;
@@ -12,6 +13,7 @@ export function FlowMode({handRef,mouseMode,onFailure}) {
       const rect=host.getBoundingClientRect(),time=performance.now();
       const x=(event.clientX-rect.left)/rect.width,y=(event.clientY-rect.top)/rect.height;
       const dt=lastMouse?(time-lastMouse.timestamp)/1000:0;
+      if(lastMouse&&Math.hypot(x-lastMouse.x,y-lastMouse.y)>.002)interactionRef.current?.();
       pointerRef.current={active:true,x,y,source:'mouse',sequence:++sequence,timestamp:time,
         reset:!lastMouse||dt>.25,velocityX:dt>0?(x-lastMouse.x)/dt:0,velocityY:dt>0?(y-lastMouse.y)/dt:0};
       lastMouse=pointerRef.current;

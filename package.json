@@ -9,6 +9,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test tests/*.test.js",
     "test:browser": "playwright test",
+    "check:production": "node scripts/check-pages-build.mjs",
     "setup:assets": "node scripts/setup-assets.mjs"
   },
   "engines": {

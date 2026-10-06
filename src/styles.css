@@ -3,3 +3,52 @@
 .flow-artwork{touch-action:none}.flow-artwork.hand-input{cursor:none}.flow-controls>span{display:block;font-size:8px;letter-spacing:.18em;color:#93869e;margin-bottom:12px}.flow-controls button{font-size:11px;color:#c1b3cc;padding:6px 0}.live-caption{transition:opacity .8s}.live-caption.quiet{opacity:0}nav button[aria-current=page]{color:#eeedf3}nav button:not([aria-current]):not(:disabled){color:#a698b2}
 .slash-artwork{touch-action:none}.slash-artwork.hand-input{cursor:none}
 .launch-artwork{touch-action:none}.launch-artwork.hand-input{cursor:none}
+
+/* The shell stays in the viewport; each renderer owns the same full field. */
+html,body,#root{width:100%;height:100%;overflow:hidden}
+main{height:100svh;min-height:0}
+.mode-stage{position:absolute;inset:0;animation:light-emerges 350ms ease-out both}
+@keyframes light-emerges{from{opacity:0}to{opacity:1}}
+.mode-loading{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;color:#c2b4ce;letter-spacing:.04em}
+.invitation .privacy{font-size:10px;line-height:1.6;color:#b5a7c2;margin:18px 0 0}
+.invitation .preview-link{margin-top:14px}
+.entry-caption{font-size:10px;line-height:1.6;color:#c2b4ce;margin:14px auto 0;max-width:90%}
+.entry-caption:empty{display:none}
+.live-caption{transition:opacity 600ms ease-out}
+.live-caption.quiet{pointer-events:none}
+nav button{min-height:32px;transition:color 150ms ease-out}
+nav button:hover,.flow-controls button:hover,.camera-controls button:hover,.preview-link:hover{color:#f3eaff}
+.camera-controls button:last-child{display:grid;place-items:center;min-width:32px;min-height:32px;font-size:inherit}
+::selection{background:#7047b5;color:#fff}
+@media(max-width:1050px) and (min-width:801px){header{left:32px;right:32px}.edition{max-width:140px;font-size:8px}nav{gap:22px}footer{left:32px;right:32px}}
+@media(max-width:480px){
+  header{left:20px;right:20px}.edition{font-size:6px;letter-spacing:.1em}
+  nav{gap:clamp(10px,4vw,22px);width:max-content;max-width:calc(100% - 32px)}
+  nav button{font-size:10px;gap:5px;letter-spacing:.1em}
+  footer{left:20px;right:20px;gap:8px}
+  .color-picker>div{gap:5px}.color{width:22px;height:26px}
+  .color:after{inset:7px 5px}.color[aria-pressed=true]{outline-offset:0}
+  .camera-controls{gap:4px}.camera-controls button{font-size:10px;padding:6px 3px}
+  .camera-controls>button:first-child{max-width:104px;text-align:right}
+  .flow-controls button{font-size:10px}.flow-controls>span{letter-spacing:.12em}
+  .live-caption{max-width:calc(100% - 40px)}
+}
+@media(max-height:600px){
+  header{top:18px;left:24px;right:24px}header p{margin:7px 0}h1{font-size:19px}
+  nav{top:22px}.edition{font-size:7px}
+  footer{bottom:18px;left:24px;right:24px}
+  .live-caption{bottom:86px;font-size:10px}
+  .invitation{top:49%}.invitation h2{font-size:60px;margin:12px 0;line-height:1}
+  .invitation>p:not(.privacy){display:none}
+  .invitation .privacy{font-size:9px;margin-top:10px}
+  .enter{padding:9px 3px}.invitation .preview-link{margin-top:10px}
+  .preview-label{top:90px}
+}
+@media(max-height:600px) and (max-width:800px){
+  header{left:20px;right:20px}nav{top:68px}
+  .invitation{top:51%}.invitation h2{font-size:46px;margin:8px 0}
+  .edition{font-size:6px}.preview-label{top:108px}
+}
+@media(prefers-reduced-motion:reduce){
+  .mode-stage{animation:none}.live-caption,nav button{transition:none}
+}

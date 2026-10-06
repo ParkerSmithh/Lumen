@@ -4,8 +4,8 @@ test('LAUNCH renders, supports fallback, and repeatedly remounts',async({page})=
   page.on('console',message=>{if(message.type()==='error'&&message.text().includes('THREE.'))errors.push(message.text());});
   await page.goto('/');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();
   await expect(page.locator('.launch-artwork canvas')).toBeVisible();
-  await expect(page.getByRole('status')).toContainText('Raise your index finger');
-  await page.getByRole('button',{name:'Mouse fallback'}).click();
+  await expect(page.getByRole('status')).toContainText('Enter with camera');
+  await page.getByRole('button',{name:'Mouse / touch fallback'}).click();
   await page.mouse.move(440,450);await page.waitForTimeout(60);
   for(let x=450;x<650;x+=5){await page.mouse.move(x,450);await page.waitForTimeout(25);}
   await page.screenshot({path:'.test-artifacts/launch-slow.png'});
@@ -19,7 +19,7 @@ test('LAUNCH renders, supports fallback, and repeatedly remounts',async({page})=
 test('LAUNCH WebGL failure leaves navigation and GLOW available',async({page})=>{
   await page.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.includes('webgl')?null:original.call(this,type,...args)};});
   await page.goto('/');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('WebGL');
+  await expect(page.getByRole('status')).toContainText('unavailable');
   await page.getByRole('button',{name:'GLOW',exact:true}).click();await page.getByRole('button',{name:'Preview light'}).click();
   await expect(page.getByText('Illustrated preview · camera off')).toBeVisible();
 });

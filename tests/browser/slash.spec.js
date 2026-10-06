@@ -3,19 +3,20 @@ test('SLASH activates, fractures with a deliberate drag, and resets',async({page
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto('/');await page.getByRole('button',{name:'SLASH',exact:true}).click();
   await expect(page.getByRole('button',{name:'LAUNCH',exact:true})).toBeEnabled();
-  await page.getByRole('button',{name:'Mouse fallback'}).click();
+  await page.getByRole('button',{name:'Mouse / touch fallback'}).click();
   await page.waitForTimeout(1300);
   await page.screenshot({path:'.test-artifacts/slash-crystals.png'});
   // The first crystal enters the middle of the contained camera field.
-  await page.mouse.move(450,485);await page.mouse.down();
-  for(let x=480;x<=980;x+=35){await page.mouse.move(x,485);await page.waitForTimeout(16);}
+  const {width,height}=page.viewportSize();
+  await page.mouse.move(width*.3,height*.535);await page.mouse.down();
+  for(let x=width*.32;x<=width*.72;x+=width*.025){await page.mouse.move(x,height*.535);await page.waitForTimeout(16);}
   await page.screenshot({path:'.test-artifacts/slash-impact.png'});
   await page.mouse.up();
   await expect(page.getByRole('status')).toContainText('Cut registered');
   await page.getByRole('button',{name:'FLOW',exact:true}).click();
   await expect(page.locator('#fluid')).toBeVisible();
   await page.getByRole('button',{name:'SLASH',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('Raise your hand');
+  await expect(page.getByRole('status')).toContainText('Enter with camera');
   await expect(page.locator('video')).toBeHidden();
   expect(errors).toEqual([]);
 });
