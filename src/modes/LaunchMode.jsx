@@ -1,6 +1,7 @@
 import { useEffect,useRef } from 'react';
 import Ballpit from '../effects/Ballpit';
 import { createPushDetector,pushFeatures } from '../tracking/pushDetector';
+import { fitContain } from '../tracking/utils';
 import { mapLaunchPointer } from '../tracking/launchInput';
 
 export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction}) {
@@ -41,7 +42,11 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction}) {
           lastHandSequence=pointer.sequence;
           const gesture=push.update({...pointer,features:pushFeatures(hand)},time);
           if(import.meta.env.DEV)hand.pushDebug=gesture;
-          if(gesture.spawn)pendingCreation={x:pointer.x,y:pointer.y,color:colorRef.current,timestamp:pointer.timestamp,consumed:false};
+          if(gesture.spawn){
+            const rawTip=(hand.rawLandmarks||hand.landmarks)?.[8],rect=fitContain(hand.sourceWidth,hand.sourceHeight,host.clientWidth,host.clientHeight);
+            const x=rawTip?(rect.x+(1-rawTip.x)*rect.width)/host.clientWidth:pointer.x,y=rawTip?(rect.y+rawTip.y*rect.height)/host.clientHeight:pointer.y;
+            pendingCreation={x,y,strength:gesture.strength,color:colorRef.current,timestamp:pointer.timestamp,consumed:false};
+          }
           pointerRef.current={...pointer,creation:pendingCreation,suppressForce:gesture.suppressForce};
         }
       }

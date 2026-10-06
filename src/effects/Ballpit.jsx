@@ -731,7 +731,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     i.camera.getWorldDirection(o.normal);
     if (!n.ray.intersectPlane(o, r) || !Number.isFinite(r.x + r.y + r.z)) { consumed.active = false; s.config.controlSphere0 = false; return; }
     s.physics.center.copy(r);
-    if(creation){creation.consumed=true;spawn(r,creation.color);inputRef.current.onInteraction?.();}
+    if(creation){creation.consumed=true;spawn(r,creation.color,creation.strength);inputRef.current.onInteraction?.();}
     if(raw.suppressForce||creation){r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
     if (result.baseline) {
       r.toArray(s.physics.positionData, 0); lastWorld.copy(r);
@@ -758,14 +758,15 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     }
     if (affected) inputRef.current.onInteraction?.();
   }
-  function spawn(point,color){
+  function spawn(point,color,strength=.5){
     if(!s.config.interactiveCreation)return false;
     const max=Math.min(s.capacity-1,s.config.maxActive||150),slot=1+(created++%max),offset=slot*3;
     const radius=s.physics.sizeData[slot];
     const p=new a(Math.max(-s.config.maxX+radius,Math.min(s.config.maxX-radius,point.x)),Math.max(-s.config.maxY+radius,Math.min(s.config.maxY-radius,point.y)),Math.max(-s.config.maxZ+radius,Math.min(s.config.maxZ-radius,point.z)));
     // Modest depth separation avoids exact coincidence for repeated pushes.
     p.z=Math.max(-s.config.maxZ+radius,Math.min(s.config.maxZ-radius,p.z+(slot%3-1)*radius*.6));
-    p.toArray(s.physics.positionData,offset);new a(0,0,t.reducedMotion?-.015:-.035).toArray(s.physics.velocityData,offset);
+    p.toArray(s.physics.positionData,offset);const launchSpeed=Math.min(s.config.maxVelocity,.10+Math.max(0,Math.min(1,strength))*.045)*(t.reducedMotion?.5:1);
+    new a(0,launchSpeed*.08,-launchSpeed).clampLength(0,s.config.maxVelocity).toArray(s.physics.velocityData,offset);
     s.setColorAt(slot,new l(color));s.instanceColor.needsUpdate=true;
     s.config.activeCount=Math.max(s.config.activeCount,slot+1);s.count=s.config.activeCount;
     U.position.copy(p);U.scale.setScalar(radius);U.updateMatrix();s.setMatrixAt(slot,U.matrix);s.instanceMatrix.needsUpdate=true;

@@ -5,7 +5,7 @@ export function mapLaunchPointer(hand,width,height,now=hand?.timestamp) {
   const point=predictHandPoint(hand,now);if(!point)return null;
   const rect=fitContain(hand.sourceWidth,hand.sourceHeight,width,height);
   return {active:true,x:(rect.x+point.x*rect.width)/width,y:(rect.y+point.y*rect.height)/height,
-    timestamp:hand.timestamp,sequence:hand.sequence,reset:hand.reset,motionRejected:hand.motionRejected,source:'hand',aspect:width/height};
+    timestamp:hand.timestamp,sequence:hand.sequence,reset:hand.reset,motionRejected:hand.motionRejected,resetReason:hand.resetReason,source:'hand',aspect:width/height};
 }
 export function consumeLaunchInput(state,pointer,now) {
   if(!pointer?.active||!Number.isFinite(pointer.x)||!Number.isFinite(pointer.y)||!Number.isFinite(pointer.timestamp)||now-pointer.timestamp>250||pointer.timestamp>now+10){state.active=false;return null;}

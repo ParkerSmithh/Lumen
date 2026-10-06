@@ -65,7 +65,7 @@ export default function App() {
       <ModeBoundary onFailure={boundaryFailed}>
         {mode === 'GLOW' ? <GlowMode maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
           : mode === 'FLOW' ? <FlowMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={understood} />
-          : mode === 'SLASH' ? <SlashMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onSlash={hit => { if (hit) setSlashHit(true); understood(); }} />
+          : mode === 'SLASH' ? <SlashMode videoRef={camera.videoRef} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onSlash={hit => { if (hit) setSlashHit(true); understood(); }} />
           : <Suspense fallback={<div className="mode-loading" aria-live="polite">Preparing matter…</div>}>
             <LaunchMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={understood} />
           </Suspense>}

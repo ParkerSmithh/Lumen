@@ -38,7 +38,7 @@ export function useHandTracking(videoRef,enabled) {
         if(received-data.timestamp>250){metricsRef.current?.record(sample);metricsRef.current?.drop();handRef.current=null;changeStatus('searching');return;}
         const hand=updateHand(handRef.current,data.landmarks,data.timestamp,++sequence);
         metricsRef.current?.record({...sample,detected:hand.handDetected,moving:hand.handDetected&&!hand.motionRejected&&hand.rawSpeed>.2,resetReason:hand.resetReason,motionRejected:hand.motionRejected,filterLag:hand.filterLag,smoothingMs:hand.smoothingMs,rawSpeed:hand.rawSpeed});
-        hand.sourceWidth=data.sourceWidth;hand.sourceHeight=data.sourceHeight;handRef.current=hand;
+        hand.rawLandmarks=data.landmarks;hand.sourceWidth=data.sourceWidth;hand.sourceHeight=data.sourceHeight;handRef.current=hand;
         changeStatus(hand.handDetected ? Math.hypot(hand.velocity.x,hand.velocity.y)>.03?'drawing':'tracking' : 'searching');
       }else if(data.type==='error')fail();
     };

@@ -40,7 +40,7 @@ export function createSlashScene(ctx) {
   function cut(slash) {
     trails.push({...slash,palette,life:.2});if(trails.length>12)trails.shift();
     let hits=0;
-    for(let i=objects.length-1;i>=0;i--)if(sweptHit(slash,objects[i],Math.max(slash.robust?12:8,objects[i].radius*(slash.robust?.3:.18)))){burst(objects[i],slash);objects.splice(i,1);hits++;}
+    for(let i=objects.length-1;i>=0;i--)if(sweptHit(slash,objects[i],Math.max(slash.source==='camera-motion'?24:slash.robust?12:8,objects[i].radius*(slash.source==='camera-motion'?.4:slash.robust?.3:.18)))){burst(objects[i],slash);objects.splice(i,1);hits++;}
     return hits;
   }
   function drawCrystal(object) {
@@ -74,7 +74,7 @@ export function createSlashScene(ctx) {
     for(const fragment of fragments){ctx.save();ctx.globalAlpha=Math.min(1,fragment.life*2);ctx.translate(fragment.x,fragment.y);ctx.rotate(fragment.angle);polygon(ctx,fragment.vertices);ctx.fillStyle=fragment.color;ctx.fill();ctx.strokeStyle=fragment.palette.bright;ctx.lineWidth=1;ctx.shadowColor=fragment.palette.color;ctx.shadowBlur=8;ctx.stroke();ctx.restore();}
     ctx.save();ctx.globalCompositeOperation='lighter';
     for(const flash of flashes){const glow=ctx.createRadialGradient(flash.x,flash.y,0,flash.x,flash.y,flash.radius*2);glow.addColorStop(0,flash.palette.bright+Math.round(flash.life/.14*204).toString(16).padStart(2,'0'));glow.addColorStop(1,flash.palette.color+'00');ctx.fillStyle=glow;ctx.fillRect(flash.x-flash.radius*2,flash.y-flash.radius*2,flash.radius*4,flash.radius*4);}
-    for(const trail of trails){ctx.globalAlpha=Math.pow(trail.life/.2,1.6);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(trail.start.x,trail.start.y);ctx.lineTo(trail.end.x,trail.end.y);ctx.strokeStyle=trail.palette.color;ctx.shadowColor=trail.palette.color;ctx.shadowBlur=14;ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='#f6efff';ctx.lineWidth=1;ctx.stroke();}
+    for(const trail of trails){ctx.globalAlpha=Math.pow(trail.life/.2,1.6);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(trail.start.x,trail.start.y);if(trail.path)trail.path.slice(1).forEach(node=>ctx.lineTo(node.center.x,node.center.y));else ctx.lineTo(trail.end.x,trail.end.y);ctx.strokeStyle=trail.palette.color;ctx.shadowColor=trail.palette.color;ctx.shadowBlur=14;ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='#f6efff';ctx.lineWidth=1;ctx.stroke();}
     ctx.globalAlpha=1;ctx.shadowBlur=5;ctx.shadowColor='#b576ff';
     for(const p of particles)if(p.life>0){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.palette.bright;ctx.shadowColor=p.palette.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}
     ctx.restore();

@@ -1,0 +1,1582 @@
+[
+  {
+    "time": 0,
+    "features": null
+  },
+  {
+    "time": 0.0333,
+    "features": null
+  },
+  {
+    "time": 0.0667,
+    "features": null
+  },
+  {
+    "time": 0.1,
+    "features": null
+  },
+  {
+    "time": 0.1333,
+    "features": null
+  },
+  {
+    "time": 0.1667,
+    "features": null
+  },
+  {
+    "time": 0.2,
+    "features": null
+  },
+  {
+    "time": 0.2333,
+    "features": null
+  },
+  {
+    "time": 0.2667,
+    "features": null
+  },
+  {
+    "time": 0.3,
+    "features": null
+  },
+  {
+    "time": 0.3333,
+    "features": null
+  },
+  {
+    "time": 0.3667,
+    "features": null
+  },
+  {
+    "time": 0.4,
+    "features": null
+  },
+  {
+    "time": 0.4333,
+    "features": null
+  },
+  {
+    "time": 0.4667,
+    "features": null
+  },
+  {
+    "time": 0.5,
+    "features": null
+  },
+  {
+    "time": 0.5333,
+    "features": null
+  },
+  {
+    "time": 0.5667,
+    "features": null
+  },
+  {
+    "time": 0.6,
+    "features": null
+  },
+  {
+    "time": 0.6333,
+    "features": null
+  },
+  {
+    "time": 0.6667,
+    "features": null
+  },
+  {
+    "time": 0.7,
+    "features": null
+  },
+  {
+    "time": 0.7333,
+    "features": null
+  },
+  {
+    "time": 0.7667,
+    "features": null
+  },
+  {
+    "time": 0.8,
+    "features": null
+  },
+  {
+    "time": 0.8333,
+    "features": null
+  },
+  {
+    "time": 0.8667,
+    "features": {
+      "scale": 0.31637943873725016,
+      "depth": -0.30257129669189453,
+      "pointing": true
+    }
+  },
+  {
+    "time": 0.9,
+    "features": {
+      "scale": 0.26592811389358967,
+      "depth": -0.22596310079097748,
+      "pointing": true
+    }
+  },
+  {
+    "time": 0.9333,
+    "features": {
+      "scale": 0.2517706787035465,
+      "depth": -0.16086988896131516,
+      "pointing": true
+    }
+  },
+  {
+    "time": 0.9667,
+    "features": {
+      "scale": 0.23764337931736118,
+      "depth": -0.14273840188980103,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1,
+    "features": {
+      "scale": 0.21171759757967787,
+      "depth": -0.1122165396809578,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.0333,
+    "features": {
+      "scale": 0.20772659927343554,
+      "depth": -0.10198687389492989,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.0667,
+    "features": {
+      "scale": 0.2046482043589844,
+      "depth": -0.09976810216903687,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.1,
+    "features": {
+      "scale": 0.20283620291830287,
+      "depth": -0.09831094369292259,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.1333,
+    "features": {
+      "scale": 0.22253173576196458,
+      "depth": -0.11414198949933052,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.1667,
+    "features": {
+      "scale": 0.2373947313437763,
+      "depth": -0.1396666169166565,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.2,
+    "features": {
+      "scale": 0.2373947313437763,
+      "depth": -0.1396666169166565,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.2333,
+    "features": {
+      "scale": 0.28223457607009145,
+      "depth": -0.2133236676454544,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.2667,
+    "features": {
+      "scale": 0.30045988362647114,
+      "depth": -0.22557221353054047,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.3,
+    "features": {
+      "scale": 0.27497839648597744,
+      "depth": -0.17562226206064224,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.3333,
+    "features": {
+      "scale": 0.27789010635690037,
+      "depth": -0.18190670013427734,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.3667,
+    "features": {
+      "scale": 0.24483714524383898,
+      "depth": -0.14854954183101654,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.4,
+    "features": {
+      "scale": 0.22832991431261662,
+      "depth": -0.1251857429742813,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.4333,
+    "features": {
+      "scale": 0.2195759261970665,
+      "depth": -0.10781539231538773,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.4667,
+    "features": {
+      "scale": 0.2169223696167511,
+      "depth": -0.0974288135766983,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.5,
+    "features": {
+      "scale": 0.20444356213435264,
+      "depth": -0.08274532109498978,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.5333,
+    "features": {
+      "scale": 0.2096274742128219,
+      "depth": -0.08801734820008278,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.5667,
+    "features": {
+      "scale": 0.21404580461115683,
+      "depth": -0.09053464978933334,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.6,
+    "features": {
+      "scale": 0.26912204072720197,
+      "depth": -0.23650716245174408,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.6333,
+    "features": {
+      "scale": 0.2890731074540163,
+      "depth": -0.2765938937664032,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.6667,
+    "features": {
+      "scale": 0.3214450742786243,
+      "depth": -0.2207878828048706,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.7,
+    "features": {
+      "scale": 0.30853959916624063,
+      "depth": -0.3114732801914215,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.7333,
+    "features": {
+      "scale": 0.3134178608902433,
+      "depth": -0.24388165771961212,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.7667,
+    "features": {
+      "scale": 0.2958084532318508,
+      "depth": -0.20685741305351257,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.8,
+    "features": {
+      "scale": 0.2681244539171581,
+      "depth": -0.15777671337127686,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.8333,
+    "features": {
+      "scale": 0.2405516813652605,
+      "depth": -0.13465136289596558,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.8667,
+    "features": {
+      "scale": 0.2166148620908615,
+      "depth": -0.1163814440369606,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.9,
+    "features": {
+      "scale": 0.20445239758893308,
+      "depth": -0.11182296276092529,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.9333,
+    "features": {
+      "scale": 0.21981713034081735,
+      "depth": -0.11630309373140335,
+      "pointing": true
+    }
+  },
+  {
+    "time": 1.9667,
+    "features": {
+      "scale": 0.21402825859020136,
+      "depth": -0.10885682702064514,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2,
+    "features": {
+      "scale": 0.23785876676679507,
+      "depth": -0.1318400427699089,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.0333,
+    "features": {
+      "scale": 0.23450456298925287,
+      "depth": -0.1297602877020836,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.0667,
+    "features": {
+      "scale": 0.27691957431861225,
+      "depth": -0.1802573800086975,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.1,
+    "features": {
+      "scale": 0.29376763111353366,
+      "depth": -0.2587458938360214,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.1333,
+    "features": {
+      "scale": 0.33734819130120497,
+      "depth": -0.27363570034503937,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.1667,
+    "features": {
+      "scale": 0.3396731253477676,
+      "depth": -0.2918898016214371,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.2,
+    "features": {
+      "scale": 0.2970995009874696,
+      "depth": -0.2310117483139038,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.2333,
+    "features": {
+      "scale": 0.27708395685141574,
+      "depth": -0.19235563278198242,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.2667,
+    "features": {
+      "scale": 0.25582340424870653,
+      "depth": -0.15756570547819138,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.3,
+    "features": {
+      "scale": 0.2446755054587441,
+      "depth": -0.13309422135353088,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.3333,
+    "features": {
+      "scale": 0.24683528643805938,
+      "depth": -0.1372232288122177,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.3667,
+    "features": {
+      "scale": 0.23276193236925075,
+      "depth": -0.11955002695322037,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.4,
+    "features": {
+      "scale": 0.23915913264448097,
+      "depth": -0.11969772726297379,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.4333,
+    "features": {
+      "scale": 0.2524234767908931,
+      "depth": -0.13613766431808472,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.4667,
+    "features": {
+      "scale": 0.27177900526777893,
+      "depth": -0.17634129524230957,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.5,
+    "features": {
+      "scale": 0.29703430952101595,
+      "depth": -0.22966569662094116,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.5333,
+    "features": null
+  },
+  {
+    "time": 2.5667,
+    "features": null
+  },
+  {
+    "time": 2.6,
+    "features": null
+  },
+  {
+    "time": 2.6333,
+    "features": null
+  },
+  {
+    "time": 2.6667,
+    "features": null
+  },
+  {
+    "time": 2.7,
+    "features": {
+      "scale": 0.3085309522390104,
+      "depth": -0.3209988623857498,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.7333,
+    "features": {
+      "scale": 0.31019129100907683,
+      "depth": -0.4192141890525818,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.7667,
+    "features": {
+      "scale": 0.21828181056168633,
+      "depth": -0.12970618903636932,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.8,
+    "features": {
+      "scale": 0.1994191724002331,
+      "depth": -0.11617198586463928,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.8333,
+    "features": {
+      "scale": 0.19065437908262847,
+      "depth": -0.11000795662403107,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.8667,
+    "features": {
+      "scale": 0.18621263193822518,
+      "depth": -0.10277088358998299,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.9,
+    "features": {
+      "scale": 0.18951725454167648,
+      "depth": -0.10094183497130871,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.9333,
+    "features": {
+      "scale": 0.19984415406237455,
+      "depth": -0.13210523128509521,
+      "pointing": true
+    }
+  },
+  {
+    "time": 2.9667,
+    "features": {
+      "scale": 0.21282295953336067,
+      "depth": -0.13125337660312653,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3,
+    "features": {
+      "scale": 0.20694219227197752,
+      "depth": -0.18576519191265106,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.0333,
+    "features": {
+      "scale": 0.21081407996906942,
+      "depth": -0.140846885740757,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.0667,
+    "features": {
+      "scale": 0.24982672457497052,
+      "depth": -0.1268036812543869,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.1,
+    "features": {
+      "scale": 0.23220112130044626,
+      "depth": -0.10467931628227234,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.1333,
+    "features": {
+      "scale": 0.2368909457188903,
+      "depth": -0.1761731058359146,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.1667,
+    "features": {
+      "scale": 0.23458148492617886,
+      "depth": -0.15162508189678192,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.2,
+    "features": null
+  },
+  {
+    "time": 3.2333,
+    "features": {
+      "scale": 0.22770559032849882,
+      "depth": -0.10119513794779778,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.2667,
+    "features": {
+      "scale": 0.2069860878330236,
+      "depth": -0.10334143042564392,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.3,
+    "features": {
+      "scale": 0.23059328582169028,
+      "depth": -0.13860712945461273,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.3333,
+    "features": {
+      "scale": 0.23896526211351943,
+      "depth": -0.15160712599754333,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.3667,
+    "features": {
+      "scale": 0.27685600971017676,
+      "depth": -0.1937757134437561,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.4,
+    "features": {
+      "scale": 0.34006589873010007,
+      "depth": -0.20526021718978882,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.4333,
+    "features": {
+      "scale": 0.3678303044869673,
+      "depth": -0.2783394157886505,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.4667,
+    "features": {
+      "scale": 0.35571537736264325,
+      "depth": -0.36915087699890137,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.5,
+    "features": {
+      "scale": 0.2894255663112747,
+      "depth": -0.23398098349571228,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.5333,
+    "features": {
+      "scale": 0.27063564704925264,
+      "depth": -0.20538944005966187,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.5667,
+    "features": {
+      "scale": 0.25698673433444574,
+      "depth": -0.171687051653862,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.6,
+    "features": {
+      "scale": 0.2046768211871584,
+      "depth": -0.11767645552754402,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.6333,
+    "features": {
+      "scale": 0.19921134465395562,
+      "depth": -0.10700332000851631,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.6667,
+    "features": {
+      "scale": 0.1974302530386865,
+      "depth": -0.12308644503355026,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.7,
+    "features": {
+      "scale": 0.24163392246459908,
+      "depth": -0.15344224870204926,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.7333,
+    "features": {
+      "scale": 0.2469527932157886,
+      "depth": -0.15172898769378662,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.7667,
+    "features": {
+      "scale": 0.2840710600199278,
+      "depth": -0.15931088477373123,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.8,
+    "features": {
+      "scale": 0.32177162091154043,
+      "depth": -0.22107569873332977,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.8333,
+    "features": {
+      "scale": 0.3269896022012202,
+      "depth": -0.21908073127269745,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.8667,
+    "features": {
+      "scale": 0.3321889924654151,
+      "depth": -0.22705474495887756,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.9,
+    "features": {
+      "scale": 0.2894176908211011,
+      "depth": -0.1854199543595314,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.9333,
+    "features": {
+      "scale": 0.2934506532591522,
+      "depth": -0.20327197015285492,
+      "pointing": true
+    }
+  },
+  {
+    "time": 3.9667,
+    "features": {
+      "scale": 0.2636805671860358,
+      "depth": -0.1531255692243576,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4,
+    "features": {
+      "scale": 0.23065637291156998,
+      "depth": -0.1261640340089798,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.0333,
+    "features": {
+      "scale": 0.22854533141992472,
+      "depth": -0.1425856128334999,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.0667,
+    "features": {
+      "scale": 0.2200136175302142,
+      "depth": -0.13462258875370026,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.1,
+    "features": {
+      "scale": 0.23496272946482466,
+      "depth": -0.13306043297052383,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.1333,
+    "features": {
+      "scale": 0.2669214127377572,
+      "depth": -0.1460646465420723,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.1667,
+    "features": {
+      "scale": 0.2723207810621547,
+      "depth": -0.16575884819030762,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.2,
+    "features": {
+      "scale": 0.33749171165830366,
+      "depth": -0.2736762464046478,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.2333,
+    "features": {
+      "scale": 0.33718691084818253,
+      "depth": -0.28902900218963623,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.2667,
+    "features": {
+      "scale": 0.30321514319086534,
+      "depth": -0.25025777518749237,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.3,
+    "features": {
+      "scale": 0.23255420375269403,
+      "depth": -0.14292626082897186,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.3333,
+    "features": {
+      "scale": 0.23430757269261704,
+      "depth": -0.14744792878627777,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.3667,
+    "features": {
+      "scale": 0.22436446430535806,
+      "depth": -0.12773068994283676,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.4,
+    "features": {
+      "scale": 0.25570428215652363,
+      "depth": -0.1555626317858696,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.4333,
+    "features": {
+      "scale": 0.2692532534718532,
+      "depth": -0.17605503648519516,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.4667,
+    "features": {
+      "scale": 0.2999682812033284,
+      "depth": -0.2227783501148224,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.5,
+    "features": {
+      "scale": 0.35776719069847535,
+      "depth": -0.30064551532268524,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.5333,
+    "features": {
+      "scale": 0.28639687909245426,
+      "depth": -0.23034444451332092,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.5667,
+    "features": {
+      "scale": 0.2872219614854474,
+      "depth": -0.19117998331785202,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.6,
+    "features": {
+      "scale": 0.2570807608903192,
+      "depth": -0.16395124047994614,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.6333,
+    "features": {
+      "scale": 0.24120767156435685,
+      "depth": -0.15145143866539001,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.6667,
+    "features": {
+      "scale": 0.21831258487359403,
+      "depth": -0.12585309147834778,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.7,
+    "features": {
+      "scale": 0.24533236777586584,
+      "depth": -0.15655269473791122,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.7333,
+    "features": {
+      "scale": 0.2456191707720865,
+      "depth": -0.14618025720119476,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.7667,
+    "features": {
+      "scale": 0.28683391021765553,
+      "depth": -0.22670669853687286,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.8,
+    "features": {
+      "scale": 0.3468279298572157,
+      "depth": -0.2740485370159149,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.8333,
+    "features": {
+      "scale": 0.3362189142028685,
+      "depth": -0.2517344355583191,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.8667,
+    "features": {
+      "scale": 0.2920695320701707,
+      "depth": -0.18592891842126846,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.9,
+    "features": {
+      "scale": 0.2411888281487547,
+      "depth": -0.13325265794992447,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.9333,
+    "features": {
+      "scale": 0.23688331981079364,
+      "depth": -0.12962506711483002,
+      "pointing": true
+    }
+  },
+  {
+    "time": 4.9667,
+    "features": {
+      "scale": 0.2166221097520364,
+      "depth": -0.11820412427186966,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5,
+    "features": {
+      "scale": 0.22616836185857808,
+      "depth": -0.1266811490058899,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.0333,
+    "features": {
+      "scale": 0.2588171068415688,
+      "depth": -0.14181026816368103,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.0667,
+    "features": {
+      "scale": 0.2760026615972256,
+      "depth": -0.1764489859342575,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.1,
+    "features": {
+      "scale": 0.33291381361946526,
+      "depth": -0.23624449968338013,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.1333,
+    "features": {
+      "scale": 0.32361889253127135,
+      "depth": -0.25314031541347504,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.1667,
+    "features": {
+      "scale": 0.27952272978587633,
+      "depth": -0.17508649080991745,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.2,
+    "features": {
+      "scale": 0.235060783276553,
+      "depth": -0.13193652778863907,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.2333,
+    "features": {
+      "scale": 0.2341956515491188,
+      "depth": -0.13492602109909058,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.2667,
+    "features": {
+      "scale": 0.21532427774548607,
+      "depth": -0.1087600439786911,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.3,
+    "features": {
+      "scale": 0.2325440580399854,
+      "depth": -0.12229056656360626,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.3333,
+    "features": {
+      "scale": 0.2406962730021839,
+      "depth": -0.13780295848846436,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.3667,
+    "features": {
+      "scale": 0.2734155320781787,
+      "depth": -0.23513095080852509,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.4,
+    "features": {
+      "scale": 0.3116547006573904,
+      "depth": -0.22689281404018402,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.4333,
+    "features": {
+      "scale": 0.2904167883561125,
+      "depth": -0.2348528355360031,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.4667,
+    "features": {
+      "scale": 0.2771923528983833,
+      "depth": -0.18130403757095337,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.5,
+    "features": {
+      "scale": 0.2362943616297232,
+      "depth": -0.14471279829740524,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.5333,
+    "features": {
+      "scale": 0.22591716906773768,
+      "depth": -0.11792682856321335,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.5667,
+    "features": {
+      "scale": 0.21866276214212738,
+      "depth": -0.12244749069213867,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.6,
+    "features": {
+      "scale": 0.23532847568083734,
+      "depth": -0.12455525994300842,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.6333,
+    "features": {
+      "scale": 0.24935265713535074,
+      "depth": -0.14300885051488876,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.6667,
+    "features": {
+      "scale": 0.2631533798469288,
+      "depth": -0.1562930941581726,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.7,
+    "features": {
+      "scale": 0.289846077775192,
+      "depth": -0.21386133134365082,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.7333,
+    "features": {
+      "scale": 0.29308225614826533,
+      "depth": -0.19741703569889069,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.7667,
+    "features": {
+      "scale": 0.27927256581710697,
+      "depth": -0.16412686556577682,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.8,
+    "features": {
+      "scale": 0.2675368631201123,
+      "depth": -0.15632110089063644,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.8333,
+    "features": {
+      "scale": 0.2463437527633038,
+      "depth": -0.12841352447867393,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.8667,
+    "features": {
+      "scale": 0.21831306562616154,
+      "depth": -0.11530973389744759,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.9,
+    "features": {
+      "scale": 0.23298714964287393,
+      "depth": -0.13668357208371162,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.9333,
+    "features": {
+      "scale": 0.23139880647055627,
+      "depth": -0.14051800221204758,
+      "pointing": true
+    }
+  },
+  {
+    "time": 5.9667,
+    "features": {
+      "scale": 0.26976004264247455,
+      "depth": -0.18899352848529816,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6,
+    "features": {
+      "scale": 0.3079460549927257,
+      "depth": -0.26120316982269287,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.0333,
+    "features": {
+      "scale": 0.3199362279560236,
+      "depth": -0.18238390982151031,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.0667,
+    "features": {
+      "scale": 0.2769898685211692,
+      "depth": -0.14371588826179504,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.1,
+    "features": {
+      "scale": 0.2534260737146191,
+      "depth": -0.14042343944311142,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.1333,
+    "features": {
+      "scale": 0.2322759462460089,
+      "depth": -0.12162307277321815,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.1667,
+    "features": {
+      "scale": 0.22604769716739184,
+      "depth": -0.14047616720199585,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.2,
+    "features": {
+      "scale": 0.23752923572450188,
+      "depth": -0.15441123396158218,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.2333,
+    "features": {
+      "scale": 0.23933883817391194,
+      "depth": -0.16189321875572205,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.2667,
+    "features": {
+      "scale": 0.2892457122020656,
+      "depth": -0.23914766311645508,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.3,
+    "features": {
+      "scale": 0.30029766588765505,
+      "depth": -0.24025608599185944,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.3333,
+    "features": {
+      "scale": 0.3194477387055184,
+      "depth": -0.2521859407424927,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.3667,
+    "features": {
+      "scale": 0.2930323712488238,
+      "depth": -0.2338348925113678,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.4,
+    "features": {
+      "scale": 0.2523341306463983,
+      "depth": -0.15531271696090698,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.4333,
+    "features": {
+      "scale": 0.2046392399539647,
+      "depth": -0.10316821187734604,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.4667,
+    "features": {
+      "scale": 0.19172516815008994,
+      "depth": -0.08816400170326233,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.5,
+    "features": {
+      "scale": 0.21975566836015806,
+      "depth": -0.10914792865514755,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.5333,
+    "features": {
+      "scale": 0.22854260370957752,
+      "depth": -0.10779858008027077,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.5667,
+    "features": {
+      "scale": 0.26814821231174146,
+      "depth": -0.19612282514572144,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.6,
+    "features": {
+      "scale": 0.2799636570701044,
+      "depth": -0.20494985580444336,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.6333,
+    "features": {
+      "scale": 0.27910436196072075,
+      "depth": -0.2031603753566742,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.6667,
+    "features": {
+      "scale": 0.27413682203179157,
+      "depth": -0.18262208253145218,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.7,
+    "features": {
+      "scale": 0.2226865104662048,
+      "depth": -0.1278207004070282,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.7333,
+    "features": {
+      "scale": 0.20386897195285664,
+      "depth": -0.13458950072526932,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.7667,
+    "features": {
+      "scale": 0.20496270363313995,
+      "depth": -0.12949226796627045,
+      "pointing": true
+    }
+  },
+  {
+    "time": 6.8,
+    "features": null
+  },
+  {
+    "time": 6.8333,
+    "features": null
+  },
+  {
+    "time": 6.8667,
+    "features": null
+  },
+  {
+    "time": 6.9,
+    "features": null
+  },
+  {
+    "time": 6.9333,
+    "features": null
+  },
+  {
+    "time": 6.9667,
+    "features": null
+  },
+  {
+    "time": 7,
+    "features": null
+  },
+  {
+    "time": 7.0333,
+    "features": null
+  },
+  {
+    "time": 7.0667,
+    "features": null
+  },
+  {
+    "time": 7.1,
+    "features": null
+  },
+  {
+    "time": 7.1333,
+    "features": null
+  },
+  {
+    "time": 7.1667,
+    "features": null
+  },
+  {
+    "time": 7.2,
+    "features": null
+  },
+  {
+    "time": 7.2333,
+    "features": null
+  },
+  {
+    "time": 7.2667,
+    "features": null
+  },
+  {
+    "time": 7.3,
+    "features": null
+  },
+  {
+    "time": 7.3333,
+    "features": null
+  },
+  {
+    "time": 7.3667,
+    "features": null
+  },
+  {
+    "time": 7.4,
+    "features": null
+  }
+]
