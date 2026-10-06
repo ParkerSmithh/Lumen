@@ -1,0 +1,10 @@
+import { mkdir, cp, writeFile } from 'node:fs/promises';
+const root = new URL('../', import.meta.url);
+await mkdir(new URL('public/models/', root), { recursive: true });
+await cp(new URL('node_modules/@mediapipe/tasks-vision/wasm/', root), new URL('public/vision/', root), { recursive: true });
+await cp(new URL('node_modules/@mediapipe/tasks-vision/vision_bundle.js', root), new URL('public/vision/vision_bundle.js', root));
+const url = 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite';
+const response = await fetch(url);
+if (!response.ok) throw new Error(`Model download failed (${response.status}). Retry npm run setup:assets with internet access.`);
+await writeFile(new URL('public/models/selfie_segmenter.tflite', root), new Uint8Array(await response.arrayBuffer()));
+console.log('Local segmentation model and WASM assets ready.');
