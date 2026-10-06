@@ -1,6 +1,6 @@
-# LUMEN — Physical Interaction Tuning Pass
+# LUMEN ï¿½ Physical Interaction Tuning Pass
 
-Date: 2026-10-06. Status: local engineering verification passed; new physical acceptance remains pending. The project is unfrozen.
+Date: 2026-10-06. Status: engineering and published Pages verification passed; new physical acceptance remains pending. The project is unfrozen.
 
 ## Physical evidence and diagnosis
 
@@ -33,11 +33,11 @@ The room is still drawn from the original camera; no global tint, black backgrou
 - Keep a bounded five-sample motion history and a bounded velocity vector. Applied mode forces remain independently capped.
 - Add short prediction to compensate for result age: at most 45 ms and 0.04 normalized displacement. Presence expires at the existing common 250 ms threshold; prediction does not prematurely reset accepted tracking.
 
-MediaPipe confidence, ideal 640×480 camera settings, 30 Hz submission target, frame freshness, single inference in flight and worker ownership are unchanged. No inference queue or detector replacement.
+MediaPipe confidence, ideal 640ï¿½480 camera settings, 30 Hz submission target, frame freshness, single inference in flight and worker ownership are unchanged. No inference queue or detector replacement.
 
 ### FLOW
 
-Retains SplashCursor and its existing bounded interpolation. Accepted long segments keep their geometry; force remains capped at 0.08 displacement and total ink is divided across interpolated points. Ink energy now scales within a bounded 1–4 range according to movement, with brighter selected-color injection and density dissipation reduced from 3.5 to 1.8.
+Retains SplashCursor and its existing bounded interpolation. Accepted long segments keep their geometry; force remains capped at 0.08 displacement and total ink is divided across interpolated points. Ink energy now scales within a bounded 1ï¿½4 range according to movement, with brighter selected-color injection and density dissipation reduced from 3.5 to 1.8.
 
 A short selected-color light filament and luminous source make the newest accepted position visible immediately, even while fluid advects. This is a transparent Canvas layer updated within the existing mode RAF; it adds no animation loop, tracking worker or input backlog. It fades after 170 ms, uses bounded prediction, resets on reacquisition, and is disposed with the mode. It is artistic light, with no conventional cursor/crosshair.
 
@@ -69,7 +69,7 @@ Generated sinusoidal landmark replay at 30 Hz:
 
 See [before](tuning-measurements/tuning-motion-before.json) and [after](tuning-measurements/tuning-motion-after.json). A separate fast-step regression demonstrates the old 0.25 reset incorrectly rejecting coordinated 0.3 travel. The replay is generated input, not a real moving hand, and does not measure camera or model latency.
 
-Actual CPU MediaPipe worker on a synthetic 640×480 camera scene with no hand:
+Actual CPU MediaPipe worker on a synthetic 640ï¿½480 camera scene with no hand:
 
 | Target | Effective result Hz | Median capture-to-result age | p95 age |
 | --- | ---: | ---: | ---: |
@@ -91,7 +91,7 @@ GLOW has additional mask sampling; FLOW adds a short Canvas drawing layer and br
 - Local `/Lumen/` production check passed: matching entry hash, 12 assets, both real workers, deferred LAUNCH chunk, shared selected color, responsive controls across all modes/five viewport sizes, zero console errors and no production diagnostics.
 - Read-only review found two important issues (pose uncertainty rearming creation and prediction expiry invalidating fresh samples). Failing safety regressions reproduced both; fixes and focused reviewer verification passed. A separate closure timer resolves the additional one-sample reset concern.
 
-Published deployment verification is reported after the existing Pages workflow runs. New physical acceptance remains pending, regardless of these automated results.
+Tuning commit `f9573ee1f238aeb9810d7d985ec4bda398bdd2af` deployed successfully through [the existing Pages workflow](https://github.com/ParkerSmithh/Lumen/actions/runs/37481192765). The checker passed against the actual published `https://parkersmithh.github.io/Lumen/`: matching local entry hash, all 12 assets, real segmentation/hand workers, lazy LAUNCH, shared color, five-size responsive controls, zero console errors and no production diagnostics. New physical acceptance remains pending, regardless of these automated results.
 
 ## Physical retest
 
@@ -104,3 +104,36 @@ Use the new published build for the artwork. For motion diagnosis, run the devel
 5. Copy the development motion report during movement. Record browser/device, camera distance, result/movement Hz, result age, filter lag, spikes and reset counts. Change one variable at a time for further tuning.
 
 This agent performed no new real-person test. The user's earlier hands-on failure is acknowledged as physical evidence; generated landmarks, mouse events, synthetic video and automated checks are engineering validation only. Missing landmarks during real motion, camera exposure/blur and prediction overshoot require the next physical session. Do not freeze the project until that session passes.
+
+## Exact changed files
+
+- `README.md`
+- `docs/physical-tuning-report.md`
+- `docs/tuning-measurements/repair-launch-performance.json`
+- `docs/tuning-measurements/repair-tracking-cadence.json`
+- `docs/tuning-measurements/tuning-motion-after.json`
+- `docs/tuning-measurements/tuning-motion-before.json`
+- `src/TrackingDiagnostics.jsx`
+- `src/effects/Ballpit.jsx`
+- `src/effects/SplashCursor.jsx`
+- `src/effects/glowRenderer.js`
+- `src/effects/slashScene.js`
+- `src/hooks/useHandTracking.js`
+- `src/modes/FlowMode.jsx`
+- `src/modes/LaunchMode.jsx`
+- `src/modes/SlashMode.jsx`
+- `src/styles.css`
+- `src/tracking/handPointer.js`
+- `src/tracking/launchInput.js`
+- `src/tracking/metrics.js`
+- `src/tracking/pushDetector.js`
+- `src/tracking/slashDetector.js`
+- `tests/browser/glowLuminosity.spec.js`
+- `tests/browser/movementTuning.spec.js`
+- `tests/launchTuning.test.js`
+- `tests/launchTuningSafety.test.js`
+- `tests/metricsLifecycle.test.js`
+- `tests/motionMetrics.test.js`
+- `tests/motionPrediction.test.js`
+- `tests/motionTuning.test.js`
+- `tests/slashTuning.test.js`
