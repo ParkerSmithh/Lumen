@@ -3,7 +3,7 @@ test('GLOW shell, colors and responsive preview', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'LUMEN' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'FLOW — coming later' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'FLOW', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Preview light' }).click();
   await expect(page.getByText('Illustrated preview · camera off')).toBeVisible();
   for (const color of ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple']) {

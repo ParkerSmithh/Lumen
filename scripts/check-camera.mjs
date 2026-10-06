@@ -14,6 +14,16 @@ try {
     await page.waitForTimeout(1500);
     console.log('Tracking:', await page.getByRole('status').innerText());
     await page.screenshot({ path: '.test-artifacts/real-camera-artwork.png' });
+    await page.getByRole('button',{name:'FLOW',exact:true}).click();
+    await page.waitForFunction(()=>/Raise your index finger|Move to create|Hand tracking is unavailable/.test(document.querySelector('[role=status]').textContent),{timeout:30000});
+    let handDetected=false;
+    for(let i=0;i<20;i++) {
+      if(/Move to create/.test(await page.getByRole('status').innerText()))handDetected=true;
+      await page.waitForTimeout(250);
+    }
+    console.log('FLOW:',await page.getByRole('status').innerText(),'Real hand detected:',handDetected);
+    await page.screenshot({path:'.test-artifacts/real-camera-flow.png'});
+    await page.getByRole('button',{name:'GLOW',exact:true}).click();
     await page.getByRole('button', { name: 'Stop camera' }).click();
     console.log('Stream released:', await page.locator('video').evaluate(video => video.srcObject === null));
   }

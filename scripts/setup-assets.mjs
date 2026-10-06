@@ -8,3 +8,7 @@ const response = await fetch(url);
 if (!response.ok) throw new Error(`Model download failed (${response.status}). Retry npm run setup:assets with internet access.`);
 await writeFile(new URL('public/models/selfie_segmenter.tflite', root), new Uint8Array(await response.arrayBuffer()));
 console.log('Local segmentation model and WASM assets ready.');
+const handResponse=await fetch('https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task');
+if(!handResponse.ok)throw new Error(`Hand model download failed (${handResponse.status}). Retry npm run setup:assets.`);
+await writeFile(new URL('public/models/hand_landmarker.task',root),new Uint8Array(await handResponse.arrayBuffer()));
+console.log('Local hand tracking model ready.');
