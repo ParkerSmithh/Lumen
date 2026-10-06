@@ -6,7 +6,7 @@ test('LAUNCH renders, supports fallback, and repeatedly remounts',async({page})=
   await expect(page.locator('.launch-artwork canvas')).toBeVisible();
   await expect(page.getByRole('status')).toContainText('Enter with camera');
   await page.getByRole('button',{name:'Mouse / touch fallback'}).click();
-  await page.mouse.move(440,450);await page.waitForTimeout(60);
+  await page.mouse.click(440,450);await page.mouse.move(440,450);await page.waitForTimeout(60);
   for(let x=450;x<650;x+=5){await page.mouse.move(x,450);await page.waitForTimeout(25);}
   await page.screenshot({path:'.test-artifacts/launch-slow.png'});
   for(let x=650;x<1000;x+=45){await page.mouse.move(x,450);await page.waitForTimeout(20);}

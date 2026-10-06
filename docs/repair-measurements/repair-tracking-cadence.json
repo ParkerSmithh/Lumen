@@ -1,0 +1,86 @@
+{
+  "environment": "headless Edge, synthetic 640x480 30 fps scene, actual CPU MediaPipe worker, no real hand",
+  "results": [
+    {
+      "requested": "20",
+      "samples": 53,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 19.824628288219596,
+      "captureMs": {
+        "median": 0.39999985694885254,
+        "p95": 0.5
+      },
+      "inferenceMs": {
+        "median": 16.90000009536743,
+        "p95": 19.100000143051147
+      },
+      "roundTripMs": {
+        "median": 17,
+        "p95": 19.399999856948853
+      },
+      "ageMs": {
+        "median": 17.49999985694876,
+        "p95": 19.899999856948853
+      }
+    },
+    {
+      "requested": "30",
+      "samples": 74,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 27.927617734931182,
+      "captureMs": {
+        "median": 0.2999999523162842,
+        "p95": 0.40000009536743164
+      },
+      "inferenceMs": {
+        "median": 16.40000009536743,
+        "p95": 17.700000047683716
+      },
+      "roundTripMs": {
+        "median": 16.59999990463257,
+        "p95": 17.799999952316284
+      },
+      "ageMs": {
+        "median": 16.99999990463266,
+        "p95": 18.299999952316284
+      }
+    },
+    {
+      "requested": "max",
+      "samples": 51,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 30.77491229059675,
+      "captureMs": {
+        "median": 0.2999999523162842,
+        "p95": 0.40000009536743164
+      },
+      "inferenceMs": {
+        "median": 17,
+        "p95": 18.09999990463257
+      },
+      "roundTripMs": {
+        "median": 17.09999990463257,
+        "p95": 18.299999952316284
+      },
+      "ageMs": {
+        "median": 17.59999995231624,
+        "p95": 18.80000000000001
+      }
+    }
+  ]
+}

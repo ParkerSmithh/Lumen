@@ -3,8 +3,8 @@ import { createSlashDetector,handEdge } from '../tracking/slashDetector';
 import { fitContain } from '../tracking/utils';
 import { createSlashScene } from '../effects/slashScene';
 
-export function SlashMode({handRef,mouseMode,onSlash,onFailure}) {
-  const canvasRef=useRef(null),settings=useRef({mouseMode,onSlash,onFailure});settings.current={mouseMode,onSlash,onFailure};
+export function SlashMode({handRef,color,mouseMode,onSlash,onFailure}) {
+  const canvasRef=useRef(null),settings=useRef({mouseMode,color,onSlash,onFailure});settings.current={mouseMode,color,onSlash,onFailure};
   useEffect(()=>{
     const canvas=canvasRef.current,ctx=canvas.getContext('2d');
     if(!ctx){settings.current.onFailure('SLASH needs Canvas rendering. Try another browser.');return;}
@@ -42,8 +42,9 @@ export function SlashMode({handRef,mouseMode,onSlash,onFailure}) {
         sample=handEdge(hand);
         if(hand?.sourceWidth&&sourceAspect!==hand.sourceWidth/hand.sourceHeight){sourceAspect=hand.sourceWidth/hand.sourceHeight;resize();}
       }
-      scene.update(dt);
+      scene.setColor(settings.current.color);scene.update(dt);
       const slash=detector.update(sample,time);
+      if(hand)hand.slashDebug={speed:Math.hypot(hand.palmVelocity?.x||0,hand.palmVelocity?.y||0),threshold:.9,qualified:!!slash};
       if(slash){
         // Tracking occupies the whole contained camera frame; it is never stretched.
         const mapping=mode?{x:0,y:0,width,height}:fitContain(sourceAspect,1,width,height);

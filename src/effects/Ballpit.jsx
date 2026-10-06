@@ -438,7 +438,7 @@ class W {
   #R() {
     const { config: e, positionData: t } = this;
     this.center.toArray(t, 0);
-    for (let i = 1; i < e.count; i++) {
+    for (let i = 1; i < (e.activeCount ?? e.count); i++) {
       const s = 3 * i;
       t[s] = E(2 * e.maxX);
       t[s + 1] = E(2 * e.maxY);
@@ -462,7 +462,7 @@ class W {
       F.fromArray(s, 0);
       V.set(0, 0, 0).toArray(o, 0);
     }
-    for (let idx = r; idx < t.count; idx++) {
+    for (let idx = r; idx < (t.activeCount ?? t.count); idx++) {
       const base = 3 * idx;
       I.fromArray(s, base);
       B.fromArray(o, base);
@@ -473,18 +473,19 @@ class W {
       I.toArray(s, base);
       B.toArray(o, base);
     }
-    for (let idx = r; idx < t.count; idx++) {
+    for (let idx = r; idx < (t.activeCount ?? t.count); idx++) {
       const base = 3 * idx;
       I.fromArray(s, base);
       B.fromArray(o, base);
       const radius = n[idx];
-      for (let jdx = idx + 1; jdx < t.count; jdx++) {
+      for (let jdx = idx + 1; jdx < (t.activeCount ?? t.count); jdx++) {
         const otherBase = 3 * jdx;
         O.fromArray(s, otherBase);
         N.fromArray(o, otherBase);
         const otherRadius = n[jdx];
         _.copy(O).sub(I);
-        const dist = _.length();
+        let dist = _.length();
+        if(dist<1e-6){_.set((idx+jdx)%2?1:-1,0,0);dist=1e-6;}
         const sumRadius = radius + otherRadius;
         if (dist < sumRadius) {
           const overlap = sumRadius - dist;
@@ -536,7 +537,7 @@ class W {
       I.toArray(s, base);
       B.toArray(o, base);
     }
-    for (let idx = 1; idx < t.count; idx++) {
+    for (let idx = 1; idx < (t.activeCount ?? t.count); idx++) {
       B.fromArray(o, idx * 3).clampLength(0, t.maxVelocity).toArray(o, idx * 3);
     }
   }
@@ -603,6 +604,7 @@ const U = new m();
 class Z extends d {
   constructor(e, t = {}) {
     const i = { ...X, ...t };
+    i.activeCount=i.interactiveCreation?1:i.count;
     const room = new z();
     const generator = new p(e);
     let target;
@@ -614,6 +616,7 @@ class Z extends d {
     r.envMapRotation.x = -Math.PI / 2;
     super(o, r, i.count);
     this.environmentTarget = target;
+    this.capacity=i.count;this.count=i.activeCount;this.frustumCulled=false;
     this.config = i;
     this.physics = new W(i);
     this.#S();
@@ -625,6 +628,7 @@ class Z extends d {
     this.light = new u(this.config.colors[0], this.config.lightIntensity);
     this.add(this.light);
   }
+  get activeCount(){return this.config.activeCount-1;}
   setColors(e) {
     if (Array.isArray(e) && e.length > 1) {
       const t = (function (e) {
@@ -653,10 +657,10 @@ class Z extends d {
           }
         };
       })(e);
-      for (let idx = 0; idx < this.count; idx++) {
-        this.setColorAt(idx, t.getColorAt(idx / this.count));
+      for (let idx = 0; idx < this.capacity; idx++) {
+        this.setColorAt(idx, t.getColorAt(idx / this.capacity));
         if (idx === 0) {
-          this.light.color.copy(t.getColorAt(idx / this.count));
+          this.light.color.copy(t.getColorAt(idx / this.capacity));
         }
       }
       this.instanceColor.needsUpdate = true;
@@ -697,7 +701,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   const n = new y();
   const o = new w(new a(0, 0, 1), 0);
   const r = new a();
-  let c = false;
+  let c = false,created=0;
 
   e.style.touchAction = 'none';
   e.style.userSelect = 'none';
@@ -718,12 +722,17 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     const raw = inputRef.current.pointerRef?.current;
     const result = consumeLaunchInput(consumed, raw, performance.now());
     if (!consumed.active || document.hidden) { s.config.controlSphere0 = false; return; }
-    if (!result) return; // Stable following continues; a velocity sample never repeats.
-    ndc.set(result.x * 2 - 1, 1 - result.y * 2);
+    const creation=raw.creation&&!raw.creation.consumed?raw.creation:null;
+    if(creation&&performance.now()-creation.timestamp>250){creation.consumed=true;return;}
+    if(!result&&!creation)return;
+    const point=creation||result;
+    ndc.set(point.x*2-1,1-point.y*2);
     n.setFromCamera(ndc, i.camera);
     i.camera.getWorldDirection(o.normal);
     if (!n.ray.intersectPlane(o, r) || !Number.isFinite(r.x + r.y + r.z)) { consumed.active = false; s.config.controlSphere0 = false; return; }
     s.physics.center.copy(r);
+    if(creation){creation.consumed=true;spawn(r,creation.color);inputRef.current.onInteraction?.();}
+    if(raw.suppressForce||creation){r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
     if (result.baseline) {
       r.toArray(s.physics.positionData, 0); lastWorld.copy(r);
       s.config.controlSphere0 = false; return;
@@ -735,7 +744,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     if (result.strength <= 0) return;
     const radius = Math.max(1.8, s.config.size0 * 2.5);
     let affected = 0;
-    for (let idx = 1; idx < s.config.count; idx++) {
+    for (let idx = 1; idx < s.config.activeCount; idx++) {
       const offset = idx * 3;
       position.fromArray(s.physics.positionData, offset);
       radial.copy(position).sub(r);
@@ -748,6 +757,19 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
       affected++;
     }
     if (affected) inputRef.current.onInteraction?.();
+  }
+  function spawn(point,color){
+    if(!s.config.interactiveCreation)return false;
+    const max=Math.min(s.capacity-1,s.config.maxActive||150),slot=1+(created++%max),offset=slot*3;
+    const radius=s.physics.sizeData[slot];
+    const p=new a(Math.max(-s.config.maxX+radius,Math.min(s.config.maxX-radius,point.x)),Math.max(-s.config.maxY+radius,Math.min(s.config.maxY-radius,point.y)),Math.max(-s.config.maxZ+radius,Math.min(s.config.maxZ-radius,point.z)));
+    // Modest depth separation avoids exact coincidence for repeated pushes.
+    p.z=Math.max(-s.config.maxZ+radius,Math.min(s.config.maxZ-radius,p.z+(slot%3-1)*radius*.6));
+    p.toArray(s.physics.positionData,offset);new a(0,0,t.reducedMotion?-.015:-.035).toArray(s.physics.velocityData,offset);
+    s.setColorAt(slot,new l(color));s.instanceColor.needsUpdate=true;
+    s.config.activeCount=Math.max(s.config.activeCount,slot+1);s.count=s.config.activeCount;
+    U.position.copy(p);U.scale.setScalar(radius);U.updateMatrix();s.setMatrixAt(slot,U.matrix);s.instanceMatrix.needsUpdate=true;
+    return true;
   }
   function initialize(e) {
     if (s) {
@@ -774,6 +796,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   };
   return {
     three: i,
+    spawn,
     get spheres() {
       return s;
     },
@@ -806,10 +829,10 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   };
 }
 
-const Ballpit = ({ className = '', pointerRef, onFailure, onInteraction, followCursor = false, ...props }) => {
+const Ballpit = ({ className = '', pointerRef, onFailure, onInteraction, creationColor, followCursor = false, ...props }) => {
   const hostRef = useRef(null);
-  const inputRef = useRef({ pointerRef, onFailure, onInteraction });
-  inputRef.current = { pointerRef, onFailure, onInteraction };
+  const inputRef = useRef({ pointerRef, onFailure, onInteraction, creationColor });
+  inputRef.current = { pointerRef, onFailure, onInteraction, creationColor };
   useEffect(() => {
     const host = hostRef.current;
     const canvas = document.createElement('canvas');

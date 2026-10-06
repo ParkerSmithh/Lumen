@@ -1,7 +1,7 @@
 ﻿import { useEffect, useRef } from 'react';
 import SplashCursor from '../effects/SplashCursor';
 import { fitContain } from '../tracking/utils';
-export function FlowMode({handRef,mouseMode,onFailure,onInteraction}) {
+export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction}) {
   const hostRef=useRef(null),pointerRef=useRef(null);
   const interactionRef=useRef(onInteraction);interactionRef.current=onInteraction;
   useEffect(()=>{
@@ -40,6 +40,6 @@ export function FlowMode({handRef,mouseMode,onFailure,onInteraction}) {
   return <div className={`artwork flow-artwork ${mouseMode?'':'hand-input'}`} ref={hostRef}>
     <SplashCursor pointerRef={pointerRef} onFailure={onFailure} SIM_RESOLUTION={128} DYE_RESOLUTION={512}
       DENSITY_DISSIPATION={3.5} VELOCITY_DISSIPATION={2} PRESSURE={.1} CURL={3}
-      SPLAT_RADIUS={.2} SPLAT_FORCE={6000} COLOR_UPDATE_SPEED={10} SHADING RAINBOW_MODE={false} COLOR="#A855F7" />
+      SPLAT_RADIUS={.2} SPLAT_FORCE={6000} COLOR_UPDATE_SPEED={10} SHADING RAINBOW_MODE={false} COLOR={color} />
   </div>;
 }

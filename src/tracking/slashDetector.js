@@ -6,9 +6,14 @@ const mirror=point=>({x:clamp(1-point.x),y:clamp(point.y)});
 export function handEdge(hand) {
   if(!hand?.handDetected)return null;
   const points=[hand.landmarks?.[5],hand.landmarks?.[9],hand.landmarks?.[17]];
-  if(!finite(hand.wrist)||!points.every(finite))return null;
+  if(!finite(hand.wrist)||!points.every(finite)){
+    if(!finite(hand.palm))return null;
+    const v=hand.palmVelocity||hand.velocity||{x:0,y:0},length=Math.hypot(v.x,v.y)||1;
+    const normal={x:-v.y/length,y:v.x/length},radius=.045;
+    return {active:true,center:hand.palm,edge:[{x:hand.palm.x+normal.x*radius,y:hand.palm.y+normal.y*radius},{x:hand.palm.x-normal.x*radius,y:hand.palm.y-normal.y*radius}],aspect:hand.sourceWidth/hand.sourceHeight||1,timestamp:hand.timestamp,sequence:hand.sequence,reset:hand.reset,source:'hand'};
+  }
   const [index,middle,pinky]=points.map(mirror),wrist=hand.wrist;
-  return {active:true,center:{x:(wrist.x+index.x+middle.x+pinky.x)/4,y:(wrist.y+index.y+middle.y+pinky.y)/4},
+  return {active:true,center:hand.palm||{x:(wrist.x+index.x+middle.x+pinky.x)/4,y:(wrist.y+index.y+middle.y+pinky.y)/4},
     edge:[{...wrist},pinky],aspect:hand.sourceWidth/hand.sourceHeight||1,
     timestamp:hand.timestamp,sequence:hand.sequence,reset:hand.reset,source:'hand'};
 }

@@ -13,14 +13,17 @@ function previewMask() {
   const pixels = ctx.getImageData(0,0,320,400).data;
   return { width: 320, height: 400, sourceWidth: 640, sourceHeight: 800, values: Float32Array.from({ length: 320*400 }, (_,i) => pixels[i*4+3]/255), timestamp: Infinity };
 }
-export function GlowMode({ maskRef, color, preview }) {
-  const hostRef = useRef(null); const settings = useRef({ color, preview }); settings.current = { color, preview };
+export function GlowMode({ maskRef, videoRef, cameraReady, color, preview }) {
+  const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady }); settings.current = { color, preview, cameraReady };
   useEffect(() => {
     const host = hostRef.current;
     let canvas, renderer, raf, previousMask, opacity = 0;
     const illustrated = previewMask();
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const resize = () => {
+      const video=videoRef?.current,aspect=video?.videoWidth/video?.videoHeight||4/3;
+      const box=host.parentElement.getBoundingClientRect(),width=Math.min(box.width,box.height*aspect);
+      host.style.width=width+'px';host.style.height=width/aspect+'px';
       const scale = Math.min(devicePixelRatio, 1.5, 1280 / host.clientWidth, 900 / host.clientHeight);
       renderer.resize(Math.round(host.clientWidth * scale), Math.round(host.clientHeight * scale));
     };
@@ -33,18 +36,21 @@ export function GlowMode({ maskRef, color, preview }) {
       canvas.addEventListener('webglcontextlost', lost); resize();
     };
     mount(false);
-    const observer = new ResizeObserver(resize); observer.observe(host);
+    const observer = new ResizeObserver(resize); observer.observe(host.parentElement);
+    let aspect=0;
     const draw = time => {
+      const video=videoRef?.current;
+      if(video?.videoWidth&&aspect!==video.videoWidth/video.videoHeight){aspect=video.videoWidth/video.videoHeight;resize();}
       const live = maskRef.current;
       const fresh = live && time - live.timestamp < 500;
       const mask = settings.current.preview ? illustrated : fresh ? live : null;
       if (mask) previousMask = mask;
       opacity += ((mask ? 1 : 0) - opacity) * .12;
-      renderer.draw({ mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
+      renderer.draw({ video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
     return () => { cancelAnimationFrame(raf); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
-  }, [maskRef]);
-  return <div className="artwork" ref={hostRef} />;
+  }, [maskRef, videoRef]);
+  return <div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>;
 }

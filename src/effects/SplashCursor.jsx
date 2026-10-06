@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { interpolateStroke } from '../tracking/flowStroke';
 import { consumePointer } from '../tracking/handPointer';
 // Supplied SplashCursor source: simulation passes retained; LUMEN input/lifecycle changes below.
 
@@ -25,8 +26,8 @@ function SplashCursor({
 }) {
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
-  const inputRef = useRef({ pointerRef, onFailure });
-  inputRef.current = { pointerRef, onFailure };
+  const inputRef = useRef({ pointerRef, onFailure, COLOR });
+  inputRef.current = { pointerRef, onFailure, COLOR };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -765,13 +766,12 @@ function SplashCursor({
         updatePointerDownData(pointer, -1, movement.x * canvas.width, movement.y * canvas.height);
         return;
       }
-      // Use the original movement boundary and aspect corrections; limit sensor jumps.
-      updatePointerMoveData(pointer, movement.x * canvas.width, movement.y * canvas.height, generateColor());
-      pointer.deltaX = correctDeltaX(movement.deltaX) * movement.force;
-      pointer.deltaY = correctDeltaY(-movement.deltaY) * movement.force;
-      pointer.moved = Math.hypot(movement.deltaX, movement.deltaY) > .0005;
-      // More energetic motion carries slightly brighter purple ink.
-      pointer.color = Object.fromEntries(Object.entries(pointer.color).map(([key,value]) => [key,value * (2 + movement.force)]));
+      const color=generateColor();
+      for(const point of interpolateStroke(movement)){
+        const ink=Object.fromEntries(Object.entries(color).map(([key,value])=>[key,value*(2+movement.force)*point.ink]));
+        splat(point.x,1-point.y,correctDeltaX(point.dx)*config.SPLAT_FORCE,correctDeltaY(-point.dy)*config.SPLAT_FORCE,ink);
+      }
+      pointer.moved=false;
     }
     function applyInputs() {
       pointers.forEach(p => {
@@ -950,7 +950,7 @@ function SplashCursor({
 
     function generateColor() {
       if (!config.RAINBOW_MODE) {
-        return hexToRGB(config.COLOR);
+        return hexToRGB(inputRef.current.COLOR);
       }
       let c = HSVtoRGB(Math.random(), 1.0, 1.0);
       c.r *= 0.15;

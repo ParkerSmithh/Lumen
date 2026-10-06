@@ -17,7 +17,8 @@ try {
     // MediaPipe sends this harmless initialization notice through console.error.
     if (message.type() === 'error' && !message.text().startsWith('INFO: Created TensorFlow Lite XNNPACK delegate for CPU.')) errors.push(message.text());
   });
-  await page.goto(target);
+  await page.goto(target+'?debugTracking');
+  if(await page.locator('[aria-label="Development tracking diagnostics"]').count()||await page.evaluate(()=>!!window.__lumenTracking))throw new Error('Development diagnostics escaped into production.');
   await expect(page.getByRole('heading', { name: 'LUMEN' })).toBeVisible();
   const localHTML = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
   const entry = localHTML.match(/src="([^"]+\/assets\/index-[^"]+\.js)"/)?.[1];
@@ -57,11 +58,14 @@ try {
     return results;
   });
   if (inference.some(result => result.error) || inference[0].type !== 'mask' || inference[1].type !== 'hand') throw new Error(JSON.stringify(inference));
-  await page.screenshot({ path: '.test-artifacts/phase5-entry-1366.png' });
+  await page.screenshot({ path: '.test-artifacts/repair-entry-1366.png' });
+  await page.getByRole('button',{name:'Blue',exact:true}).click();
   await page.getByRole('button', { name: 'Preview light' }).click();
-  await page.screenshot({ path: '.test-artifacts/phase5-glow-1366.png' });
+  await page.screenshot({ path: '.test-artifacts/repair-glow-1366.png' });
   for (const mode of ['FLOW', 'SLASH', 'LAUNCH']) {
     await page.getByRole('button', { name: mode, exact: true }).click();
+    await expect(page.getByRole('button',{name:'Blue',exact:true})).toHaveAttribute('aria-pressed','true');
+    if(await page.locator('[aria-label="Development tracking diagnostics"]').count())throw new Error('Production diagnostic overlay');
     await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();
     const canvas = mode === 'FLOW' ? '#fluid' : mode === 'SLASH' ? '.slash-artwork' : '.launch-artwork canvas';
     await expect(page.locator(canvas)).toBeVisible();
@@ -72,9 +76,10 @@ try {
       await page.mouse.up();
       await expect(page.getByRole('status')).toContainText('Cut registered');
     } else {
+      if(mode==='LAUNCH')await page.mouse.click(420,360);
       await page.mouse.move(420, 360); await page.waitForTimeout(70); await page.mouse.move(600, 380, { steps: 12 });
     }
-    await page.screenshot({ path: `.test-artifacts/phase5-${mode.toLowerCase()}-1366.png` });
+    await page.screenshot({ path: `.test-artifacts/repair-${mode.toLowerCase()}-1366.png` });
   }
   if (!requests.some(url => /\/Lumen\/assets\/LaunchMode-.*\.js/.test(url))) throw new Error('LAUNCH dynamic chunk was not requested from /Lumen/.');
   await page.getByRole('button', { name: 'GLOW', exact: true }).click();
@@ -88,7 +93,7 @@ try {
       if (layout.scroll || layout.controls.some(r => r.x < 0 || r.y < 0 || r.right > size.width || r.bottom > size.height)) throw new Error(`Overflow in ${mode} at ${size.width}×${size.height}`);
     }
     await page.getByRole('button', { name: 'GLOW', exact: true }).click();
-    await page.screenshot({ path: `.test-artifacts/phase5-entry-${size.width}.png` });
+    await page.screenshot({ path: `.test-artifacts/repair-entry-${size.width}.png` });
   }
   if (errors.length || failed.length) throw new Error(JSON.stringify({ errors, failed }));
   console.log(JSON.stringify({ target, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0 }));

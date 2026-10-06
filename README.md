@@ -6,16 +6,16 @@ An interactive artwork in body, light, and digital matter. The body becomes both
 
 | Mode | State | Interaction |
 | --- | --- | --- |
-| 01 - GLOW | Presence | Your full body becomes light. Six colors change its emission. |
-| 02 - FLOW | Creation | Your index finger releases violet fluid. |
+| 01 - GLOW | Presence | Your full camera scene stays visible while a six-color filter illuminates your body. |
+| 02 - FLOW | Creation | Your index finger releases selected-color light. |
 | 03 - SLASH | Destruction | A deliberate fast hand movement cuts through luminous crystals. |
-| 04 - LAUNCH | Force | Slow fingertip movement nudges spheres; a fast flick launches nearby matter. |
+| 04 - LAUNCH | Force | Point and push forward to create one colored ball; retract to reset. Slow movement nudges it; a flick applies stronger force. |
 
 ## Enter the work
 
-Select **Enter with camera**, allow access, and step into view. For GLOW, move back until your whole body, including your feet, fits. For the other modes, bring your hand into view. Guidance recedes after interaction and returns after sustained tracking loss.
+Select **Enter with camera**, allow access, and step into view. For GLOW, move back until your whole body, fits, or remain seated to see yourself and your room. For the other modes, bring your hand into view. Guidance recedes after interaction and returns after sustained tracking loss.
 
-The modes share one camera stream. **Stop camera** releases capture; you can enter again without refreshing. Raw video stays hidden and is processed on your device; LUMEN does not record or upload it. FLOW, SLASH, and LAUNCH offer a secondary **Mouse / touch fallback**. GLOW has an explicitly labeled illustrated preview.
+The modes share one camera stream. **Stop camera** releases capture; you can enter again without refreshing. GLOW intentionally displays the full live camera scene. Other modes keep camera pixels hidden. Video is processed on your device; LUMEN does not record or upload it. FLOW, SLASH, and LAUNCH offer a secondary **Mouse / touch fallback**. GLOW has an explicitly labeled illustrated preview.
 
 ## Technology
 
@@ -60,4 +60,4 @@ Camera capture requires HTTPS or localhost and browser permission. Use an up-to-
 
 Automated checks verify rendering, input math, recovery, cleanup, and production loading. They cannot establish how the artwork feels with a real body or hand. Physical alignment, gesture comfort, and live tracking performance require hands-on testing. Dim scenes, occlusion, distant bodies, and very fast motion can reduce detection quality. Edge is the verified browser; other browsers and devices require manual testing. The deferred Three.js chunk remains large, and LAUNCH physics cost increases with sphere count. A failed LAUNCH download offers **Reload artwork**, because browsers can retain a failed import until the page reloads; other modes remain available.
 
-LUMEN is feature-complete. Engineering history and verification records live in [docs](docs/), including [implementation history](docs/implementation-history.md) and the Phase 5 progress record.
+Interaction repair is implemented with physical acceptance pending. The project remains unfrozen. Engineering history and verification records live in [docs](docs/), including [implementation history](docs/implementation-history.md) and the Phase 5 progress record.

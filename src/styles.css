@@ -52,3 +52,11 @@ nav button:hover,.flow-controls button:hover,.camera-controls button:hover,.prev
 @media(prefers-reduced-motion:reduce){
   .mode-stage{animation:none}.live-caption,nav button{transition:none}
 }
+
+.glow-field{position:absolute;inset:125px 48px 150px;display:flex;align-items:center;justify-content:center}.glow-artwork{position:relative;inset:auto;border:1px solid #ffffff26;box-shadow:0 0 18px color-mix(in srgb,var(--light) 9%,transparent);overflow:hidden}.glow-artwork canvas{display:block}.mode-stage:has(.glow-field)+.atmosphere{display:none}@media(max-width:800px){.glow-field{inset:165px 20px 145px}}@media(max-height:600px){.glow-field{inset:90px 24px 115px}}@media(max-height:600px) and (max-width:800px){.glow-field{inset:110px 20px 110px}}
+
+footer{gap:24px}.flow-controls{margin-right:auto}.flow-controls>span{display:none}@media(max-width:800px){footer{gap:10px}.flow-controls button{max-width:110px;font-size:10px}.color-picker>span{font-size:7px}}@media(max-width:480px){footer{flex-wrap:wrap;align-items:center}.color-picker{width:calc(100% - 130px)}.camera-controls{position:absolute;right:0;bottom:0}.flow-controls{width:100%;margin-top:8px}.glow-field{bottom:160px}}
+
+.tracking-debug{position:absolute;inset:125px 20px 150px;pointer-events:none;z-index:5}.tracking-debug pre{font:10px monospace;background:#000b;padding:8px;width:220px;max-height:100%;overflow:auto}.tracking-debug i{position:absolute;width:8px;height:8px;border:1px solid lime;border-radius:50%}.tracking-debug i.raw-tip{border-color:red}
+
+.tracking-debug{inset:0}.tracking-debug pre{position:absolute;left:20px;top:125px;max-height:calc(100% - 275px)}
