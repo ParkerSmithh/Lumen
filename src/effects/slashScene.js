@@ -40,7 +40,7 @@ export function createSlashScene(ctx) {
   function cut(slash) {
     trails.push({...slash,palette,life:.2});if(trails.length>12)trails.shift();
     let hits=0;
-    for(let i=objects.length-1;i>=0;i--)if(sweptHit(slash,objects[i],Math.max(8,objects[i].radius*.18))){burst(objects[i],slash);objects.splice(i,1);hits++;}
+    for(let i=objects.length-1;i>=0;i--)if(sweptHit(slash,objects[i],Math.max(slash.robust?12:8,objects[i].radius*(slash.robust?.3:.18)))){burst(objects[i],slash);objects.splice(i,1);hits++;}
     return hits;
   }
   function drawCrystal(object) {

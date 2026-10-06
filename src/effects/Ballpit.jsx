@@ -458,7 +458,7 @@ class W {
     if (t.controlSphere0) {
       r = 1;
       F.fromArray(s, 0);
-      F.lerp(i, 1 - Math.exp(-Math.min(e.delta, .033) * 22)).toArray(s, 0);
+      F.lerp(i, 1 - Math.exp(-Math.min(e.delta, .033) * (t.controllerResponse??22))).toArray(s, 0);
       F.fromArray(s, 0);
       V.set(0, 0, 0).toArray(o, 0);
     }
@@ -741,14 +741,14 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     direction.copy(r).sub(lastWorld);
     if (direction.lengthSq() > 0) direction.normalize();
     lastWorld.copy(r);
-    if (result.strength <= 0) return;
-    const radius = Math.max(1.8, s.config.size0 * 2.5);
+    if (result.strength <= 0 && result.nudge <= 0) return;
+    const radius = Math.max(2.4, s.config.size0 * 2.8);
     let affected = 0;
     for (let idx = 1; idx < s.config.activeCount; idx++) {
       const offset = idx * 3;
       position.fromArray(s.physics.positionData, offset);
       radial.copy(position).sub(r);
-      const impulse = localImpulse(radial.length(), radius, result.strength) * (t.reducedMotion ? .5 : 1);
+      const impulse = localImpulse(Math.hypot(radial.x,radial.y,radial.z*.35), radius, Math.max(result.strength,result.nudge||0)) * (t.reducedMotion ? .5 : 1);
       if (!impulse) continue;
       radial.normalize();
       velocity.fromArray(s.physics.velocityData, offset);

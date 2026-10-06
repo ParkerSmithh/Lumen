@@ -768,7 +768,7 @@ function SplashCursor({
       }
       const color=generateColor();
       for(const point of interpolateStroke(movement)){
-        const ink=Object.fromEntries(Object.entries(color).map(([key,value])=>[key,value*(2+movement.force)*point.ink]));
+        const ink=Object.fromEntries(Object.entries(color).map(([key,value])=>[key,value*(3+movement.force)*1.5*movement.inkEnergy*point.ink]));
         splat(point.x,1-point.y,correctDeltaX(point.dx)*config.SPLAT_FORCE,correctDeltaY(-point.dy)*config.SPLAT_FORCE,ink);
       }
       pointer.moved=false;

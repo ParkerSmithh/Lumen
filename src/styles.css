@@ -60,3 +60,7 @@ footer{gap:24px}.flow-controls{margin-right:auto}.flow-controls>span{display:non
 .tracking-debug{position:absolute;inset:125px 20px 150px;pointer-events:none;z-index:5}.tracking-debug pre{font:10px monospace;background:#000b;padding:8px;width:220px;max-height:100%;overflow:auto}.tracking-debug i{position:absolute;width:8px;height:8px;border:1px solid lime;border-radius:50%}.tracking-debug i.raw-tip{border-color:red}
 
 .tracking-debug{inset:0}.tracking-debug pre{position:absolute;left:20px;top:125px;max-height:calc(100% - 275px)}
+
+.flow-light{pointer-events:none}
+
+.tracking-debug i.predicted-tip{border-color:#ffd84a}.copy-motion-report{position:absolute;left:20px;bottom:120px;background:#171020;pointer-events:auto;padding:8px;font:10px monospace}

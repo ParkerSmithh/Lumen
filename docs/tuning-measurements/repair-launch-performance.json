@@ -1,0 +1,60 @@
+{
+  "environment": "headless Edge, 1000x560 renderer, no hand inference, local machine",
+  "results": [
+    {
+      "active": 0,
+      "frameMs": {
+        "median": 4.199999999999932,
+        "p95": 4.2999999999999545
+      },
+      "physicsAndInputMs": {
+        "median": 0,
+        "p95": 0
+      }
+    },
+    {
+      "active": 50,
+      "frameMs": {
+        "median": 4.199999999999818,
+        "p95": 4.2999999999999545
+      },
+      "physicsAndInputMs": {
+        "median": 0,
+        "p95": 0.09999990463256836
+      }
+    },
+    {
+      "active": 100,
+      "frameMs": {
+        "median": 4.199999999999818,
+        "p95": 4.300000000000182
+      },
+      "physicsAndInputMs": {
+        "median": 0,
+        "p95": 0.10000014305114746
+      }
+    },
+    {
+      "active": 150,
+      "frameMs": {
+        "median": 4.199999999999818,
+        "p95": 4.299999999999727
+      },
+      "physicsAndInputMs": {
+        "median": 0,
+        "p95": 0.10000014305114746
+      }
+    },
+    {
+      "active": 200,
+      "frameMs": {
+        "median": 4.199999999999818,
+        "p95": 4.300000000000182
+      },
+      "physicsAndInputMs": {
+        "median": 0,
+        "p95": 0.19999980926513672
+      }
+    }
+  ]
+}

@@ -35,7 +35,7 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction}) {
       if(mouseMode){if(pointerRef.current?.releaseAfterCreation&&!pendingCreation)pointerRef.current=null;}
       else{
         const hand=handRef.current;
-        const pointer=!document.hidden&&hand&&time-hand.timestamp<250?mapLaunchPointer(hand,host.clientWidth,host.clientHeight):null;
+        const pointer=!document.hidden&&hand&&time-hand.timestamp<250?mapLaunchPointer(hand,host.clientWidth,host.clientHeight,time):null;
         if(!pointer){reset();}
         else if(lastHandSequence!==pointer.sequence){
           lastHandSequence=pointer.sequence;
@@ -53,7 +53,7 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction}) {
   return <div className={`artwork launch-artwork ${mouseMode?'':'hand-input'}`} ref={hostRef}>
     <Ballpit creationColor={color} pointerRef={pointerRef} onFailure={onFailure} onInteraction={onInteraction} followCursor={false} count={201} maxActive={150} interactiveCreation
       gravity={reduced?.004:.01} friction={.9975} wallBounce={.95} maxVelocity={reduced?.075:.15}
-      minSize={.25} maxSize={.55} size0={.85} maxZ={3} controllerForce={.35} reducedMotion={reduced}
+      minSize={.25} maxSize={.55} size0={.85} maxZ={3} controllerForce={.35} controllerResponse={40} reducedMotion={reduced}
       colors={[0xffffff,0xffffff]} ambientColor={0xffffff} ambientIntensity={.65} lightIntensity={130}
       materialParams={{metalness:.55,roughness:.24,clearcoat:1,clearcoatRoughness:.12,emissive:0x080808,emissiveIntensity:.5,envMapIntensity:1.1}}/>
   </div>;

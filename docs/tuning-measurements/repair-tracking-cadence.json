@@ -1,0 +1,137 @@
+{
+  "environment": "headless Edge, synthetic 640x480 30 fps scene, actual CPU MediaPipe worker, no real hand",
+  "results": [
+    {
+      "requested": "20",
+      "samples": 53,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "resets": {
+        "loss": 0
+      },
+      "rejectedSpikes": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 20.005386065846164,
+      "motionHz": null,
+      "filterLag": {
+        "median": 0,
+        "p95": 0
+      },
+      "smoothingMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "estimatedFilterDelayMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "captureMs": {
+        "median": 0.2999999523162842,
+        "p95": 0.40000009536743164
+      },
+      "inferenceMs": {
+        "median": 16.899999856948853,
+        "p95": 19.5
+      },
+      "roundTripMs": {
+        "median": 17,
+        "p95": 19.5
+      },
+      "ageMs": {
+        "median": 17.399999999999636,
+        "p95": 20.09999999999991
+      }
+    },
+    {
+      "requested": "30",
+      "samples": 75,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "resets": {
+        "loss": 0
+      },
+      "rejectedSpikes": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 27.897157506846295,
+      "motionHz": null,
+      "filterLag": {
+        "median": 0,
+        "p95": 0
+      },
+      "smoothingMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "estimatedFilterDelayMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "captureMs": {
+        "median": 0.2999999523162842,
+        "p95": 0.5
+      },
+      "inferenceMs": {
+        "median": 16.299999952316284,
+        "p95": 17.899999856948853
+      },
+      "roundTripMs": {
+        "median": 16.5,
+        "p95": 17.899999856948853
+      },
+      "ageMs": {
+        "median": 16.90000004768376,
+        "p95": 18.400000143051102
+      }
+    },
+    {
+      "requested": "max",
+      "samples": 51,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "resets": {
+        "loss": 0
+      },
+      "rejectedSpikes": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 30.16955288809425,
+      "motionHz": null,
+      "filterLag": {
+        "median": 0,
+        "p95": 0
+      },
+      "smoothingMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "estimatedFilterDelayMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "captureMs": {
+        "median": 0.2999999523162842,
+        "p95": 0.40000009536743164
+      },
+      "inferenceMs": {
+        "median": 16.799999952316284,
+        "p95": 18.299999952316284
+      },
+      "roundTripMs": {
+        "median": 17,
+        "p95": 18.399999856948853
+      },
+      "ageMs": {
+        "median": 17.399999952316307,
+        "p95": 19.09999985694884
+      }
+    }
+  ]
+}

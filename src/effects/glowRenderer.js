@@ -6,13 +6,13 @@ float body(vec2 p){if(p.x<0.||p.x>1.||p.y<0.||p.y>1.)return 0.;return texture2D(
 void main(){
  vec2 pixel=vec2(uv.x,1.-uv.y)*resolution;vec2 p=(pixel-rect.xy)/rect.zw;p.x=1.-p.x;
  if(p.x<0.||p.x>1.||p.y<0.||p.y>1.){gl_FragColor=vec4(.02,.016,.027,1.);return;}
- float a=body(p)*opacity;float nearGlow=0.;float bloom=0.;
- for(int i=0;i<12;i++){float angle=float(i)*6.2831853/12.;vec2 d=vec2(cos(angle),sin(angle));nearGlow+=body(p+d*3./rect.zw);bloom+=body(p+d*12./rect.zw);}
- nearGlow/=12.;bloom/=12.;vec3 original=texture2D(camera,p).rgb;
+ float a=body(p)*opacity;float nearGlow=0.;float bloom=0.;float outer=0.;
+ for(int i=0;i<12;i++){float angle=float(i)*6.2831853/12.;vec2 d=vec2(cos(angle),sin(angle));nearGlow+=body(p+d*3./rect.zw);bloom+=body(p+d*12./rect.zw);outer+=body(p+d*28./rect.zw);}
+ nearGlow/=12.;bloom/=12.;outer/=12.;vec3 original=texture2D(camera,p).rgb;
  float luminance=dot(original,vec3(.2126,.7152,.0722));
  // Original shading remains dominant, including facial features and clothing.
- vec3 tinted=original*(vec3(.86)+color*.14)+color*(.06+luminance*.28)*(vec3(1.)-original);
- float edge=max(0.,a-nearGlow*opacity);vec3 halo=color*(edge*.22+max(0.,bloom-a)*opacity*.12);
+ vec3 tinted=original*(vec3(.88)+color*.12)+color*(.24+luminance*.45)*(vec3(1.)-original);
+ float edge=max(0.,a-nearGlow*opacity);vec3 halo=color*(edge*.55+max(0.,bloom-a)*opacity*.25+max(0.,outer-a)*opacity*.16);
  vec3 scene=mix(original,tinted,a)+halo*(vec3(1.)-original);vec3 preview=color*(a*.62+nearGlow*opacity*.25+bloom*opacity*.12);
  gl_FragColor=vec4(mix(preview,scene,live),1.);
 }`;
@@ -46,8 +46,8 @@ function createCanvasRenderer(canvas){
  const r=fitContain(video?.videoWidth||video?.width||mask?.sourceWidth||640,video?.videoHeight||video?.height||mask?.sourceHeight||480,canvas.width,canvas.height);ctx.save();ctx.translate(canvas.width,0);ctx.scale(-1,1);if(live)ctx.drawImage(video,r.x,r.y,r.width,r.height);
  if(mask){if(previous!==mask){m.width=mask.width;m.height=mask.height;m.getContext('2d').putImageData(new ImageData(toMaskRGBA(mask.values),mask.width,mask.height),0,0);previous=mask;}
  light.clearRect(0,0,layer.width,layer.height);light.drawImage(m,r.x,r.y,r.width,r.height);light.globalCompositeOperation='source-in';light.fillStyle=color;light.fillRect(0,0,layer.width,layer.height);light.globalCompositeOperation='source-over';
- if(live){t.clearRect(0,0,tint.width,tint.height);t.drawImage(video,r.x,r.y,r.width,r.height);t.globalCompositeOperation='multiply';t.globalAlpha=.3;t.fillStyle=color;t.fillRect(0,0,tint.width,tint.height);t.globalAlpha=1;t.globalCompositeOperation='destination-in';t.drawImage(layer,0,0);t.globalCompositeOperation='source-over';ctx.globalAlpha=opacity*.65;ctx.drawImage(tint,0,0);ctx.globalCompositeOperation='screen';ctx.globalAlpha=opacity*.16;ctx.drawImage(layer,0,0);}else{ctx.globalAlpha=opacity*.8;ctx.drawImage(layer,0,0);}
- ctx.globalCompositeOperation='screen';ctx.filter='blur(7px)';ctx.globalAlpha=opacity*.1;ctx.drawImage(layer,0,0);}
+ if(live){t.clearRect(0,0,tint.width,tint.height);t.drawImage(video,r.x,r.y,r.width,r.height);t.globalCompositeOperation='multiply';t.globalAlpha=.3;t.fillStyle=color;t.fillRect(0,0,tint.width,tint.height);t.globalAlpha=1;t.globalCompositeOperation='destination-in';t.drawImage(layer,0,0);t.globalCompositeOperation='source-over';ctx.globalAlpha=opacity*.65;ctx.drawImage(tint,0,0);ctx.globalCompositeOperation='screen';ctx.globalAlpha=opacity*.28;ctx.drawImage(layer,0,0);}else{ctx.globalAlpha=opacity*.8;ctx.drawImage(layer,0,0);}
+ ctx.globalCompositeOperation='screen';ctx.filter='blur(9px)';ctx.globalAlpha=opacity*.1;ctx.drawImage(layer,0,0);if(live){ctx.filter='blur(22px)';ctx.globalAlpha=opacity*.08;ctx.drawImage(layer,0,0);}}
  ctx.restore();},dispose(){layer.width=layer.height=tint.width=tint.height=m.width=m.height=0;}
  };
 }
