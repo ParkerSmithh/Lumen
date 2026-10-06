@@ -29,5 +29,11 @@ try{
   for(let x=size.width*.32;x<size.width*.7;x+=size.width*.025){await page.mouse.move(x,size.height*.535);await page.waitForTimeout(16);}
   await page.mouse.up();
   if(!(await page.getByRole('status').innerText()).includes('Cut registered'))throw new Error('Production SLASH collision check failed');
-  console.log('Production /Lumen/ path: FLOW renders; hand worker/model/WASM load; SLASH collision registers.');
+  await page.getByRole('button',{name:'LAUNCH',exact:true}).click();
+  await page.getByRole('button',{name:'Mouse fallback'}).click();
+  await page.mouse.move(440,350);await page.waitForTimeout(70);
+  await page.mouse.move(520,350);await page.waitForTimeout(50);await page.mouse.move(620,360);
+  await page.screenshot({path:'.test-artifacts/launch-production.png'});
+  if((await page.getByRole('status').innerText()).includes('requires WebGL'))throw new Error('Production LAUNCH initialization failed');
+  console.log('Production /Lumen/ path: all four modes activate; hand assets load; SLASH collision registers; LAUNCH renders.');
 }finally{await browser.close();}

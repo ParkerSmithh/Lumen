@@ -2,7 +2,7 @@ import { test,expect } from '@playwright/test';
 test('SLASH activates, fractures with a deliberate drag, and resets',async({page})=>{
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto('/');await page.getByRole('button',{name:'SLASH',exact:true}).click();
-  await expect(page.getByRole('button',{name:'LAUNCH — coming later'})).toBeDisabled();
+  await expect(page.getByRole('button',{name:'LAUNCH',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Mouse fallback'}).click();
   await page.waitForTimeout(1300);
   await page.screenshot({path:'.test-artifacts/slash-crystals.png'});

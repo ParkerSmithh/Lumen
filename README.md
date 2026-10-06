@@ -1,4 +1,4 @@
-# LUMEN — GLOW + FLOW + SLASH
+# LUMEN — GLOW + FLOW + SLASH + LAUNCH
 
 An interactive experiment in body, light, and digital matter. GLOW turns the camera's person segmentation into layered luminous matter, internal light and soft bloom. Raw webcam pixels are never displayed.
 
@@ -14,7 +14,7 @@ npm run dev
 
 Open http://127.0.0.1:5173. This folder also includes a portable Node runtime; `./run-lumen.ps1` uses it. First-time asset setup needs internet; thereafter the model, worker and WASM are served locally. Fonts are downloaded from Google Fonts with system fallbacks.
 
-Select **Enter with camera**, allow access, and step back until your entire body—including feet—fits in the camera frame. Use even lighting and a background distinct from your clothing. Six color dots change emission; each is keyboard accessible and labeled. **Stop camera** releases capture. The explicitly labeled illustrated preview shows the light treatment without tracking. FLOW, SLASH and LAUNCH are disabled future phases.
+Select **Enter with camera**, allow access, and step back until your entire body—including feet—fits in the camera frame. Use even lighting and a background distinct from your clothing. Six color dots change emission; each is keyboard accessible and labeled. **Stop camera** releases capture. The explicitly labeled illustrated preview shows the light treatment without tracking. FLOW, SLASH and LAUNCH are also available through the mode selector.
 
 Camera capture requires localhost or HTTPS. Denied, missing, busy and disconnected cameras show guidance. A tracking failure offers a retry. Camera frames are processed on your device in a worker; the application does not upload or record them. One stream and hidden video are owned by `useWebcam`, ready to be reused by later modes.
 
@@ -26,7 +26,7 @@ Camera capture requires localhost or HTTPS. Denied, missing, busy and disconnect
 - `src/modes/GlowMode.jsx`, `src/effects/glowRenderer.js`: mirrored aspect-preserving rendering, emission, highlights and bloom; Canvas fallback.
 - `scripts/setup-assets.mjs`: locally hosted model and runtime preparation.
 
-Dependencies: React, React DOM, MediaPipe Tasks Vision; development uses Vite, its React plugin and Playwright. Exact versions are in package.json and package-lock.json. No Three.js or other modes are implemented.
+Dependencies: React, React DOM, MediaPipe Tasks Vision; development uses Vite, its React plugin and Playwright. Exact versions are in package.json and package-lock.json. Three.js now powers LAUNCH; all four modes are implemented. See the phase-specific sections below.
 
 ## Verification
 
@@ -44,7 +44,7 @@ Physical camera verification opened a 640×480 stream, initialized tracking and 
 
 Select **FLOW**, enter with camera if it is not already running, raise your index finger, and move it to paint purple fluid. No camera image, hand skeleton, fingertip marker or cursor is drawn. Guidance fades after movement begins and returns after sustained hand loss. **Use mouse / touch** explicitly enables camera-free fluid input; controls do not inject fluid.
 
-GLOW and FLOW share the same video and stream. Switching stops the inactive worker and renderer without reopening capture. Global Stop releases camera tracks. SLASH and LAUNCH remain deferred.
+GLOW and FLOW share the same video and stream. Switching stops the inactive worker and renderer without reopening capture. Global Stop releases camera tracks. SLASH and LAUNCH now also reuse this shared input architecture; see their sections below.
 
 The exact user-supplied React Bits SplashCursor source is in `src/effects/SplashCursor.jsx`. Its shader and fluid simulation passes are preserved. LUMEN adds a normalized ref input, one update per new sequence, bounded forces, WebGL capability/error handling and GPU disposal. Original mouse/touch event handling is consolidated through that same boundary by `FlowMode`.
 
@@ -62,7 +62,7 @@ To check the production Pages path locally, run `npm run build`, `npm run previe
 
 Select **SLASH**, enter with camera if needed, raise your hand, then make a deliberate fast slicing motion through a crystal with the side of your hand. Ordinary slow movement should leave objects intact. A qualified cut emits a sharp 200 ms violet-white trace; intersecting crystals flash, split into recognizable triangular facets and scatter sparks. **Mouse fallback** accepts fast pressed drags; hovering does not cut. Switching back to hand input resets gesture history.
 
-SLASH uses the existing hand worker and camera. FLOW↔SLASH keeps both alive, while only the selected renderer runs. GLOW resumes segmentation when selected. Global Stop still releases camera tracks. GLOW/FlowMode/SplashCursor core files remain unchanged. LAUNCH remains disabled; no Three.js, sound, score or Phase 4 work.
+SLASH uses the existing hand worker and camera. FLOW↔SLASH keeps both alive, while only the selected renderer runs. GLOW resumes segmentation when selected. Global Stop still releases camera tracks. GLOW/FlowMode/SplashCursor core files remain unchanged. Phase 3 added no Three.js, sound or score; LAUNCH is described in the Phase 4 section below.
 
 Created: `src/tracking/slashDetector.js`, `src/effects/slashGeometry.js`, `src/effects/slashScene.js`, `src/modes/SlashMode.jsx`, `tests/slash.test.js`, `tests/browser/slash.spec.js`, and Phase 3 plan/progress documents. Modified: `src/App.jsx`, small additions to `src/styles.css`, repeated-switch browser checks, camera/production check scripts, and this README. No dependencies or model assets added.
 
@@ -74,4 +74,26 @@ Actual Phase 3 verification: **15 unit tests passed, 10 Edge browser tests passe
 
 Physical webcam verification opened a 640×480 stream and initialized SLASH tracking, but **no real hand was detected**. Stream release was confirmed. Gesture comfort, threshold sensitivity, intuitive physical alignment and satisfaction still require your hand/visual evaluation. Test a slow sweep, a fast cut, sudden direction changes, leaving/reentering the frame, and repeated mode switching. Only Edge has been checked. At roughly 20 Hz, very fast or occluded motion can be rejected safely rather than cut.
 
-Phase 3 is the current stopping point. LAUNCH remains deferred.
+Phase 3 verification is recorded above; LAUNCH follows in Phase 4 below.
+
+## Phase 4 — LAUNCH
+
+Select **LAUNCH**, enter with camera if necessary, and raise your index finger. Move slowly to gently disturb nearby spheres, then make a deliberate fast movement to launch local matter. **Mouse fallback** exercises the same input boundary; touch release, leaving the field and source changes reset it. No special controller, camera feed, hand skeleton or finger cursor is shown.
+
+The exact supplied Ballpit is in `src/effects/Ballpit.jsx`. Its instanced spheres, material, original collision/physics system, lights, environment and raycaster are retained. LUMEN adds a ref input, local one-shot impulses, invisible-controller activation, final speed clamping and ownership/cleanup repairs. Three.js 0.186.1 is the only new dependency; no model assets or other 3D/physics frameworks were added. The custom scattering shader uses `vColor.rgb` for current Three.js color compatibility.
+
+Created: `src/effects/Ballpit.jsx`, `src/modes/LaunchMode.jsx`, `src/tracking/launchInput.js`, unit/solver/LAUNCH browser tests, and Phase 4 plan/progress files. Modified: package.json/lockfile, `src/App.jsx`, minimal styles, existing switching/navigation tests, camera and production verification scripts, and this README. GLOW, FLOW, supplied SplashCursor, SLASH renderers and shared webcam/tracking implementation are unchanged.
+
+The already mirrored fingertip maps through camera containment into the original z=0 raycast plane. Each new sequence is consumed once. Stable target following continues between samples; repeated velocity is never reinjected. Initial/reacquired input gets zero launch force and a snapped baseline. Stale results, large frame gaps, impossible displacement/speed, non-finite values, hand loss and tab suspension deactivate/reset input.
+
+Slow nudges use Ballpit's controller collision, tuned gently. Faster motion above approximately 1.2 camera-heights/second adds a bounded directional/radial impulse in a local radius of roughly 2.125 world units, with squared falloff. Far spheres receive no direct impulse; collisions propagate momentum. Impulses are at most .12 in the source solver's per-step velocity units; final velocity is capped at .15 after every collision step. The source solver runs at fixed 60 Hz independently of display refresh, with bounded catch-up. This corrects its measured high-refresh speed dependence while preserving the solver.
+
+Three.js cleanup owns the environment target, disposes the PMREM generator and temporary room resources, then releases textures, materials, geometry, instancing buffers, renderer, context, Timer, listeners, observers, resize timeout and animation on unmount. Fresh mount canvases tolerate StrictMode context disposal. Repeated LAUNCH mounting is tested. FLOW, SLASH and LAUNCH keep one shared hand worker and camera; global Stop releases capture.
+
+Actual final results: **19 unit tests passed, 13 Edge browser tests passed, production build passed, production `/Lumen/` checks passed.** Mouse/real-solver tests confirmed stronger fast response than gentle nudging, local influence, one impulse per sample, reset behavior, the post-collision speed ceiling and refresh-independent stepping. Lifecycle checks confirmed worker/stream reuse and context/resource cleanup. Reflective sphere screenshots were inspected.
+
+Physical webcam verification opened at 640×480, initialized LAUNCH tracking and released the camera, but **no actual hand was detected**. Physical alignment, intuitive force, fast/slow feel and performance with a viewer still require your hands-on test. Compare slow nudges and deliberate flicks, leave/reenter the frame, and repeatedly switch modes. Only Edge has been checked.
+
+Quality uses 200 spheres on desktop and 120 on narrow screens, capped pixel ratio/resolution, instancing and reduced-motion velocity/force settings. One headless Edge run without hand inference reported roughly 240 Hz frame callbacks; this is an environment-specific observation, not a promised real-hand frame rate. Pairwise collisions scale quadratically. The build also reports a large initial bundle warning because Three.js adds to the initial JavaScript; splitting is deferred to a later phase.
+
+Phase 4 is the current stopping point. All four modes are active; final polish remains deferred.

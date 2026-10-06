@@ -31,6 +31,14 @@ try {
     }
     console.log('SLASH:',await page.getByRole('status').innerText(),'Real hand detected:',slashHandDetected);
     await page.screenshot({path:'.test-artifacts/real-camera-slash.png'});
+    await page.getByRole('button',{name:'LAUNCH',exact:true}).click();
+    let launchHandDetected=false;
+    for(let i=0;i<20;i++){
+      if(/Move slowly/.test(await page.getByRole('status').innerText()))launchHandDetected=true;
+      await page.waitForTimeout(250);
+    }
+    console.log('LAUNCH:',await page.getByRole('status').innerText(),'Real hand detected:',launchHandDetected);
+    await page.screenshot({path:'.test-artifacts/real-camera-launch.png'});
     await page.getByRole('button',{name:'GLOW',exact:true}).click();
     await page.getByRole('button', { name: 'Stop camera' }).click();
     console.log('Stream released:', await page.locator('video').evaluate(video => video.srcObject === null));
