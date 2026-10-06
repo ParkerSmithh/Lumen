@@ -21,5 +21,13 @@ try{
     });
   });
   if(result.error||result.type!=='hand')throw new Error(JSON.stringify(result));
-  console.log('Production /Lumen/ path: FLOW renders; hand worker/model/WASM load; no-hand inference succeeds.');
+  await page.getByRole('button',{name:'SLASH',exact:true}).click();
+  await page.getByRole('button',{name:'Mouse fallback'}).click();
+  await page.waitForTimeout(1300);
+  const size=page.viewportSize();
+  await page.mouse.move(size.width*.3,size.height*.535);await page.mouse.down();
+  for(let x=size.width*.32;x<size.width*.7;x+=size.width*.025){await page.mouse.move(x,size.height*.535);await page.waitForTimeout(16);}
+  await page.mouse.up();
+  if(!(await page.getByRole('status').innerText()).includes('Cut registered'))throw new Error('Production SLASH collision check failed');
+  console.log('Production /Lumen/ path: FLOW renders; hand worker/model/WASM load; SLASH collision registers.');
 }finally{await browser.close();}

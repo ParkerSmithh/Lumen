@@ -2,10 +2,13 @@ import { test,expect } from '@playwright/test';
 
 async function syntheticCamera(page) {
   await page.addInitScript(()=>{
-    window.cameraCalls=0;window.liveWorkers=0;window.glResources=0;
+    window.cameraCalls=0;window.liveWorkers=0;window.createdWorkers=0;window.glResources=0;window.pendingFrames=new Set();
+    const originalRAF=requestAnimationFrame.bind(window),originalCancel=cancelAnimationFrame.bind(window);
+    window.requestAnimationFrame=callback=>{let id;id=originalRAF(time=>{window.pendingFrames.delete(id);callback(time);});window.pendingFrames.add(id);return id;};
+    window.cancelAnimationFrame=id=>{window.pendingFrames.delete(id);originalCancel(id);};
     const NativeWorker=window.Worker;
     window.Worker=class extends NativeWorker{
-      constructor(...args){super(...args);window.liveWorkers++;this.counted=true;}
+      constructor(...args){super(...args);window.liveWorkers++;window.createdWorkers++;this.counted=true;}
       terminate(){if(this.counted){window.liveWorkers--;this.counted=false;}return super.terminate();}
     };
     const original=HTMLCanvasElement.prototype.getContext,seen=new WeakSet();
@@ -40,14 +43,27 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
     await page.getByRole('button',{name:'FLOW',exact:true}).click();
     await expect(page.getByRole('status')).toContainText('Raise your index finger');
     await expect.poll(()=>page.evaluate(()=>window.liveWorkers)).toBe(1);
+    const workerCount=await page.evaluate(()=>window.liveWorkers);
+    const createdWorkers=await page.evaluate(()=>window.createdWorkers);
+    await page.getByRole('button',{name:'SLASH',exact:true}).click();
+    await expect(page.getByRole('status')).toContainText('Raise your hand');
+    expect(await page.evaluate(()=>window.liveWorkers)).toBe(workerCount);
+    expect(await page.evaluate(()=>window.createdWorkers)).toBe(createdWorkers);
+    await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(3);
+    await expect.poll(()=>page.evaluate(()=>window.glResources)).toBe(0);
     await page.getByRole('button',{name:'GLOW',exact:true}).click();
     await expect(page.getByRole('status')).toContainText('Step into view');
     await expect.poll(()=>page.evaluate(()=>window.glResources)).toBe(glowResources);
   }
+  await page.getByRole('button',{name:'SLASH',exact:true}).click();
+  await expect(page.getByRole('status')).toContainText('Raise your hand');
+  await page.getByRole('button',{name:'FLOW',exact:true}).click();
+  await expect(page.getByRole('status')).toContainText('Raise your index finger');
   expect(await page.evaluate(()=>window.cameraCalls)).toBe(1);
   await page.getByRole('button',{name:'Stop camera'}).click();
   await expect.poll(()=>page.evaluate(()=>window.cameraTrack.readyState)).toBe('ended');
   await expect.poll(()=>page.evaluate(()=>window.liveWorkers)).toBe(0);
+  await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(2);
 });
 
 test('missing hand model offers retry and GLOW still runs',async({page})=>{
