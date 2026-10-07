@@ -59,4 +59,6 @@ Synthetic camera input contains no physical hand. Automated checks establish tim
 
 ## Release
 
-Deployment target: the existing `ParkerSmithh/Lumen` GitHub Pages workflow at `https://parkersmithh.github.io/Lumen/`. Release verification is recorded after publishing the verified build.
+Deployment target: the existing `ParkerSmithh/Lumen` GitHub Pages workflow at `https://parkersmithh.github.io/Lumen/`. The verified implementation is commit `39124f4`, fast-forwarded onto local `main`.
+
+Publishing is blocked by GitHub returning `remote: Internal Server Error` on repeated authorized push attempts, including a full-pack HTTP/1.1 retry. The API confirmed remote `main` remains at `24c3538` (the prior webcam-preview release); no new Pages deployment started. Local Git objects passed integrity verification. Live Pages verification for this game is therefore outstanding; the local production build and `/Lumen/` checks passed.
