@@ -84,18 +84,21 @@ try {
   results.slash = await page.evaluate(async () => {
     window.measureRoot.unmount();
     const { createSlashScene } = await import('/src/effects/slashScene.js');
+    const { createSlashGame } = await import('/src/game/slashGame.js');
+    const game = createSlashGame(); game.start(0);
     document.body.innerHTML = ''; const canvas = document.createElement('canvas'); canvas.width = 1000; canvas.height = 560; document.body.append(canvas);
     const context = canvas.getContext('2d'); let active = 0;
     const radial = context.createRadialGradient.bind(context); context.createRadialGradient = (...args) => { active++; return radial(...args); };
     const scene = createSlashScene(context); scene.setSize(1000, 560, { x: 0, y: 0, width: 1000, height: 560 });
     const populations = []; let maximum = 0;
-    for (let frame = 0; frame <= 3600; frame++) { scene.update(1 / 60); active = 0; scene.draw(); maximum = Math.max(maximum, active); if (frame % 300 === 0) populations.push({ seconds: frame / 60, active }); }
+    for (let frame = 0; frame <= 6600; frame++) { scene.update(1 / 60, game.tick(3000 + frame / 60 * 1000)); active = 0; scene.draw(); maximum = Math.max(maximum, active); if (frame % 300 === 0) populations.push({ seconds: frame / 60, active }); }
     const draws = [], frames = []; let last;
-    await new Promise(resolve => { const tick = time => { if (last) frames.push(time - last); last = time; const start = performance.now(); scene.update(1 / 60); active = 0; scene.draw(); draws.push(performance.now() - start); if (draws.length < 180) requestAnimationFrame(tick); else resolve(); }; requestAnimationFrame(tick); });
+    await new Promise(resolve => { const tick = time => { if (last) frames.push(time - last); last = time; const start = performance.now(); scene.update(1 / 60, game.tick(113000 + draws.length / 60 * 1000)); active = 0; scene.draw(); draws.push(performance.now() - start); if (draws.length < 180) requestAnimationFrame(tick); else resolve(); }; requestAnimationFrame(tick); });
     const lateActive = active; scene.dispose();
     const fresh = createSlashScene(context); fresh.setSize(1000, 560, { x: 0, y: 0, width: 1000, height: 560 });
-    for (let i = 0; i < 59; i++) fresh.update(1 / 60); active = 0; fresh.draw(); const beforeOneSecond = active;
-    fresh.update(1 / 60); active = 0; fresh.draw(); const atOneSecond = active;
+    const freshGame = createSlashGame(); freshGame.start(0);
+    for (let i = 0; i < 59; i++) fresh.update(1 / 60, freshGame.tick(3000 + i / 60 * 1000)); active = 0; fresh.draw(); const beforeOneSecond = active;
+    fresh.update(1 / 60, freshGame.tick(4000)); active = 0; fresh.draw(); const atOneSecond = active;
     fresh.dispose(); return { populations, maximum, lateActive, draws, frames, beforeOneSecond, atOneSecond };
   });
   results.slash.drawMs = summarize(results.slash.draws); results.slash.frameMs = summarize(results.slash.frames);

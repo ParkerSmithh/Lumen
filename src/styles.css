@@ -87,3 +87,19 @@ nav{z-index:1}
 @media(prefers-reduced-motion:reduce){.interaction-guide{transition:none}}
 @media(max-width:480px){.interaction-guide{bottom:125px}.gesture-instruction:only-child{flex-direction:row;text-align:left;max-width:none}.gesture-instruction:only-child span{max-width:none}}
 @media(max-height:600px) and (max-width:480px){.interaction-guide{bottom:114px}}
+
+/* SLASH's session controls recede to the artwork edges during play. */
+main[data-slash-overlay=true] .live-caption:not(.has-error){opacity:0;pointer-events:none}
+.slash-game-overlay{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);width:min(88%,560px);text-align:center}
+.slash-game-overlay h2{font-size:clamp(32px,5vw,64px);letter-spacing:-.03em;margin:0 0 20px;line-height:1.1;color:var(--light)}
+.slash-game-overlay p{font-size:12px;line-height:1.6;color:#c2b4ce;margin:0 0 24px}
+.slash-game-overlay .slash-input-hint{font-size:10px;margin:16px 0 0}
+.slash-game-overlay button:disabled{opacity:.45}
+.slash-countdown{font-family:Manrope,sans-serif;font-size:clamp(72px,12vw,128px);font-weight:300;color:var(--light)}
+.slash-hud{position:absolute;top:128px;left:272px;right:48px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;font-variant-numeric:tabular-nums;color:#dbcee7}
+.slash-hud>div{display:flex;align-items:baseline;gap:12px}.slash-hud span{font-size:8px;letter-spacing:.16em}.slash-hud strong{font-weight:400;font-size:22px}.slash-hud time{font-size:22px;font-weight:400}.slash-hud.final-seconds time{color:var(--light)}
+@media(max-width:1050px) and (min-width:801px){.slash-hud{left:256px;right:32px}}
+@media(max-width:800px){.slash-hud{top:160px;left:194px;right:26px}.slash-hud strong,.slash-hud time{font-size:20px}}
+@media(max-width:480px){.slash-hud{left:164px;right:20px}.slash-hud>div{gap:7px}.slash-hud span{font-size:7px;letter-spacing:.06em}.slash-hud strong,.slash-hud time{font-size:18px}.slash-game-overlay{top:49%}.slash-game-overlay h2{margin-bottom:14px}.slash-game-overlay p{font-size:11px;margin-bottom:14px}}
+@media(max-height:600px){.slash-hud{top:88px;left:172px;right:24px}.slash-game-overlay h2{font-size:32px;margin-bottom:10px}.slash-game-overlay p{font-size:10px;margin-bottom:10px}.slash-countdown{font-size:72px}}
+@media(max-height:600px) and (max-width:800px){.slash-hud{top:112px;left:152px;right:20px}.slash-game-overlay{top:55%}}

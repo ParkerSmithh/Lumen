@@ -1,21 +1,22 @@
 import { matterPalette } from '../colors.js';
 import { sweptHit } from './slashGeometry.js';
-import { slashProgression } from './slashProgression.js';
 
 const shape=[[0,-1.15],[.62,-.38],[.75,.35],[.12,1.12],[-.7,.42],[-.59,-.4]];
 const random=(low,high)=>low+Math.random()*(high-low);
 const polygon=(ctx,vertices)=>{ctx.beginPath();vertices.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();};
 
-export function createSlashScene(ctx) {
+export const slashObjectTypes = Object.freeze({ normal: Object.freeze({ value: 1 }) });
+
+export function createSlashScene(ctx, { onLifecycle } = {}) {
   let palette=matterPalette('#b06aff');
-  let width=1,height=1,field={x:0,y:0,width:1,height:1},elapsed=0,nextSpawn=1,spawned=0;
+  let width=1,height=1,field={x:0,y:0,width:1,height:1},nextSpawn=1,spawned=0,nextId=1,playing=false,ended=false;
   const objects=[],trails=[],flashes=[],fragments=[];
   const particles=Array.from({length:192},()=>({life:0}));
   let particleSlot=0;
   function spawn() {
     const radius=Math.max(20,Math.min(48,field.width*.09,field.height*.1));
     const first=spawned++===0;
-    objects.push({palette,x:field.x+field.width*(first?.5:random(.22,.78)),y:field.y+field.height*(first?.54:.8),
+    objects.push({id:nextId++,type:'normal',value:slashObjectTypes.normal.value,palette,x:field.x+field.width*(first?.5:random(.22,.78)),y:field.y+field.height*(first?.54:.8),
       vx:random(-8,8),vy:first?-12:random(-38,-22),radius,angle:random(-.25,.25),rotation:random(-.22,.22),age:0,life:first?14:12});
   }
   function burst(object,slash) {
@@ -39,9 +40,13 @@ export function createSlashScene(ctx) {
     }
   }
   function cut(slash) {
+    if(!playing)return 0;
     trails.push({...slash,palette,life:.2});if(trails.length>12)trails.shift();
     let hits=0;
-    for(let i=objects.length-1;i>=0;i--)if(sweptHit(slash,objects[i],Math.max(slash.source==='camera-motion'?24:slash.robust?12:8,objects[i].radius*(slash.source==='camera-motion'?.4:slash.robust?.3:.18)))){burst(objects[i],slash);objects.splice(i,1);hits++;}
+    for(let i=objects.length-1;i>=0;i--)if(sweptHit(slash,objects[i],Math.max(slash.source==='camera-motion'?24:slash.robust?12:8,objects[i].radius*(slash.source==='camera-motion'?.4:slash.robust?.3:.18)))){
+      const object=objects[i];burst(object,slash);objects.splice(i,1);hits++;
+      onLifecycle?.({kind:'destroyed',id:object.id,type:object.type,value:object.value});
+    }
     return hits;
   }
   function drawCrystal(object) {
@@ -61,12 +66,17 @@ export function createSlashScene(ctx) {
     polygon(ctx,vertices);ctx.strokeStyle=object.palette.bright;ctx.shadowColor=object.palette.color;ctx.shadowBlur=14;ctx.lineWidth=1.2;ctx.stroke();
     ctx.shadowBlur=0;ctx.fillStyle=object.palette.bright;ctx.globalAlpha*=.7;ctx.beginPath();ctx.arc(0,-object.radius*.13,2,0,Math.PI*2);ctx.fill();ctx.restore();
   }
-  function update(dt) {
+  function update(dt, game) {
+    playing=game?.phase==='playing'&&!game.paused;
+    if(game?.paused)return;
     const elapsedStep=Number.isFinite(dt)?Math.max(0,dt):0;
-    elapsed+=elapsedStep;dt=Math.min(.04,elapsedStep);
-    const {interval,cap}=slashProgression(elapsed);
-    if(elapsed>=nextSpawn&&objects.length<cap){spawn();nextSpawn=elapsed+interval;}
-    for(let i=objects.length-1;i>=0;i--){const o=objects[i];o.age+=dt;o.x+=o.vx*dt;o.y+=o.vy*dt;o.angle+=o.rotation*dt;if(o.age>o.life||o.y<field.y-o.radius||o.x<-o.radius||o.x>width+o.radius)objects.splice(i,1);}
+    dt=Math.min(.04,elapsedStep);
+    if(game?.phase==='results'&&!ended){ended=true;objects.forEach(o=>{o.life=Math.min(o.life,o.age+.6);});}
+    // One due opportunity per frame, including when full: never queue catch-up births.
+    if(playing&&game.elapsed>=nextSpawn){if(objects.length<game.cap)spawn();nextSpawn=game.elapsed+game.interval;}
+    for(let i=objects.length-1;i>=0;i--){const o=objects[i];o.age+=dt;o.x+=o.vx*dt;o.y+=o.vy*dt;o.angle+=o.rotation*dt;if(o.age>o.life||o.y<field.y-o.radius||o.x<-o.radius||o.x>width+o.radius){
+      objects.splice(i,1);if(!ended)onLifecycle?.({kind:'expired',id:o.id,type:o.type,value:o.value});
+    }}
     for(const list of [trails,flashes,fragments])for(let i=list.length-1;i>=0;i--){const item=list[i];item.life-=dt;if(item.vx!==undefined){item.x+=item.vx*dt;item.y+=item.vy*dt;item.vy+=25*dt;item.angle+=item.rotation*dt;}if(item.life<=0)list.splice(i,1);}
     for(const p of particles)if(p.life>0){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.exp(-dt*2);p.vy*=Math.exp(-dt*2);}
   }
@@ -81,5 +91,8 @@ export function createSlashScene(ctx) {
     for(const p of particles)if(p.life>0){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.palette.bright;ctx.shadowColor=p.palette.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}
     ctx.restore();
   }
-  return {update,draw,cut,setColor(color){if(color!==palette.color)palette=matterPalette(color);},setSize(w,h,rect){width=w;height=h;field=rect;},dispose(){objects.length=trails.length=flashes.length=fragments.length=0;particles.forEach(p=>p.life=0);}};
+  function reset(){objects.length=trails.length=flashes.length=fragments.length=0;particles.forEach(p=>p.life=0);particleSlot=0;nextSpawn=1;spawned=0;playing=false;ended=false;}
+  return {update,draw,cut,reset,
+    inspect(){return {objects:objects.map(({id,type,value,x,y,radius,age})=>({id,type,value,x,y,radius,age})),effects:{trails:trails.length,flashes:flashes.length,fragments:fragments.length,particles:particles.filter(p=>p.life>0).length}};},
+    setColor(color){if(color!==palette.color)palette=matterPalette(color);},setSize(w,h,rect){width=w;height=h;field=rect;},dispose:reset};
 }

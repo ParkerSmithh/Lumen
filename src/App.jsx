@@ -26,15 +26,18 @@ export default function App() {
   const [reloadNeeded, setReloadNeeded] = useState(false);
   const [renderAttempt, setRenderAttempt] = useState(0);
   const [slashHit, setSlashHit] = useState(false);
+  const [slashSession, setSlashSession] = useState(0);
+  const [slashOverlay, setSlashOverlay] = useState(true);
   const LaunchMode = useMemo(() => lazy(() => import('./modes/LaunchMode')
     .then(module => ({ default: module.LaunchMode }))
     .catch(() => { throw Object.assign(new Error('Light unavailable'), { reloadArtwork: true }); })), [renderAttempt]);
   const active = camera.status === 'ready' || camera.status === 'loading';
   const tracker = mode === 'GLOW' ? tracking : hands;
   const error = camera.error || modeError || (!mouseMode && !preview ? tracker.error : '');
-  const { quiet, understood } = useArtworkGuidance({ mode, mouseMode, cameraStatus: camera.status, trackingStatus: tracker.status, error, preview });
+  const guidanceKey = mode === 'SLASH' ? slashSession : '';
+  const { quiet, understood } = useArtworkGuidance({ mode, mouseMode, cameraStatus: camera.status, trackingStatus: tracker.status, error, preview, guidanceKey });
   const [guideInteraction, setGuideInteraction] = useState(null);
-  const guideScope = `${mode}:${mouseMode}:${camera.status}:${preview}`;
+  const guideScope = `${mode}:${mouseMode}:${camera.status}:${preview}:${guidanceKey}`;
   const interacted = () => { setGuideInteraction(guideScope); understood(); };
   const detected = tracker.status === 'tracking' || tracker.status === 'drawing';
   const guideQuiet = !error && (quiet || guideInteraction === guideScope || (!mouseMode && ((mode === 'GLOW' && detected) || (mode === 'FLOW' && tracker.status === 'drawing'))));
@@ -55,22 +58,22 @@ export default function App() {
   const boundaryFailed = (message, reload) => { setModeError(message); setReloadNeeded(reload); };
   const selectMode = next => {
     if (next === mode) return;
-    setMode(next); setPreview(false); setMouseMode(false); setModeError(''); setReloadNeeded(false); setSlashHit(false); setGuideInteraction(null);
+    setMode(next); setPreview(false); setMouseMode(false); setModeError(''); setReloadNeeded(false); setSlashHit(false); setSlashOverlay(true); setGuideInteraction(null);
   };
   const entry = mode === 'GLOW' && !active && !preview;
-  const caption = <div className={entry ? 'entry-caption' : `live-caption ${quiet && !error ? 'quiet' : ''}`} role="status" aria-live="polite">
+  const caption = <div className={entry ? 'entry-caption' : `live-caption ${quiet && !error ? 'quiet' : ''}${error ? ' has-error' : ''}`} role="status" aria-live="polite">
     {message && <><span className={`signal ${detected ? 'detected' : ''}`} />{message}</>}
     {!mouseMode && tracker.status === 'error' && <button className="preview-link" onClick={mode === 'GLOW' ? retryTracking : hands.retry}>{mode === 'GLOW' ? 'Retry body tracking' : 'Retry hand tracking'}</button>}
     {modeError && <button className="preview-link" onClick={reloadNeeded ? () => location.reload() : retryArtwork}>{reloadNeeded ? 'Reload artwork' : 'Try this mode again'}</button>}
   </div>;
 
-  return <main style={{ '--light': color[1] }}>
+  return <main style={{ '--light': color[1] }} data-slash-overlay={mode === 'SLASH' && slashOverlay}>
     <video ref={camera.videoRef} className={`camera-input${camera.status === 'ready' && mode !== 'GLOW' ? ' camera-preview' : ''}`} muted playsInline aria-label="Live webcam preview" aria-hidden={camera.status !== 'ready' || mode === 'GLOW'} />
     <div className="mode-stage" key={`${mode}:${renderAttempt}`}>
       <ModeBoundary onFailure={boundaryFailed}>
         {mode === 'GLOW' ? <GlowMode maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
           : mode === 'FLOW' ? <FlowMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
-          : mode === 'SLASH' ? <SlashMode videoRef={camera.videoRef} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onSlash={hit => { if (hit) setSlashHit(true); interacted(); }} />
+          : mode === 'SLASH' ? <SlashMode videoRef={camera.videoRef} handRef={hands.handRef} cameraReady={camera.status === 'ready'} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onStateChange={state => setSlashOverlay(state.phase !== 'playing' || state.paused)} onSessionStart={() => { setSlashHit(false); setSlashSession(value => value + 1); setGuideInteraction(null); }} onSlash={hit => { if (hit) setSlashHit(true); interacted(); }} />
           : <Suspense fallback={<div className="mode-loading" aria-live="polite">Preparing matter…</div>}>
             <LaunchMode handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
           </Suspense>}

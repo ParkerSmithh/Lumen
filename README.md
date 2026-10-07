@@ -8,7 +8,7 @@ An interactive artwork in body, light, and digital matter. The body becomes both
 | --- | --- | --- |
 | 01 - GLOW | Presence | Your full camera scene stays visible while a six-color filter illuminates your body. |
 | 02 - FLOW | Creation | Your index finger releases selected-color light. |
-| 03 - SLASH | Destruction | A deliberate fast hand movement cuts through luminous crystals that appear faster over the first 35 seconds. |
+| 03 - SLASH | Destruction | Start a two-minute session, slash luminous crystals as intensity rises, then review your count and play again. |
 | 04 - LAUNCH | Force | Point and rapidly push to fire colored balls. Close your hand near balls to grab a cluster, move to carry it, then open to throw. Balls retain gravity, collisions and wall bounce; slow movement nudges and flicks apply stronger force. |
 
 ## Enter the work
@@ -18,6 +18,10 @@ Select **Enter with camera**, allow access, and step into view. For GLOW, move b
 The modes share one camera stream. **Stop camera** releases capture; you can enter again without refreshing. GLOW intentionally displays the full live camera scene. Other modes show a compact webcam preview. Video is processed on your device; LUMEN does not record or upload it. FLOW, SLASH, and LAUNCH offer a secondary **Mouse / touch fallback**. GLOW has an explicitly labeled illustrated preview.
 
 ## Technology
+
+SLASH opens at **START**, counts down **3–2–1**, then runs for **2:00**. Every destroyed object counts once, including multiple objects in one swipe. **PLAY AGAIN** clears the scene and restarts the countdown. Leaving SLASH resets the session. A hidden tab or interrupted camera pauses the clock; restore input and select **RESUME**. Missed hand detections alone do not pause camera-motion interaction.
+
+The game controller owns elapsed time and progression; Canvas owns objects, collision and effects. Intensity uses smooth spawn-interval anchors of 1.8 / 1.2 / 0.8 / 0.45 / 0.35 seconds, and active caps of 3 / 5 / 7 / 8 / 8 at 0 / 30 / 60 / 90 / 120 seconds. These are measured initial limits, with live physical tuning still required. See [SLASH game verification](docs/slash-game-v1-report.md).
 
 React and Vite provide the artwork shell. MediaPipe runs body segmentation and hand tracking off the main thread. GLOW uses WebGL with a Canvas fallback; FLOW uses the supplied SplashCursor fluid simulation; SLASH uses Canvas; LAUNCH uses the supplied Ballpit and Three.js. LAUNCH loads only when selected.
 

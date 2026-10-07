@@ -1,0 +1,148 @@
+{
+  "environment": "Windows headless Edge, 1366x768, synthetic 640x480 canvas camera at 30fps, actual MediaPipe worker, visible webcam preview; controller advanced to 100s, then 10s real-time sampling (3s at full cap, 7s repeated multi-object cuts), followed by 10s integrated actual gameplay at 103.5–113.5s with camera-motion processing enabled. CPU excludes deferred GPU work. Blank input contains no physical hand.",
+  "frames": 2350,
+  "activeAtStart": 8,
+  "peak": 8,
+  "hits": 23,
+  "maxParticles": 192,
+  "wallSeconds": 10.000700000047683,
+  "cpuMs": {
+    "median": 0.09999990463256836,
+    "p95": 0.20000004768371582
+  },
+  "updateMs": {
+    "median": 0,
+    "p95": 0
+  },
+  "drawMs": {
+    "median": 0,
+    "p95": 0.20000004768371582
+  },
+  "cutMs": {
+    "median": 0,
+    "p95": 0.6000001430511475
+  },
+  "frameMs": {
+    "median": 4.199999999999818,
+    "p95": 4.300000000000182
+  },
+  "handPacketAgeMs": {
+    "median": 37.89999995231665,
+    "p95": 54.300000143050966
+  },
+  "tracking": {
+    "samples": 120,
+    "dropped": 0,
+    "losses": 0,
+    "acquisitions": 0,
+    "reacquisitions": 0,
+    "resets": {
+      "loss": 0
+    },
+    "rejectedSpikes": 0,
+    "sourceWidth": 640,
+    "sourceHeight": 480,
+    "hz": 27.69760730005637,
+    "motionHz": null,
+    "filterLag": {
+      "median": 0,
+      "p95": 0
+    },
+    "smoothingMs": {
+      "median": 0,
+      "p95": 0
+    },
+    "estimatedFilterDelayMs": {
+      "median": 0,
+      "p95": 0
+    },
+    "captureMs": {
+      "median": 0.2999999523162842,
+      "p95": 0.5
+    },
+    "inferenceMs": {
+      "median": 17.200000047683716,
+      "p95": 18.90000009536743
+    },
+    "roundTripMs": {
+      "median": 17.399999856948853,
+      "p95": 19.09999990463257
+    },
+    "ageMs": {
+      "median": 17.800000143051875,
+      "p95": 19.699999999999818
+    }
+  },
+  "integrated": {
+    "peak": 8,
+    "frames": 2400,
+    "modeCpuMs": {
+      "median": 0.10000014305114746,
+      "p95": 0.7999999523162842
+    },
+    "frameMs": {
+      "median": 4.19999999999709,
+      "p95": 4.30000000000291
+    },
+    "handPacketAgeMs": {
+      "median": 38.399999952322105,
+      "p95": 54.40000009536743
+    },
+    "tracking": {
+      "samples": 120,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "resets": {
+        "loss": 0
+      },
+      "rejectedSpikes": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 27.6339316817959,
+      "motionHz": null,
+      "filterLag": {
+        "median": 0,
+        "p95": 0
+      },
+      "smoothingMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "estimatedFilterDelayMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "captureMs": {
+        "median": 1.2999999523162842,
+        "p95": 1.7000000476837158
+      },
+      "inferenceMs": {
+        "median": 17.399999856948853,
+        "p95": 18.299999952316284
+      },
+      "roundTripMs": {
+        "median": 17.5,
+        "p95": 18.5
+      },
+      "ageMs": {
+        "median": 18.900000047680805,
+        "p95": 20.40000009536743
+      }
+    },
+    "endingState": {
+      "phase": "playing",
+      "paused": false,
+      "pauseReason": "",
+      "count": 0,
+      "elapsed": 113.51490000009537,
+      "remaining": 6.485099999904634,
+      "seconds": 7,
+      "countdown": 0,
+      "progress": 0.9459575000007947,
+      "interval": 0.3619985388112542,
+      "cap": 8
+    }
+  }
+}

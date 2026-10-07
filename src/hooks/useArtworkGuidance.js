@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export function useArtworkGuidance({ mode, mouseMode, cameraStatus, trackingStatus, error, preview }) {
-  const scope = `${mode}:${mouseMode}:${cameraStatus}:${preview}:${Boolean(error)}`;
+export function useArtworkGuidance({ mode, mouseMode, cameraStatus, trackingStatus, error, preview, guidanceKey = '' }) {
+  const scope = `${mode}:${mouseMode}:${cameraStatus}:${preview}:${Boolean(error)}:${guidanceKey}`;
   const current = useRef(null), latest = useRef(null);
   latest.current = { scope, trackingStatus, error };
   const [quietScope, setQuietScope] = useState(null);
