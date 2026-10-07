@@ -15,7 +15,7 @@ An interactive artwork in body, light, and digital matter. The body becomes both
 
 Select **Enter with camera**, allow access, and step into view. For GLOW, move back until your whole body, fits, or remain seated to see yourself and your room. For the other modes, bring your hand into view. Guidance recedes after interaction and returns after sustained tracking loss.
 
-The modes share one camera stream. **Stop camera** releases capture; you can enter again without refreshing. GLOW intentionally displays the full live camera scene. Other modes keep camera pixels hidden. Video is processed on your device; LUMEN does not record or upload it. FLOW, SLASH, and LAUNCH offer a secondary **Mouse / touch fallback**. GLOW has an explicitly labeled illustrated preview.
+The modes share one camera stream. **Stop camera** releases capture; you can enter again without refreshing. GLOW intentionally displays the full live camera scene. Other modes show a compact webcam preview. Video is processed on your device; LUMEN does not record or upload it. FLOW, SLASH, and LAUNCH offer a secondary **Mouse / touch fallback**. GLOW has an explicitly labeled illustrated preview.
 
 ## Technology
 
@@ -45,6 +45,8 @@ npm run test:browser
 npm run build
 npm run check:production
 ```
+
+FLOW, SLASH, and LAUNCH show a compact, mirrored webcam preview in the top-left corner while the camera is running, so you can check your hand position. The preview uses the existing tracking feed and disappears when you stop the camera.
 
 The production check owns and closes its local preview server. To verify the published build, pass its URL:
 

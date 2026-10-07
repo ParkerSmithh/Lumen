@@ -65,7 +65,7 @@ export default function App() {
   </div>;
 
   return <main style={{ '--light': color[1] }}>
-    <video ref={camera.videoRef} className="camera-input" muted playsInline aria-hidden="true" />
+    <video ref={camera.videoRef} className={`camera-input${camera.status === 'ready' && mode !== 'GLOW' ? ' camera-preview' : ''}`} muted playsInline aria-label="Live webcam preview" aria-hidden={camera.status !== 'ready' || mode === 'GLOW'} />
     <div className="mode-stage" key={`${mode}:${renderAttempt}`}>
       <ModeBoundary onFailure={boundaryFailed}>
         {mode === 'GLOW' ? <GlowMode maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
