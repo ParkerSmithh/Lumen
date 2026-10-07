@@ -21,4 +21,4 @@ Implement in the current checkout on feature/slash-game-v1. No changes to slashD
 - Review: independent review complete; interrupted-video finding reproduced RED and fixed GREEN. No recognition retuning.
 - Visual QA: short-phone caption overlap corrected and regression verified; desktop/phone ready and results inspected.
 - Production build and local production verification passed. High-intensity measurements retained eight-target cap; actual worker synthetic-input run recorded in the report.
-- Release commit 39124f4 fast-forwarded to local main. Publishing blocked by repeated remote GitHub Internal Server Error; remote remains 24c3538. Pages verification awaits a successful push.
+- Release commit 39124f4 fast-forwarded to local main. Initial GitHub Internal Server Errors resolved on retry; remote main accepted 0103e1f. Verify the matching Pages build and production smoke checks after deployment.
