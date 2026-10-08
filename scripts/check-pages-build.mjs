@@ -24,7 +24,7 @@ try {
     // MediaPipe sends this harmless initialization notice through console.error.
     if (message.type() === 'error' && !message.text().startsWith('INFO: Created TensorFlow Lite XNNPACK delegate for CPU.')) errors.push(message.text());
   });
-  await page.goto(target+'?debugTracking');
+  await page.goto(target+'?debugTracking&debugTrace&debugKinetic');
   if(await page.locator('[aria-label="Development tracking diagnostics"]').count()||await page.evaluate(()=>!!window.__lumenTracking||!!window.__lumenSlash))throw new Error('Development diagnostics escaped into production.');
   await expect(page.getByRole('heading', { name: 'LUMEN' })).toBeVisible();
   const localHTML = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
@@ -73,10 +73,10 @@ try {
   for (const mode of ['FLOW', 'SLASH', 'LAUNCH']) {
     await page.getByRole('button', { name: mode, exact: true }).click();
     await expect(page.getByRole('button',{name:'Blue',exact:true})).toHaveAttribute('aria-pressed','true');
-    if(await page.locator('[aria-label="Development tracking diagnostics"]').count())throw new Error('Production diagnostic overlay');
+    if(await page.locator('[aria-label="Development tracking diagnostics"]').count()||await page.evaluate(()=>!!window.__lumenTrace||!!window.__lumenKinetic))throw new Error('Production diagnostic overlay');
     for(const label of ({FLOW:['POINT + MOVE'],SLASH:['SWIPE TO SLASH'],LAUNCH:['POINT + RAPID PUSH','CLOSE HAND','MOVE + RELEASE']})[mode])await expect(page.getByLabel('Interaction guide')).toContainText(label);
     await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();
-    if (mode === 'SLASH') {
+    if (['FLOW','SLASH','LAUNCH'].includes(mode)) {
       await page.getByRole('button', { name: 'START', exact: true }).click();
       await expect(page.getByLabel('Time remaining')).toBeVisible({ timeout: 30000 });
     }
@@ -141,9 +141,18 @@ try {
   await gamePage.getByRole('button', { name: 'FLOW', exact: true }).click();
   await gamePage.getByRole('button', { name: 'SLASH', exact: true }).click();
   await expect(gamePage.getByRole('button', { name: 'START', exact: true })).toBeVisible();
+  for(const [mode,duration] of [['FLOW',90],['LAUNCH',120]]){
+    await gamePage.getByRole('button',{name:mode,exact:true}).click();
+    await expect(gamePage.getByRole('button',{name:'START',exact:true})).toBeDisabled();
+    await gamePage.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();
+    await gamePage.getByRole('button',{name:'START',exact:true}).click();await advance(3);
+    await expect(gamePage.getByLabel('Time remaining')).toHaveText(duration===90?'1:30':'2:00');await advance(duration);
+    await expect(gamePage.getByRole('button',{name:'PLAY AGAIN',exact:true})).toBeVisible();
+    await gamePage.getByRole('button',{name:'PLAY AGAIN',exact:true}).click();await expect(gamePage.getByLabel('Starting in')).toHaveText('3');
+  }
   await gamePage.close();
   if (errors.length || failed.length) throw new Error(JSON.stringify({ errors, failed }));
-  console.log(JSON.stringify({ target, referenceClock, offlineFonts, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified', slashGame: 'ready, keyboard countdown, 120-second expiry, results, replay, mode reset verified' }));
+  console.log(JSON.stringify({ target, referenceClock, offlineFonts, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified', slashGame: 'ready, keyboard countdown, 120-second expiry, results, replay, mode reset verified',flowGame:'90-second expiry and replay verified',kineticGame:'120-second expiry and replay verified' }));
 } finally {
   await browser?.close();
   if (server) await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve()));

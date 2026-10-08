@@ -6,7 +6,7 @@ test('measure shared worker capture-to-result cadence without inference backlog'
  });
  const results=[];
  for(const cadence of ['20','30','max']){
- await page.goto('/?trackingHz='+cadence);await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'Enter with camera',exact:true}).click();
+ await page.goto('/?trackingHz='+cadence);await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
  await expect.poll(()=>page.evaluate(()=>window.__lumenTracking?.metrics.report().samples||0),{timeout:60000}).toBeGreaterThanOrEqual(50);
  results.push({requested:cadence,...await page.evaluate(()=>window.__lumenTracking.metrics.report())});
  await page.getByRole('button',{name:'Stop camera'}).click();

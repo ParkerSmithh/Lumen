@@ -1,3 +1,5 @@
+import { RingGeometry, MeshBasicMaterial, Mesh, DoubleSide } from 'three';
+import {createKineticTargets} from '../game/kineticTargets';
 import { createGrabController } from './grabController';
 'use client';
 
@@ -741,7 +743,12 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
       r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;
       if(grabController.count)inputRef.current.onInteraction?.();return;
     }
-    if(grabController.count){grabController.move(r,raw.timestamp);grabController.release(s.physics,!!raw.grab?.released);lastGrabSequence=null;r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
+    if(grabController.count&&!raw.mouseGrab){grabController.move(r,raw.timestamp);grabController.release(s.physics,!!raw.grab?.released);lastGrabSequence=null;r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
+    if(raw.mouseGrab){
+      if(raw.mouseGrab.begin){grabController.begin(r,s.physics,raw.timestamp);raw.mouseGrab.begin=false;}else if(raw.mouseGrab.released){grabController.move(r,raw.timestamp);grabController.release(s.physics,true);}else grabController.move(r,raw.timestamp);
+      const captured=grabController.count;if(raw.mouseGrab.released&&captured)grabController.release(s.physics,true);
+      if(captured||(raw.mouseGrab.released&&!creation)){if(creation)creation.consumed=true;lastWorld.copy(r);s.config.controlSphere0=false;return;}
+    }
     if(creation){creation.consumed=true;spawn(r,creation.color,creation.strength);inputRef.current.onInteraction?.();}
     if(raw.suppressForce||creation){r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
     if (result.baseline) {
@@ -792,24 +799,40 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     s = new Z(i.renderer, e);
     i.scene.add(s);
   }
+  const targets=createKineticTargets();
+  const targetMesh=new Mesh(new RingGeometry(.88,1,64),new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,side:DoubleSide,depthTest:false}));targetMesh.visible=false;i.scene.add(targetMesh);
+  const burstMesh=new Mesh(new RingGeometry(.94,1,48),new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:DoubleSide,depthTest:false}));burstMesh.visible=false;i.scene.add(burstMesh);
+  let previous=new Float32Array(s.physics.positionData.length);let lastSession=-1,burst=0,burstRadius=1;
+  function gameStep(dt){const game=inputRef.current.gameRef?.current;if(!game)return true;
+    if(game.session!==lastSession){lastSession=game.session;targets.reset();burst=0;burstMesh.visible=false;created=0;grabController.release(s.physics);s.config.activeCount=1;s.count=1;s.physics.positionData.fill(0);s.physics.velocityData.fill(0);consumed.active=false;accumulated=0;}
+    const state=game.state();const playing=state.phase==='playing'&&!state.paused;
+    if(!playing){targetMesh.visible=false;burstMesh.visible=false;grabController.release(s.physics);consumed.active=false;s.config.controlSphere0=false;return false;}
+    if(!targets.target)targets.spawn(s.physics,state.progress,game.reach?.());
+    const target=targets.target;targetMesh.position.set(target.x,target.y,target.z);targetMesh.scale.setScalar(target.radius);targetMesh.material.color.set(game.color());targetMesh.material.opacity=.7+Math.min(.3,burst);targetMesh.visible=true;burst=Math.max(0,burst-Math.max(0,dt)*3);burstMesh.visible=burst>0;burstMesh.material.opacity=burst*.6;burstMesh.material.color.set(game.color());burstMesh.scale.setScalar(burstRadius*(1+(1-burst)*.4));return true;
+  }
   let accumulated = 0;
   i.onBeforeRender = e => {
     if (c) { accumulated = 0; return; }
+    if(!gameStep(e.delta)){accumulated=0;return;}
     applyInput();
     // The supplied solver uses per-step velocities/friction. Keep that solver at 60 Hz.
     accumulated = Math.min(accumulated + Math.max(0, e.delta), .05);
     while (accumulated + 1e-8 >= 1 / 60) {
+      if(inputRef.current.gameRef?.current){if(previous.length!==s.physics.positionData.length)previous=new Float32Array(s.physics.positionData.length);previous.set(s.physics.positionData);}
       s.update({ delta: 1 / 60, elapsed: e.elapsed });
+      if(inputRef.current.gameRef?.current && targets.check(s.physics,previous)){inputRef.current.gameRef.current.hit();burst=1;burstRadius=targetMesh.scale.x;burstMesh.position.copy(targetMesh.position);targetMesh.visible=false;}
       accumulated -= 1 / 60;
     }
   };
   i.onAfterResize = e => {
     s.config.maxX = e.wWidth / 2;
     s.config.maxY = e.wHeight / 2;
+    const game=inputRef.current.gameRef?.current;if(game&&targets.target)targets.spawn(s.physics,game.state().progress,game.reach?.());
   };
   return {
     three: i,
     spawn,
+    get target(){return targets.target;},
     get grabbedCount(){return grabController.count;},
     get spheres() {
       return s;
@@ -843,10 +866,10 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   };
 }
 
-const Ballpit = ({ className = '', pointerRef, onFailure, onInteraction, creationColor, followCursor = false, ...props }) => {
+const Ballpit = ({ className = '', gameRef, pointerRef, onFailure, onInteraction, creationColor, followCursor = false, ...props }) => {
   const hostRef = useRef(null);
-  const inputRef = useRef({ pointerRef, onFailure, onInteraction, creationColor });
-  inputRef.current = { pointerRef, onFailure, onInteraction, creationColor };
+  const inputRef = useRef({ gameRef, pointerRef, onFailure, onInteraction, creationColor });
+  inputRef.current = { gameRef, pointerRef, onFailure, onInteraction, creationColor };
   useEffect(() => {
     const host = hostRef.current;
     const canvas = document.createElement('canvas');
@@ -858,7 +881,8 @@ const Ballpit = ({ className = '', pointerRef, onFailure, onInteraction, creatio
     const bridge = { get current() { return { ...inputRef.current, onFailure: failure }; } };
     try { instance = createBallpit(canvas, { followCursor, ...props }, bridge); }
     catch (error) { failure(error); }
-    return () => { instance?.dispose(); canvas.remove(); };
+    if(import.meta.env.DEV&&new URLSearchParams(location.search).has('debugKinetic'))window.__lumenKinetic={get instance(){return instance;},input:()=>inputRef.current.pointerRef?.current,game:()=>inputRef.current.gameRef?.current?.state()};
+    return () => { if(import.meta.env.DEV)delete window.__lumenKinetic;instance?.dispose(); canvas.remove(); };
   }, []);
   return <div className={className} ref={hostRef} style={{ width: '100%', height: '100%' }} />;
 };

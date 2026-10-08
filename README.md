@@ -7,17 +7,19 @@ An interactive artwork in body, light, and digital matter. The body becomes both
 | Mode | State | Interaction |
 | --- | --- | --- |
 | 01 - GLOW | Presence | Your full camera scene stays visible while a six-color filter illuminates your body. |
-| 02 - FLOW | Creation | Your index finger releases selected-color light. |
+| 02 - FLOW | Creation | LIGHT TRACE: follow normalized glowing paths during a 90-second round; fluid trails linger. |
 | 03 - SLASH | Destruction | Start a two-minute session, slash luminous crystals as intensity rises, then review your count and play again. |
-| 04 - LAUNCH | Force | Point and rapidly push to fire colored balls. Close your hand near balls to grab a cluster, move to carry it, then open to throw. Balls retain gravity, collisions and wall bounce; slow movement nudges and flicks apply stronger force. |
+| 04 - LAUNCH | Force | KINETIC: a two-minute target challenge. Point and rapidly push to fire colored balls. Close your hand near balls to grab a cluster, move to carry it, then open to throw. Balls retain gravity, collisions and wall bounce; slow movement nudges and flicks apply stronger force. |
 
 ## Enter the work
 
-Select **Enter with camera**, allow access, and step into view. For GLOW, move back until your whole body, fits, or remain seated to see yourself and your room. For the other modes, bring your hand into view. Guidance recedes after interaction and returns after sustained tracking loss.
+Select **ENABLE CAMERA** from any mode, allow access, and step into view. For GLOW, move back until your whole body, fits, or remain seated to see yourself and your room. For the other modes, bring your hand into view. Guidance recedes after interaction and returns after sustained tracking loss.
 
-The modes share one camera stream. **Stop camera** releases capture; you can enter again without refreshing. GLOW intentionally displays the full live camera scene. Other modes show a compact webcam preview. Video is processed on your device; LUMEN does not record or upload it. FLOW, SLASH, and LAUNCH offer a secondary **Mouse / touch fallback**. GLOW has an explicitly labeled illustrated preview.
+The modes share one camera stream. **Stop camera** releases capture; you can enter again without refreshing. GLOW intentionally displays the full live camera scene. Other modes show a compact webcam preview. Video is processed on your device; LUMEN does not record or upload it. FLOW, SLASH, and LAUNCH offer a secondary **Mouse / touch fallback**. In KINETIC, click/tap empty space to fire; hold and drag an existing ball, then release to throw. GLOW has an explicitly labeled illustrated preview.
 
 ## Technology
+
+FLOW, SLASH, and LAUNCH open at **START** and share a monotonic countdown and pause/resume clock. FLOW lasts 90 seconds; SLASH and LAUNCH last 120 seconds. Leaving a game resets it to READY. LIGHT TRACE counts only fresh ordered movement, with accuracy measured from distance to the guide. KINETIC uses stationary Three.js targets and swept ball collisions; existing overlaps are excluded until balls leave the target.
 
 SLASH opens at **START**, counts down **3–2–1**, then runs for **2:00**. Every destroyed object counts once, including multiple objects in one swipe. **PLAY AGAIN** clears the scene and restarts the countdown. Leaving SLASH resets the session. A hidden tab or interrupted camera pauses the clock; restore input and select **RESUME**. Missed hand detections alone do not pause camera-motion interaction.
 

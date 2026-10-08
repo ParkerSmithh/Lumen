@@ -1,3 +1,4 @@
+import {startArtworkGame} from './startArtworkGame';
 import { installFrameClock } from './frameClock.js';
 import {test,expect} from '@playwright/test';
 async function camera(page){await installFrameClock(page);await page.addInitScript(()=>{
@@ -11,7 +12,7 @@ async function camera(page){await installFrameClock(page);await page.addInitScri
  });}
 
 test('generated hand movement reaches the bright FLOW emitter without a false reset',async({page})=>{
- await camera(page);await page.goto('/?debugTracking&trackingHz=30');await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'Blue',exact:true}).click();await page.getByRole('button',{name:'Enter with camera',exact:true}).click();
+ await camera(page);await page.goto('/?debugTracking&trackingHz=30');await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'Blue',exact:true}).click();await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
  await expect.poll(()=>page.evaluate(()=>window.__lumenTracking?.handRef.current?.handDetected)).toBe(true);
  await page.evaluate(()=>window.setPose(.35,1));
  await expect.poll(()=>page.evaluate(()=>window.__lumenTracking.handRef.current.indexFinger.x)).toBeGreaterThan(.68);
@@ -21,7 +22,8 @@ test('generated hand movement reaches the bright FLOW emitter without a false re
 });
 
 test('generated camera push creates once, holds, retracts and creates again',async({page})=>{
- await camera(page);await page.goto('/?debugTracking&trackingHz=30');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();await page.getByRole('button',{name:'Enter with camera',exact:true}).click();
+ await camera(page);await page.goto('/?debugTracking&trackingHz=30');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
+ await startArtworkGame(page);
  await expect.poll(()=>page.evaluate(()=>window.__lumenTracking?.handRef.current?.pushDebug?.state)).toBe('READY');expect(await page.evaluate(()=>window.launchInstances)).toBe(1);
  await page.evaluate(()=>window.setPose(.5,1.18));await expect.poll(()=>page.evaluate(()=>window.launchInstances)).toBe(2);await page.waitForTimeout(700);expect(await page.evaluate(()=>window.launchInstances)).toBe(2);
  await expect.poll(()=>page.evaluate(()=>window.__lumenTracking.handRef.current?.pushDebug?.suppressForce)).toBe(false);

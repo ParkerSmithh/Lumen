@@ -103,3 +103,9 @@ main[data-slash-overlay=true] .live-caption:not(.has-error){opacity:0;pointer-ev
 @media(max-width:480px){.slash-hud{left:164px;right:20px}.slash-hud>div{gap:7px}.slash-hud span{font-size:7px;letter-spacing:.06em}.slash-hud strong,.slash-hud time{font-size:18px}.slash-game-overlay{top:49%}.slash-game-overlay h2{margin-bottom:14px}.slash-game-overlay p{font-size:11px;margin-bottom:14px}}
 @media(max-height:600px){.slash-hud{top:88px;left:172px;right:24px}.slash-game-overlay h2{font-size:32px;margin-bottom:10px}.slash-game-overlay p{font-size:10px;margin-bottom:10px}.slash-countdown{font-size:72px}}
 @media(max-height:600px) and (max-width:800px){.slash-hud{top:112px;left:152px;right:20px}.slash-game-overlay{top:55%}}
+
+.camera-invitation{position:absolute;top:180px;left:50%;transform:translateX(-50%);text-align:center;width:min(90%,460px)}.camera-invitation p{font-size:10px;color:#c2b4ce;line-height:1.6}.camera-invitation .enter{color:var(--light)}@media(max-height:600px){.camera-invitation{top:115px}.camera-invitation p{margin:6px 0}}
+
+.flow-guide{pointer-events:none;z-index:1}.mode-stage:has(.slash-game-overlay)~.live-caption:not(.has-error){opacity:0;pointer-events:none}.camera-invitation{z-index:3}.camera-invitation+.interaction-guide{opacity:.6}
+
+main:has(.flow-artwork):has(.slash-hud) .live-caption:not(.has-error),main:has(.launch-artwork):has(.slash-hud) .live-caption:not(.has-error){opacity:0;pointer-events:none}

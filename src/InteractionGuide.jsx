@@ -7,7 +7,7 @@ const gestures = {
 const fallback = {
   FLOW: [['cursor', 'MOVE / TOUCH', 'Draw with your pointer']],
   SLASH: [['slash', 'SWIPE / DRAG', 'Cut through objects']],
-  LAUNCH: [['cursor', 'CLICK / TAP', 'Fire balls'], ['move', 'MOVE', 'Move to nudge balls']],
+  LAUNCH: [['cursor', 'CLICK / TAP', 'Fire balls'], ['grab', 'HOLD + DRAG', 'Grab a ball'], ['throw', 'RELEASE', 'Throw with momentum']],
 };
 
 function Gesture({ type }) {

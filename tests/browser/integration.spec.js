@@ -1,3 +1,4 @@
+import {startArtworkGame} from './startArtworkGame';
 import { test, expect } from '@playwright/test';
 
 // Replace inference and capture only: the real hooks, renderers and UI still run.
@@ -45,7 +46,7 @@ async function controlledTracking(page, body = 'tracking') {
 
 test('GLOW guidance fades after presence, while failures and retries stay visible', async ({ page }) => {
   await controlledTracking(page);
-  await page.goto('/'); await page.getByRole('button', { name: 'Enter with camera', exact: true }).click();
+  await page.goto('/'); await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await expect(page.getByRole('status')).toHaveClass(/quiet/, { timeout: 6000 });
   await page.evaluate(() => window.testWorkers.find(worker => !worker.closed && worker.body).onerror());
   await expect(page.getByRole('status')).not.toHaveClass(/quiet/);
@@ -56,18 +57,18 @@ test('GLOW guidance fades after presence, while failures and retries stay visibl
 test('changing input source cancels a pending fade and camera errors override quiet guidance', async ({ page }) => {
   await controlledTracking(page);
   await page.goto('/'); await page.getByRole('button', { name: 'FLOW', exact: true }).click();
-  await page.getByRole('button', { name: 'Enter with camera', exact: true }).click();
+  await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await page.waitForFunction(() => window.testWorkers.some(worker => !worker.body && !worker.closed));
   await page.evaluate(() => window.handSample()); await page.waitForTimeout(60);
   await page.evaluate(() => window.handSample(true, .43));
-  await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();
+  await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();await startArtworkGame(page);
   await page.waitForTimeout(2400);
   await expect(page.getByRole('status')).not.toHaveClass(/quiet/);
   await page.mouse.move(300, 300); await page.mouse.move(400, 350);
   await expect(page.getByRole('status')).toHaveClass(/quiet/, { timeout: 6000 });
   await page.evaluate(() => window.cameraTracks.at(-1).onended());
   await expect(page.getByRole('status')).not.toHaveClass(/quiet/);
-  await expect(page.getByRole('button', { name: 'Try camera again' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'RETRY CAMERA' })).toBeVisible();
 });
 
 test('LAUNCH loads on demand and a failed import leaves other modes available', async ({ page }) => {
@@ -86,7 +87,7 @@ test('LAUNCH loads on demand and a failed import leaves other modes available', 
   await page.getByRole('button', { name: 'SLASH', exact: true }).click();
   await expect(page.locator('.slash-artwork')).toBeVisible();
   await page.getByRole('button', { name: 'GLOW', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Enter with camera', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'ENABLE CAMERA', exact: true })).toBeVisible();
 });
 
 test('keyboard navigation and reduced motion preserve immediate mode changes', async ({ page }) => {
@@ -102,7 +103,7 @@ test('keyboard navigation and reduced motion preserve immediate mode changes', a
 test('a previous mode or input source cannot fade the current instruction', async ({ page }) => {
   await controlledTracking(page);
   await page.goto('/'); await page.getByRole('button', { name: 'FLOW', exact: true }).click();
-  await page.getByRole('button', { name: 'Enter with camera', exact: true }).click();
+  await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await page.waitForFunction(() => window.testWorkers.some(worker => !worker.body && !worker.closed));
   // Supply actual movement so FLOW starts its guidance fade.
   await page.evaluate(() => window.handSample(true, .42));
@@ -118,13 +119,13 @@ test('a previous mode or input source cannot fade the current instruction', asyn
 for (const failure of ['construction', 'stall']) test(`body tracking ${failure} is recoverable without losing navigation`, async ({ page }) => {
   await controlledTracking(page, failure);
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/'); await page.getByRole('button', { name: 'Enter with camera', exact: true }).click();
+  await page.goto('/'); await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Retry body tracking' })).toBeVisible({ timeout: 12000 });
   await expect(page.getByRole('status')).not.toContainText(/npm|worker|WASM|model|asset/i);
   await page.getByRole('button', { name: 'FLOW', exact: true }).click();
   await expect(page.locator('#fluid')).toBeVisible();
   await page.getByRole('button', { name: 'Stop camera' }).click();
-  await page.getByRole('button', { name: 'Enter with camera', exact: true }).click();
+  await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.cameraCalls)).toBe(2);
   expect(await page.evaluate(() => window.cameraTracks[0].readyState)).toBe('ended');
   expect(errors).toEqual([]);

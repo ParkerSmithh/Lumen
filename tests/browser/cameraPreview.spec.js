@@ -19,7 +19,7 @@ test('compact webcam follows active hand modes and stops with the camera', async
   await expect(video).toBeHidden();
   await page.getByRole('button', { name: 'FLOW', exact: true }).click();
   await expect(video).toBeHidden();
-  await page.getByRole('button', { name: 'Enter with camera', exact: true }).click();
+  await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   for (const mode of ['FLOW', 'SLASH', 'LAUNCH']) {
     await page.getByRole('button', { name: mode, exact: true }).click();
     await expect(video).toBeVisible();

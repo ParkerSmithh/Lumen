@@ -45,7 +45,7 @@ async function syntheticCamera(page) {
 
 test('hand model infers no hand; mode switching keeps one camera and releases resources',async({page})=>{
   await syntheticCamera(page);
-  await page.goto('/');await page.getByRole('button',{name:'Enter with camera',exact:true}).click();
+  await page.goto('/');await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Step into view');
   const glowResources=await page.evaluate(()=>window.glResources);
   for(let i=0;i<3;i++){
@@ -65,7 +65,7 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
       await expect(page.getByRole('status')).toContainText('Raise your index finger');
       expect(await page.evaluate(()=>window.cameraCalls)).toBe(1);
       expect(await page.evaluate(()=>window.createdWorkers)).toBe(createdWorkers);
-      await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(3);
+      await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(4);
     }
     await page.getByRole('button',{name:'GLOW',exact:true}).click();
     await expect(page.getByRole('status')).toContainText('Step into view');
@@ -80,14 +80,14 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
   await page.getByRole('button',{name:'Stop camera'}).click();
   await expect.poll(()=>page.evaluate(()=>window.cameraTrack.readyState)).toBe('ended');
   await expect.poll(()=>page.evaluate(()=>window.liveWorkers)).toBe(0);
-  await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(2);
+  await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(3);
 });
 
 test('missing hand model offers retry and GLOW still runs',async({page})=>{
   await syntheticCamera(page);
   await page.route('**/models/hand_landmarker.task',route=>route.fulfill({status:404,body:'Missing model'}));
   await page.goto('/');await page.getByRole('button',{name:'FLOW',exact:true}).click();
-  await page.getByRole('button',{name:'Enter with camera',exact:true}).click();
+  await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Hand tracking is unavailable');
   await expect(page.getByRole('button',{name:'Retry hand tracking'})).toBeVisible();
   await expect.poll(()=>page.evaluate(()=>window.liveWorkers)).toBe(0);

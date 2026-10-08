@@ -12,23 +12,23 @@ test('GLOW shell, colors and responsive preview', async ({ page }) => {
   }
   await page.screenshot({ path: '.test-artifacts/glow-desktop.png' });
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole('button', { name: 'Enter with camera' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'ENABLE CAMERA' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '.test-artifacts/glow-mobile.png' });
   expect(errors).toEqual([]);
 });
 test('camera permission errors remain understandable', async ({ page }) => {
   await page.addInitScript(() => { navigator.mediaDevices.getUserMedia = async () => { throw new DOMException('Denied', 'NotAllowedError'); }; });
-  await page.goto('/'); await page.getByRole('button', { name: 'Enter with camera' }).click();
+  await page.goto('/'); await page.getByRole('button', { name: 'ENABLE CAMERA' }).click();
   await expect(page.getByRole('status')).toContainText('permission');
-  await expect(page.getByRole('button', { name: 'Try camera again' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'RETRY CAMERA' })).toBeVisible();
 });
 test('late permission after Stop releases stream', async ({ page }) => {
   await page.addInitScript(() => {
     window.stopped = false;
     navigator.mediaDevices.getUserMedia = () => new Promise(resolve => { window.finishCamera = () => resolve({ getTracks: () => [{ stop: () => { window.stopped = true; } }] }); });
   });
-  await page.goto('/'); await page.getByRole('button', { name: 'Enter with camera' }).click();
+  await page.goto('/'); await page.getByRole('button', { name: 'ENABLE CAMERA' }).click();
   await page.getByRole('button', { name: 'Stop camera' }).click();
   await page.evaluate(() => window.finishCamera());
   await expect.poll(() => page.evaluate(() => window.stopped)).toBe(true);

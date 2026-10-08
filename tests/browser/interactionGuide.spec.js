@@ -1,3 +1,4 @@
+import {startArtworkGame} from './startArtworkGame';
 import { test, expect } from '@playwright/test';
 
 test('each mode keeps its own concise gesture reminder', async ({ page }) => {
@@ -11,9 +12,9 @@ test('each mode keeps its own concise gesture reminder', async ({ page }) => {
   }
   await expect(guide).toContainText('CLOSE HAND');
   await expect(guide).toContainText('MOVE + RELEASE');
-  await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();
+  await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();await startArtworkGame(page);
   await expect(guide).toContainText('CLICK / TAP');
-  await expect(guide).toContainText('Move to nudge balls');
+  await expect(guide).toContainText('Throw with momentum');
   await expect(guide).not.toContainText('CLOSE HAND');
   await expect(page.locator('.launch-artwork canvas')).toBeVisible();
   await page.waitForTimeout(150);

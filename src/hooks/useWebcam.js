@@ -5,17 +5,21 @@ export function useWebcam() {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const generation = useRef(0);
+  const connecting = useRef(false);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const release = useCallback(() => {
     generation.current++;
+    connecting.current = false;
     streamRef.current?.getTracks().forEach(track => { track.onended = null; track.stop(); });
     streamRef.current = null;
     if (videoRef.current) { videoRef.current.pause(); videoRef.current.srcObject = null; }
   }, []);
   const stop = useCallback(() => { release(); setStatus('idle'); setError(''); }, [release]);
   const start = useCallback(async () => {
+    if (connecting.current || streamRef.current?.getVideoTracks().some(track => track.readyState === 'live')) return;
     release();
+    connecting.current = true;
     const token = generation.current;
     setStatus('loading'); setError('');
     try {
@@ -28,7 +32,7 @@ export function useWebcam() {
       if (!video) { release(); return; }
       video.srcObject = stream;
       await video.play();
-      if (token === generation.current) setStatus('ready');
+      if (token === generation.current) { connecting.current = false; setStatus('ready'); }
     } catch (err) {
       if (token !== generation.current) return;
       release(); setError(cameraErrorMessage(err)); setStatus('error');

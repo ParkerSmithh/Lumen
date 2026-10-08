@@ -29,7 +29,7 @@ async function setup(page, camera = false) {
   }, { camera });
   await page.goto('/?debugSlash');
   await page.getByRole('button',{name:'SLASH',exact:true}).click();
-  if(camera)await page.getByRole('button',{name:'Enter with camera',exact:true}).click();
+  if(camera)await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   else await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();
 }
 async function advance(page, seconds) {
@@ -111,7 +111,7 @@ test('camera interruption freezes play, restart requires resume without a false 
   await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeDisabled();
   const before=await page.getByLabel('Time remaining').innerText();await advance(page,90);
   await expect(page.getByLabel('Time remaining')).toHaveText(before);
-  await page.getByRole('button',{name:'Enter with camera',exact:true}).click();
+  await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'RESUME',exact:true}).click();await advance(page,.1);
   await expect(page.getByLabel('Objects slashed')).toHaveText('0');
