@@ -1,4 +1,4 @@
-/** Endless FLOW scoring. Elapsed time is informational and never ends a run. */
+/** FLOW scoring rules; the shared round clock owns the 90-second duration. */
 export function createFlowArcade(){
  let state,seen;
  const snapshot=()=>({...state});

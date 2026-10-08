@@ -21,3 +21,5 @@ Phase C: combo scoring, bonus/splitting geometry, reserved child capacity, six-s
 
 Phase D: fixed-step relative target sweeps, strict clear placement, bounded retries/bonus fallback, moving and timed bonus targets, actual wall-bank metadata. Existing creation/grab/boundary browser regressions 19 passed; new bank/moving/bonus + physics checks 5 passed. Review callback ownership/count reset fixed RED→GREEN; no solver coefficients or gesture thresholds changed.
 Ruling: all arcade targets require clear initial placement (stronger final user constraint); normal targets retry at .25 active-second intervals if crowded. Bank incident axis speed floor .01 per-step prevents resting wall contacts from earning banks; does not change physics or gestures.
+
+Phase E: all 117 unit and 72 browser tests passed; build and local production checks passed. Final visual/layout checks two passed. Independent final review approved with 36 focused tests passing. Performance measurements and physical-testing limits are recorded in arcade-evolution-report.md. Main verified unchanged at 9d11d66; no publication authorized or attempted.

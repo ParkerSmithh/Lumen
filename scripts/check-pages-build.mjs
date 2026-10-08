@@ -1,3 +1,4 @@
+import { shapePath } from '../src/game/lightTrace.js';
 import { installFrameClock } from '../tests/browser/frameClock.js';
 import { browserOptions } from './browser-options.mjs';
 import { chromium, expect as baseExpect } from '@playwright/test';
@@ -119,6 +120,7 @@ try {
     performance.now = () => now() + offset;
     window.requestAnimationFrame = callback => raf(time => callback(time + offset));
     window.advanceGameTime = seconds => { offset += seconds * 1000; };
+    Math.random = () => .5;
   });
   const advance = async seconds => {
     await gamePage.evaluate(seconds => window.advanceGameTime(seconds), seconds);
@@ -146,13 +148,23 @@ try {
     await expect(gamePage.getByRole('button',{name:'START',exact:true})).toBeDisabled();
     await gamePage.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();
     await gamePage.getByRole('button',{name:'START',exact:true}).click();await advance(3);
-    await expect(gamePage.getByLabel('Time remaining')).toHaveText(duration===90?'1:30':'2:00');await advance(duration);
+    await expect(gamePage.getByLabel('Time remaining')).toHaveText(duration===90?'1:30':'2:00');
+    await expect(gamePage.getByLabel('Score',{exact:true})).toHaveText('0');
+    if(mode==='FLOW'){
+      for(const p of shapePath(0,{x:.16,y:.3,width:.68,height:.38},1366,768)){await gamePage.mouse.move(p.x*1366,p.y*768);await gamePage.waitForTimeout(16);}
+    }else await gamePage.mouse.click(683,384);
+    const expectedScore=mode==='FLOW'?200:100;
+    await expect(gamePage.getByLabel('Score',{exact:true})).toHaveText(String(expectedScore));
+    await advance(duration);
+    await expect(gamePage.getByText('NEW BEST',{exact:true})).toBeVisible();
+    const saved=await gamePage.evaluate(mode=>JSON.parse(localStorage.getItem('lumen.arcade.bests.v1.'+mode)).metrics,mode);
+    if(saved.score!==expectedScore||saved.count!==1)throw new Error('Incorrect production arcade record '+mode);
     await expect(gamePage.getByRole('button',{name:'PLAY AGAIN',exact:true})).toBeVisible();
     await gamePage.getByRole('button',{name:'PLAY AGAIN',exact:true}).click();await expect(gamePage.getByLabel('Starting in')).toHaveText('3');
   }
   await gamePage.close();
   if (errors.length || failed.length) throw new Error(JSON.stringify({ errors, failed }));
-  console.log(JSON.stringify({ target, referenceClock, offlineFonts, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified', slashGame: 'ready, keyboard countdown, 120-second expiry, results, replay, mode reset verified',flowGame:'90-second expiry and replay verified',kineticGame:'120-second expiry and replay verified' }));
+  console.log(JSON.stringify({ target, referenceClock, offlineFonts, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified', slashGame: 'ready, keyboard countdown, 120-second expiry, results, replay, mode reset verified',flowGame:'90-second expiry, exact trace score 200, saved best and replay verified',kineticGame:'120-second expiry, target score 100, saved best and replay verified' }));
 } finally {
   await browser?.close();
   if (server) await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve()));

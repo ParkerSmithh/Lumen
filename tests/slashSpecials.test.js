@@ -1,3 +1,4 @@
+import {colors} from '../src/colors.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSlashScene, slashObjectTypes } from '../src/effects/slashScene.js';
@@ -63,7 +64,7 @@ test('expiry and reset release splitter reservations, while nonarcade scenes sta
 });
 
 test('bonus and splitter geometry is distinguishable across colors and keeps point values',()=>{
-  for(const color of ['#b06aff','#29cc77','#ff9900']) {
+  for(const [,color] of colors) {
     const draws=[];
     for(const sample of [.5,0,.1]) {
       const {scene,commands}=fixture(sample);scene.setColor(color);scene.update(.04,state(15));scene.draw();
