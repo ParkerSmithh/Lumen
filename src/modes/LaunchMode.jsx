@@ -9,7 +9,7 @@ import { mapLaunchPointer } from '../tracking/launchInput';
 
 export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError}) {
   const hostRef=useRef(null),pointerRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
-  const round=useRound({duration:120,mouseMode,cameraReady,videoRef,trackingError});const gameRef=useRef(null);gameRef.current={session:round.session.current,state:()=>round.clock.tick(performance.now()),hit:()=>round.hit(),color:()=>colorRef.current,reach:()=>{const h=handRef.current,w=hostRef.current?.clientWidth||1,hg=hostRef.current?.clientHeight||1,r=fitContain(h?.sourceWidth||4,h?.sourceHeight||3,w,hg);return {x:(r.x+r.width*.16)/w,y:(r.y+r.height*.30)/hg,width:r.width*.68/w,height:r.height*.40/hg};}};
+  const round=useRound({duration:120,mode:'LAUNCH',mouseMode,cameraReady,videoRef,trackingError});const gameRef=useRef(null);gameRef.current={session:round.session.current,state:()=>round.clock.tick(performance.now()),hit:()=>round.hit(),color:()=>colorRef.current,reach:()=>{const h=handRef.current,w=hostRef.current?.clientWidth||1,hg=hostRef.current?.clientHeight||1,r=fitContain(h?.sourceWidth||4,h?.sourceHeight||3,w,hg);return {x:(r.x+r.width*.16)/w,y:(r.y+r.height*.30)/hg,width:r.width*.68/w,height:r.height*.40/hg};}};
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
   useEffect(()=>{
     let raf,sequence=0,pendingCreation=null,lastHandSequence=null,lastEpoch=round.epoch.current,dragging=false,grabPacket=null;

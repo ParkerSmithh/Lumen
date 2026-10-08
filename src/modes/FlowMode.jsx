@@ -8,7 +8,7 @@ import { fitContain } from '../tracking/utils';
 export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError}) {
   const hostRef=useRef(null),pointerRef=useRef(null),lightRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
   const guideRef=useRef(null),scores=useRef([]),targetRef=useRef(null);const [accuracy,setAccuracy]=useState(null);
-  const round=useRound({duration:90,mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{pointerRef.current=null;targetRef.current?.evaluator.sample(null);if(full){targetRef.current=null;scores.current=[];setAccuracy(null);}}});
+  const round=useRound({duration:90,mode:'FLOW',mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{pointerRef.current=null;targetRef.current?.evaluator.sample(null);if(full){targetRef.current=null;scores.current=[];setAccuracy(null);}}});
   const interactionRef=useRef(onInteraction);interactionRef.current=onInteraction;
   useEffect(()=>{
     let raf,sequence=0,lastMouse=null;
