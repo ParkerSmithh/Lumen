@@ -18,3 +18,6 @@ Phase A: completed-session storage, score/result HUD and optional storage fallba
 Phase B: ordered path-segment accuracy, eight normalized shapes, quality/chain scoring, SKIP, independent fluid pulse. FLOW/creation regression browser checks 5 passed; focused FLOW units 8 passed.
 
 Phase C: combo scoring, bonus/splitting geometry, reserved child capacity, six-second child expiry, eight-object OVERLOAD. 45 focused units and 7 browser regressions passed. Shared/FLOW review deadline inconsistency fixed using atomic round award; regression passed. SLASH review: no blocking findings.
+
+Phase D: fixed-step relative target sweeps, strict clear placement, bounded retries/bonus fallback, moving and timed bonus targets, actual wall-bank metadata. Existing creation/grab/boundary browser regressions 19 passed; new bank/moving/bonus + physics checks 5 passed. Review callback ownership/count reset fixed RED→GREEN; no solver coefficients or gesture thresholds changed.
+Ruling: all arcade targets require clear initial placement (stronger final user constraint); normal targets retry at .25 active-second intervals if crowded. Bank incident axis speed floor .01 per-step prevents resting wall contacts from earning banks; does not change physics or gestures.

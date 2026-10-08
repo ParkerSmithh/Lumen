@@ -1,6 +1,8 @@
+import {createLaunchArcade} from '../game/launchArcade';
+import {GameFeedback} from '../game/GameFeedback';
 import {useRound} from '../game/useRound';
 import {GameHUD} from '../game/GameHUD';
-import { useEffect,useRef } from 'react';
+import { useEffect,useRef,useState } from 'react';
 import Ballpit from '../effects/Ballpit';
 import { createPushDetector } from '../tracking/pushDetector';
 import { createGrabDetector,grabFeatures,launchPointFeatures } from '../tracking/grabDetector';
@@ -9,7 +11,8 @@ import { mapLaunchPointer } from '../tracking/launchInput';
 
 export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError}) {
   const hostRef=useRef(null),pointerRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
-  const round=useRound({duration:120,mode:'LAUNCH',mouseMode,cameraReady,videoRef,trackingError});const gameRef=useRef(null);gameRef.current={session:round.session.current,state:()=>round.clock.tick(performance.now()),hit:()=>round.hit(),color:()=>colorRef.current,reach:()=>{const h=handRef.current,w=hostRef.current?.clientWidth||1,hg=hostRef.current?.clientHeight||1,r=fitContain(h?.sourceWidth||4,h?.sourceHeight||3,w,hg);return {x:(r.x+r.width*.16)/w,y:(r.y+r.height*.30)/hg,width:r.width*.68/w,height:r.height*.40/hg};}};
+  const [arcade]=useState(createLaunchArcade),feedbackRef=useRef(null),feedbackSerial=useRef(0);
+  const round=useRound({duration:120,mode:'LAUNCH',metrics:state=>({...arcade.snapshot(),feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.until?feedbackRef.current.id:null}),onReset:full=>{if(full){arcade.reset();feedbackRef.current=null;}},mouseMode,cameraReady,videoRef,trackingError});const gameRef=useRef(null);gameRef.current={session:round.session.current,state:()=>round.clock.tick(performance.now()),hit:event=>round.hit(1,accepted=>{const reward=arcade.hit(event,accepted.elapsed);if(reward.label)feedbackRef.current={id:++feedbackSerial.current,label:reward.label.startsWith('BANK')?'BANK SHOT':'BONUS',anchor:event.anchor,until:accepted.elapsed+1};}),created:slot=>arcade.created(slot),grabbed:slot=>arcade.grabbed(slot),wallBounce:slot=>arcade.wallBounce(slot,round.clock.tick(performance.now()).elapsed),notify:(label,anchor)=>{feedbackRef.current={id:++feedbackSerial.current,label,anchor,until:round.clock.tick(performance.now()).elapsed+1};round.refresh();},color:()=>colorRef.current,reach:()=>{const h=handRef.current,w=hostRef.current?.clientWidth||1,hg=hostRef.current?.clientHeight||1,r=fitContain(h?.sourceWidth||4,h?.sourceHeight||3,w,hg);return {x:(r.x+r.width*.16)/w,y:(r.y+r.height*.30)/hg,width:r.width*.68/w,height:r.height*.40/hg};}};
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
   useEffect(()=>{
     let raf,sequence=0,pendingCreation=null,lastHandSequence=null,lastEpoch=round.epoch.current,dragging=false,grabPacket=null;
@@ -74,5 +77,5 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,came
       minSize={.25} maxSize={.55} size0={.85} maxZ={3} controllerForce={.35} controllerResponse={40} reducedMotion={reduced}
       colors={[0xffffff,0xffffff]} ambientColor={0xffffff} ambientIntensity={.65} lightIntensity={130}
       materialParams={{metalness:.55,roughness:.24,clearcoat:1,clearcoatRoughness:.12,emissive:0x080808,emissiveIntensity:.5,envMapIntensity:1.1}}/>
-  </div><GameHUD round={round} title="KINETIC" introduction="Create and throw digital matter into the target." label="TARGETS HIT"/></>;
+  </div><GameHUD round={round} title="KINETIC" introduction="Create and throw digital matter into the target." label="TARGETS HIT"/><GameFeedback label={feedbackRef.current?.label} anchor={feedbackRef.current?.anchor} active={round.display.phase==='playing'&&!round.display.paused&&round.display.feedbackId!=null}/></>;
 }
