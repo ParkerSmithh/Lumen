@@ -1,3 +1,5 @@
+import {createFlowArcade} from '../game/flowArcade';
+import {GameFeedback} from '../game/GameFeedback';
 import {useRound} from '../game/useRound';
 import {GameHUD} from '../game/GameHUD';
 import {shapePath,createTraceEvaluator} from '../game/lightTrace';
@@ -8,7 +10,8 @@ import { fitContain } from '../tracking/utils';
 export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError}) {
   const hostRef=useRef(null),pointerRef=useRef(null),lightRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
   const guideRef=useRef(null),scores=useRef([]),targetRef=useRef(null);const [accuracy,setAccuracy]=useState(null);
-  const round=useRound({duration:90,mode:'FLOW',mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{pointerRef.current=null;targetRef.current?.evaluator.sample(null);if(full){targetRef.current=null;scores.current=[];setAccuracy(null);}}});
+  const [arcade]=useState(createFlowArcade),effectRef=useRef(null),feedbackRef=useRef(null),shapeSerial=useRef(0);
+  const round=useRound({duration:90,mode:'FLOW',metrics:state=>({...arcade.snapshot(),accuracy:scores.current.length?scores.current.reduce((a,b)=>a+b,0)/scores.current.length:null,feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.expiresAt?feedbackRef.current.id:null}),mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{pointerRef.current=null;targetRef.current?.evaluator.sample(null);if(full){targetRef.current=null;scores.current=[];setAccuracy(null);arcade.reset();shapeSerial.current=0;effectRef.current=null;feedbackRef.current=null;}}});
   const interactionRef=useRef(onInteraction);interactionRef.current=onInteraction;
   useEffect(()=>{
     let raf,sequence=0,lastMouse=null;
@@ -70,10 +73,12 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
       if(lastEpoch!==round.epoch.current){lastEpoch=round.epoch.current;pointerRef.current=null;lastMouse=null;lastSequence=null;trace.length=0;}
       const state=round.clock.tick(time),w=host.clientWidth,h=host.clientHeight;gctx?.clearRect(0,0,w,h);
       if(state.phase==='playing'&&!state.paused&&gctx){
-        if(!targetRef.current){const hand=handRef.current;const camera=mouseMode?{x:0,y:0,width:w,height:h}:fitContain(hand?.sourceWidth||4,hand?.sourceHeight||3,w,h);const left=Math.max(w*.16,camera.x+camera.width*.1),right=Math.min(w*.84,camera.x+camera.width*.9),top=Math.max(h*.3,camera.y+camera.height*.15),bottom=Math.min(h*.68,camera.y+camera.height*.85);const rect={x:left/w,y:top/h,width:(right-left)/w,height:(bottom-top)/h};const index=Math.min(4,state.count);const path=shapePath(index,rect,w,h);targetRef.current={path,evaluator:createTraceEvaluator(path,w,h),created:time};}
-        const target=targetRef.current;gctx.strokeStyle=colorRef.current;gctx.shadowColor=colorRef.current;gctx.shadowBlur=8;gctx.lineWidth=1.5;gctx.globalAlpha=.55+.1*Math.cos((time-target.created)/450);gctx.beginPath();target.path.forEach((p,i)=>i?gctx.lineTo(p.x*w,p.y*h):gctx.moveTo(p.x*w,p.y*h));gctx.stroke();const start=target.path[0];gctx.globalAlpha=.9;gctx.beginPath();gctx.arc(start.x*w,start.y*h,4,0,Math.PI*2);gctx.stroke();gctx.shadowBlur=0;gctx.globalAlpha=1;
-        const result=target.evaluator.sample(pointerRef.current);if(result.newCompletion){scores.current.push(result.accuracy);setAccuracy(scores.current.reduce((a,b)=>a+b,0)/scores.current.length);round.hit();targetRef.current=null;}
+        if(targetRef.current?.completedAt!=null&&state.elapsed>=targetRef.current.completedAt+.6)targetRef.current=null;
+        if(!targetRef.current){const hand=handRef.current;const camera=mouseMode?{x:0,y:0,width:w,height:h}:fitContain(hand?.sourceWidth||4,hand?.sourceHeight||3,w,h);const left=Math.max(w*.16,camera.x+camera.width*.1),right=Math.min(w*.84,camera.x+camera.width*.9),top=Math.max(h*.3,camera.y+camera.height*.15),bottom=Math.min(h*.68,camera.y+camera.height*.85);const rect={x:left/w,y:top/h,width:(right-left)/w,height:(bottom-top)/h};const index=shapeSerial.current<8?shapeSerial.current:3+(shapeSerial.current-8)%5;const path=shapePath(index,rect,w,h);targetRef.current={id:shapeSerial.current,path,completedAt:null,evaluator:createTraceEvaluator(path,w,h),created:time};}
+        const target=targetRef.current;gctx.strokeStyle=colorRef.current;gctx.shadowColor=colorRef.current;gctx.shadowBlur=8;gctx.lineWidth=1.5;gctx.globalAlpha=target.completedAt===null?.55+.1*Math.cos((time-target.created)/450):.9;gctx.beginPath();target.path.forEach((p,i)=>i?gctx.lineTo(p.x*w,p.y*h):gctx.moveTo(p.x*w,p.y*h));gctx.stroke();const start=target.path[0];gctx.globalAlpha=.9;gctx.beginPath();gctx.arc(start.x*w,start.y*h,4,0,Math.PI*2);gctx.stroke();gctx.shadowBlur=0;gctx.globalAlpha=1;
+        const result=target.completedAt===null?target.evaluator.sample(pointerRef.current):{};if(result.newCompletion){scores.current.push(result.accuracy);setAccuracy(scores.current.reduce((a,b)=>a+b,0)/scores.current.length);const award=arcade.complete(target.id,result.accuracy,state.elapsed);target.completedAt=state.elapsed;shapeSerial.current++;feedbackRef.current={id:target.id,label:award.quality,expiresAt:state.elapsed+1};if(!reduced)effectRef.current={points:target.path.filter((_,i)=>i%13===0),cursor:0,nextAt:time,paused:false};round.hit();}
       }
+      if(effectRef.current)effectRef.current.paused=state.phase!=='playing'||state.paused;
       drawLight(time);raf=requestAnimationFrame(update);
     };
     if(import.meta.env.DEV&&new URLSearchParams(location.search).has('debugTrace'))window.__lumenTrace={target:()=>targetRef.current?.path,state:()=>round.clock.tick(performance.now())};
@@ -81,9 +86,9 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
     return()=>{if(import.meta.env.DEV)delete window.__lumenTrace;observer.disconnect();canvas.width=canvas.height=0;cancelAnimationFrame(raf);pointerRef.current=null;window.removeEventListener('pointermove',mouse);window.removeEventListener('pointerdown',mouse);window.removeEventListener('blur',leave);document.removeEventListener('pointerleave',leave);};
   },[handRef,mouseMode]);
   return <><div className={`artwork flow-artwork ${mouseMode?'':'hand-input'}`} ref={hostRef}>
-    <SplashCursor pointerRef={pointerRef} onFailure={onFailure} SIM_RESOLUTION={128} DYE_RESOLUTION={512}
+    <SplashCursor effectRef={effectRef} pointerRef={pointerRef} onFailure={onFailure} SIM_RESOLUTION={128} DYE_RESOLUTION={512}
       DENSITY_DISSIPATION={.25} VELOCITY_DISSIPATION={2} PRESSURE={.1} CURL={3}
       SPLAT_RADIUS={.2} SPLAT_FORCE={6000} COLOR_UPDATE_SPEED={10} SHADING RAINBOW_MODE={false} COLOR={color} />
     <canvas ref={guideRef} className="flow-guide" aria-hidden="true"/><canvas ref={lightRef} className="flow-light" aria-hidden="true"/>
-  </div><GameHUD round={round} title="LIGHT TRACE" introduction="Follow the light with your finger." label="SHAPES" accuracy={accuracy}/></>;
+  </div><GameHUD round={round} title="LIGHT TRACE" introduction="Follow the light with your finger." label="SHAPES" accuracy={accuracy} onSkip={()=>{const state=round.clock.tick(performance.now()),target=targetRef.current;if(state.phase!=='playing'||state.paused||!target||target.completedAt!==null)return;arcade.skip(target.id,state.elapsed);shapeSerial.current++;targetRef.current=null;feedbackRef.current=null;effectRef.current=null;pointerRef.current=null;round.epoch.current++;round.refresh();}}/><div className="arcade-state">{round.display.phase==='playing'&&round.display.chain>0&&<span>CHAIN {round.display.chain}</span>}</div><GameFeedback label={feedbackRef.current?.label} active={round.display.phase==='playing'&&!round.display.paused&&round.display.feedbackId!=null}/></>;
 }

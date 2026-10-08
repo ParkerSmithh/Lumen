@@ -22,12 +22,13 @@ function SplashCursor({
   RAINBOW_MODE = true,
   COLOR = '#ff0000',
   pointerRef,
+  effectRef,
   onFailure
 }) {
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
-  const inputRef = useRef({ pointerRef, onFailure, COLOR });
-  inputRef.current = { pointerRef, onFailure, COLOR };
+  const inputRef = useRef({ pointerRef, effectRef, onFailure, COLOR });
+  inputRef.current = { pointerRef, effectRef, onFailure, COLOR };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -720,6 +721,7 @@ function SplashCursor({
       if (resizeCanvas()) initFramebuffers();
       updateColors(dt);
       updateExternalPointer();
+      updateFeedback();
       applyInputs();
       step(dt);
       render(null);
@@ -757,6 +759,12 @@ function SplashCursor({
     }
 
     const consumed = {};
+    function updateFeedback(){
+      const effect=inputRef.current.effectRef?.current;
+      if(!effect||effect.paused||effect.cursor>=effect.points.length||performance.now()<effect.nextAt)return;
+      const point=effect.points[effect.cursor++],color=generateColor();effect.nextAt=performance.now()+70;
+      splat(point.x,1-point.y,0,0,{r:color.r*.7,g:color.g*.7,b:color.b*.7});
+    }
     function updateExternalPointer() {
       const input = inputRef.current.pointerRef?.current;
       const movement = consumePointer(consumed, input, performance.now());

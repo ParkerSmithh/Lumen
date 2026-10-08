@@ -14,3 +14,5 @@ SLASH normal/parent/child 100, bonus 300, combos 1/2/3/4x at 1/3/6/10;
 LAUNCH normal100/bonus200 + bank100 within3 active seconds.
 
 Phase A: completed-session storage, score/result HUD and optional storage fallback. Unit suite 103 passed; existing game/camera lifecycle browser checks 17 passed; build passed.
+
+Phase B: ordered path-segment accuracy, eight normalized shapes, quality/chain scoring, SKIP, independent fluid pulse. FLOW/creation regression browser checks 5 passed; focused FLOW units 8 passed.
