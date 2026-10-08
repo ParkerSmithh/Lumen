@@ -16,3 +16,5 @@ LAUNCH normal100/bonus200 + bank100 within3 active seconds.
 Phase A: completed-session storage, score/result HUD and optional storage fallback. Unit suite 103 passed; existing game/camera lifecycle browser checks 17 passed; build passed.
 
 Phase B: ordered path-segment accuracy, eight normalized shapes, quality/chain scoring, SKIP, independent fluid pulse. FLOW/creation regression browser checks 5 passed; focused FLOW units 8 passed.
+
+Phase C: combo scoring, bonus/splitting geometry, reserved child capacity, six-second child expiry, eight-object OVERLOAD. 45 focused units and 7 browser regressions passed. Shared/FLOW review deadline inconsistency fixed using atomic round award; regression passed. SLASH review: no blocking findings.

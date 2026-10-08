@@ -1,3 +1,5 @@
+import {ResultBests} from './GameHUD';
+import {GameFeedback} from './GameFeedback';
 import { useEffect, useRef } from 'react';
 
 const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
@@ -8,9 +10,9 @@ export function SlashHUD({ game, canPlay, onStart, onResume }) {
     if (game.phase === 'results' || game.paused) action.current?.focus({ preventScroll: true });
   }, [game.phase, game.paused]);
   const running = game.phase === 'playing' || game.phase === 'results';
-  return <>
+  return <><div className="arcade-state">{game.phase==='playing'&&game.overload&&<span>OVERLOAD</span>}</div><GameFeedback label={game.feedbackLabel|| (game.combo>0?'COMBO '+game.combo:null)} active={game.phase==='playing'&&!game.paused}/>
     {running && <div className={`slash-hud${game.seconds <= 10 ? ' final-seconds' : ''}`} aria-label="SLASH session">
-      <div><span>SLASHED</span><strong aria-label="Objects slashed">{game.count}</strong></div>
+      <div className="hud-metrics"><div><span>SCORE</span><strong aria-label="Score">{game.score||0}</strong></div><div><span>SLASHED</span><strong aria-label="Objects slashed">{game.count}</strong></div></div>
       <time aria-label="Time remaining">{formatTime(game.seconds)}</time>
     </div>}
     {(game.phase !== 'playing' || game.paused) && <section className="slash-game-overlay" aria-label="SLASH game">
@@ -23,7 +25,7 @@ export function SlashHUD({ game, canPlay, onStart, onResume }) {
         {!canPlay && <p className="slash-input-hint">Start your camera or use mouse / touch below.</p>}
       </> : game.phase === 'countdown' ? <div className="slash-countdown" aria-label="Starting in" aria-live="polite" aria-atomic="true">{game.countdown}</div> : <>
         <h2 aria-label="Final result">{game.count} SLASHED</h2>
-        <p>Digital matter, undone.</p>
+        <p>Digital matter, undone.</p><p aria-label="Final score">{game.score||0} POINTS</p><ResultBests bests={game.bests} newBest={game.newBest} label="SLASHED"/>
         <button ref={action} className="enter" disabled={!canPlay} onClick={onStart}>PLAY AGAIN</button>
         {!canPlay && <p className="slash-input-hint">Start your camera or use mouse / touch below.</p>}
       </>}
