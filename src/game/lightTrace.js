@@ -6,7 +6,7 @@ export function shapePath(index,rect,w,h){
  const lengths=[0];for(let i=1;i<raw.length;i++)lengths.push(lengths.at(-1)+Math.hypot((raw[i].x-raw[i-1].x)*w,(raw[i].y-raw[i-1].y)*h));
  const out=[];let j=1;for(let i=0;i<=100;i++){const d=lengths.at(-1)*i/100;while(j<raw.length-1&&lengths[j]<d)j++;const f=(d-lengths[j-1])/(lengths[j]-lengths[j-1]||1);out.push({x:raw[j-1].x+(raw[j].x-raw[j-1].x)*f,y:raw[j-1].y+(raw[j].y-raw[j-1].y)*f});}return out;
 }
-export function createTraceEvaluator(path,w,h){
+function createOrderedTraceEvaluator(path,w,h){
  const tolerance=Math.max(18,Math.min(38,Math.min(w,h)*.045));let cursor=0,last=null,sequence=null,complete=false,totalDistance=0,errorDistance=0,travel=0;
  const distance=(a,b)=>Math.hypot((a.x-b.x)*w,(a.y-b.y)*h);const length=path.slice(1).reduce((n,p,i)=>n+distance(p,path[i]),0);
  return {get progress(){return cursor/(path.length-1);},sample(p){let newCompletion=false;
@@ -23,5 +23,31 @@ export function createTraceEvaluator(path,w,h){
  }
  last={...p};if(cursor>=path.length-4&&travel>=length*.75){complete=true;newCompletion=true;}
  return {complete,newCompletion,accuracy:100*Math.max(0,1-errorDistance/(totalDistance*tolerance||1)),progress:cursor/(path.length-1)};
+ }};
+}
+
+/** Keep ordered coverage, but do not require an invisible tracing direction. */
+export function createTraceEvaluator(path,w,h){
+ const distance=(a,b)=>Math.hypot((a.x-b.x)*w,(a.y-b.y)*h);
+ const closed=path.length>3&&distance(path[0],path.at(-1))<1;
+ const tolerance=Math.max(18,Math.min(38,Math.min(w,h)*.045));
+ let candidates=closed?null:[createOrderedTraceEvaluator(path,w,h),createOrderedTraceEvaluator([...path].reverse(),w,h)],winner=null,anchorPoint=null;
+ return {get progress(){return winner?winner.progress:candidates?Math.max(...candidates.map(c=>c.progress)):0;},sample(point){
+  if(winner)return winner.sample(point);
+  const reposition=closed&&candidates&&anchorPoint&&Math.max(...candidates.map(c=>c.progress))<.02&&point?.active&&distance(point,anchorPoint)>tolerance*2;
+  if(!candidates||reposition){
+   if(!point?.active||!Number.isFinite(point.x+point.y+point.timestamp))return {complete:false,progress:0};
+   const loop=path.slice(0,-1);let anchor=0,best=Infinity;
+   for(let i=0;i<loop.length;i++){const d=distance(point,loop[i]);if(d<best){best=d;anchor=i;}}
+   if(best>tolerance)return {complete:false,progress:0};
+   anchorPoint=loop[anchor];
+   const ordered=[...loop.slice(anchor),...loop.slice(0,anchor),loop[anchor]];
+   candidates=[createOrderedTraceEvaluator(ordered,w,h),createOrderedTraceEvaluator([...ordered].reverse(),w,h)];
+  }
+  const results=candidates.map(c=>c.sample(point));
+  const completed=results.findIndex(r=>r.newCompletion);
+  if(completed!==-1){winner=candidates[completed];return results[completed];}
+  const best=candidates[0].progress>=candidates[1].progress?0:1;
+  return {...results[best],progress:candidates[best].progress};
  }};
 }

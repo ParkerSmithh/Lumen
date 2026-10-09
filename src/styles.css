@@ -121,3 +121,5 @@ main:has(.flow-artwork):has(.slash-hud) .live-caption:not(.has-error),main:has(.
 .echoes-open{position:absolute;right:48px;top:108px;z-index:8;font-size:10px;letter-spacing:.14em;color:#dcc5ff;padding:10px}.echo-loading{position:absolute;inset:0;z-index:30;background:#050407;display:grid;place-content:center;text-align:center}.echo-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}@media(max-width:800px){.echoes-open{top:151px;right:20px}}@media(max-height:600px){.echoes-open{top:100px}}
 
 .mode-stage:has(.slash-game-overlay)~.lumen-chrome .live-caption:not(.has-error){opacity:0;pointer-events:none}
+
+.trace-status{position:absolute;top:185px;left:50%;transform:translateX(-50%);display:flex;gap:12px;align-items:center;pointer-events:none;font-size:9px;letter-spacing:.08em;color:#c2b4ce;white-space:nowrap}.trace-status[hidden]{display:none}.trace-status [role=progressbar]{color:var(--light);font-variant-numeric:tabular-nums;min-width:3ch}@media(max-width:800px){.trace-status{top:184px;font-size:8px}}@media(max-height:600px){.trace-status{top:158px}}
