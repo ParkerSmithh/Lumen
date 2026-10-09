@@ -2,7 +2,7 @@ import { test,expect } from '@playwright/test';
 
 async function syntheticCamera(page) {
   await page.addInitScript(()=>{
-    window.cameraCalls=0;window.liveWorkers=0;window.createdWorkers=0;window.glResources=0;window.launchContexts=0;window.pendingFrames=new Set();
+    window.cameraCalls=0;window.liveWorkers=0;window.createdWorkers=0;window.glResources=0;window.gridResources=0;window.gridContexts=0;window.launchContexts=0;window.pendingFrames=new Set();
     const originalRAF=requestAnimationFrame.bind(window),originalCancel=cancelAnimationFrame.bind(window);
     window.requestAnimationFrame=callback=>{let id;id=originalRAF(time=>{window.pendingFrames.delete(id);callback(time);});window.pendingFrames.add(id);return id;};
     window.cancelAnimationFrame=id=>{window.pendingFrames.delete(id);originalCancel(id);};
@@ -17,18 +17,19 @@ async function syntheticCamera(page) {
       if(ctx&&type.includes('webgl')&&!seen.has(ctx)){
         seen.add(ctx);
         const allocations=[];
-        const launch=!!this.closest('.launch-artwork');
+        const launch=!!this.closest('.launch-artwork'),grid=!!this.closest('.gridscan');
+        if(grid)window.gridContexts++;
         if(launch)window.launchContexts++;
         this.addEventListener('webglcontextlost',()=>{
           // Context loss releases driver allocations, including Three's internal defaults.
-          for(const objects of allocations){window.glResources-=objects.size;objects.clear();}
-          if(launch)window.launchContexts--;
+          for(const objects of allocations){window.glResources-=objects.size;if(grid)window.gridResources-=objects.size;objects.clear();}
+          if(launch)window.launchContexts--;if(grid)window.gridContexts--;
         },{once:true});
         for(const kind of ['Texture','Framebuffer','Program','Shader','Buffer']){
           const objects=new Set(),create=ctx['create'+kind].bind(ctx),remove=ctx['delete'+kind].bind(ctx);
           allocations.push(objects);
-          ctx['create'+kind]=(...params)=>{const resource=create(...params);if(resource){objects.add(resource);window.glResources++;}return resource;};
-          ctx['delete'+kind]=resource=>{if(objects.delete(resource))window.glResources--;remove(resource);};
+          ctx['create'+kind]=(...params)=>{const resource=create(...params);if(resource){objects.add(resource);window.glResources++;if(grid)window.gridResources++;}return resource;};
+          ctx['delete'+kind]=resource=>{if(objects.delete(resource)){window.glResources--;if(grid)window.gridResources--;}remove(resource);};
         }
       }
       return ctx;
@@ -58,8 +59,10 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
     await expect(page.getByRole('status')).toContainText('Raise your hand');
     expect(await page.evaluate(()=>window.liveWorkers)).toBe(workerCount);
     expect(await page.evaluate(()=>window.createdWorkers)).toBe(createdWorkers);
-    await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(3);
-    await expect.poll(()=>page.evaluate(()=>window.glResources)).toBe(0);
+    await expect(page.locator('.gridscan canvas')).toBeVisible();
+    await expect.poll(()=>page.evaluate(()=>window.pendingFrames.size)).toBeLessThanOrEqual(4);
+    await expect.poll(()=>page.evaluate(()=>window.gridContexts)).toBe(1);
+    await expect.poll(()=>page.evaluate(()=>window.glResources-window.gridResources)).toBe(0);
     for(const next of ['LAUNCH','FLOW','LAUNCH']){
       await page.getByRole('button',{name:next,exact:true}).click();
       await expect(page.getByRole('status')).toContainText('Raise your index finger');
@@ -71,6 +74,8 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
     await expect(page.getByRole('status')).toContainText('Step into view');
     await expect.poll(()=>page.evaluate(()=>window.glResources)).toBe(glowResources);
     await expect.poll(()=>page.evaluate(()=>window.launchContexts)).toBe(0);
+    await expect.poll(()=>page.evaluate(()=>window.gridContexts)).toBe(0);
+    await expect.poll(()=>page.evaluate(()=>window.gridResources)).toBe(0);
   }
   await page.getByRole('button',{name:'SLASH',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Raise your hand');

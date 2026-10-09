@@ -1,13 +1,14 @@
 import {createSlashArcade,slashArcadeDifficulty} from '../game/slashArcade';
 import {personalBests} from '../game/personalBests';
 import {awardRoundHit} from '../game/roundAward';
-import { useEffect,useRef,useState } from 'react';
+import { lazy,Suspense,useEffect,useRef,useState } from 'react';
 import { createSlashDetector,handEdge } from '../tracking/slashDetector';
 import { createSlashFrameMotion } from '../tracking/slashFrameMotion';
 import { fitContain } from '../tracking/utils';
 import { createSlashScene } from '../effects/slashScene';
 import { createSlashGame } from '../game/slashGame';
 import { SlashHUD } from '../game/SlashHUD';
+const GridScan=lazy(()=>import('../effects/GridScan').catch(()=>({default:()=>null})));
 
 export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,onFailure,onSessionStart,onStateChange,echoSession}) {
   const [arcade]=useState(createSlashArcade);
@@ -109,5 +110,5 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
     raf=requestAnimationFrame(draw);
     return()=>{offGallery?.();cancelAnimationFrame(raf);observer.disconnect();window.removeEventListener('pointerdown',down);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',reset);window.removeEventListener('pointercancel',reset);window.removeEventListener('blur',reset);document.removeEventListener('visibilitychange',visibility);reset();game.reset();actions.current=null;if(import.meta.env.DEV)delete window.__lumenSlash;frameCanvas.width=frameCanvas.height=0;scene.dispose();canvas.width=canvas.height=0;};
   },[handRef,videoRef,game,arcade]);
-  return <><canvas ref={canvasRef} className={`artwork slash-artwork ${mouseMode?'':'hand-input'}`} aria-hidden="true"/><SlashHUD game={display} canPlay={mouseMode||(cameraReady&&usableCamera)} onStart={()=>actions.current?.start()} onResume={()=>actions.current?.resume()}/></>;
+  return <><div className="slash-grid-background"><Suspense fallback={null}><GridScan sensitivity={.55} lineThickness={1} linesColor="#2F293A" gridScale={.1} scanColor="#FF9FFC" scanOpacity={.4} enablePost bloomIntensity={.6} chromaticAberration={.002} noiseIntensity={.01} lineJitter={.1} scanGlow={.5} scanSoftness={2} enableWebcam={false} showPreview={false} echoSession={echoSession} paused={display.paused}/></Suspense></div><canvas ref={canvasRef} className={`artwork slash-artwork ${mouseMode?'':'hand-input'}`} aria-hidden="true"/><SlashHUD game={display} canPlay={mouseMode||(cameraReady&&usableCamera)} onStart={()=>actions.current?.start()} onResume={()=>actions.current?.resume()}/></>;
 }
