@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { drawEchoComposition } from './echoComposition.js';
 import './gallery.css';
 
-export function EchoGallery({ store, onBack }) {
+export function EchoGallery({ store, session, onConverge, onBack }) {
   const [records, setRecords] = useState(() => store.snapshot());
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [confirmClear,setConfirmClear]=useState(false);
+  const [coreComplete,setCoreComplete]=useState(()=>!!session?.beyond.snapshot().complete);
+  useEffect(()=>session?.beyond.subscribe(()=>setCoreComplete(session.beyond.snapshot().complete)),[session]);
   const canvasRef = useRef(null);
   const backRef = useRef(null);
   const mounted = useRef(false);
@@ -66,10 +69,12 @@ export function EchoGallery({ store, onBack }) {
     <footer className="echo-gallery-footer">
       <p className="echo-gallery-sources">{modes.length ? modes.join(' / ') : 'PRESENCE / CREATION / DESTRUCTION / FORCE'}</p>
       <div className="echo-gallery-actions">
-        <button disabled={!records.length} onClick={() => { store.clear(); setMessage('Echoes cleared. Your next interaction begins a new artwork.'); }}>CLEAR ECHOES</button>
+        {coreComplete&&<button onClick={onConverge}>START CONVERGENCE</button>}
+        <button disabled={!records.length} onClick={() => {if(session?.beyond.snapshot().count>0){setConfirmClear(true);return;}store.clear();setMessage('Echoes cleared. Your next interaction begins a new artwork.');}} >CLEAR ECHOES</button>
         <button className="echo-gallery-save" disabled={!records.length || saving} onClick={save}>{saving ? 'SAVING IMAGE…' : 'SAVE IMAGE'}</button>
       </div>
     </footer>
+    {confirmClear&&<div className="echo-clear-confirm" role="group" aria-label="Confirm clearing echoes and CORE"><p>Clear your artwork and LUMEN CORE progress?</p><button onClick={()=>{store.clear();setConfirmClear(false);setMessage("Echoes and CORE progress cleared.");}}>CLEAR ARTWORK AND CORE</button><button onClick={()=>setConfirmClear(false)}>CANCEL</button></div>}
     <p className="echo-gallery-status" role="status">{message}</p>
   </section>;
 }

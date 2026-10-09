@@ -18,11 +18,12 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, echoS
   const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady }); settings.current = { color, preview, cameraReady };
   useEffect(() => {
     const host = hostRef.current;
-    let canvas, renderer, raf, previousMask, opacity = 0;
+    let canvas, renderer, raf, previousMask, opacity = 0,bodyCenter={x:.5,y:.5};
     const illustrated = previewMask();
     const echoCanvas=document.createElement('canvas');echoCanvas.setAttribute('aria-hidden','true');echoCanvas.style.pointerEvents='none';
     const echoContext=echoCanvas.getContext('2d');
-    const presence=createPresenceEcho({emit:(event,epoch)=>{try{echoSession?.emit(event,epoch);}catch{/* Echoes are optional. */}}});
+    const unregister=echoSession?.registerMode('GLOW',()=>({playing:settings.current.preview||!!(settings.current.cameraReady&&maskRef.current&&performance.now()-maskRef.current.timestamp<500),paused:false,blocked:false,point:bodyCenter,color:settings.current.color,autoAllowed:false}));
+    const presence=createPresenceEcho({onPresence:(input,time)=>{if(input.center)bodyCenter=input.center;echoSession?.beyond.presence(input,time);},drawBeyond:(ctx,w,h,time,reduced)=>echoSession?.beyond.draw(ctx,w,h,time,'GLOW',reduced),emit:(event,epoch)=>{try{echoSession?.emit(event,epoch);}catch{/* Echoes are optional. */}}});
     let echoEpoch=echoSession?.store.epoch;
     const unsubscribe=echoSession?.store.subscribe(()=>{if(echoEpoch!==echoSession.store.epoch){echoEpoch=echoSession.store.epoch;presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);}});
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -58,12 +59,12 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, echoS
       renderer.draw({ video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
       if(echoContext&&echoSession){
         if(fresh&&settings.current.cameraReady&&!settings.current.preview){presence.sample(live,{time,color:settings.current.color,epoch:echoSession.store.epoch});presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,live,reduced.matches);}
-        else{presence.clear();echoContext.clearRect(0,0,echoCanvas.width,echoCanvas.height);}
+        else{echoSession.beyond.presence({valid:false},time);presence.clear();if(settings.current.preview)presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,illustrated,reduced.matches);else echoContext.clearRect(0,0,echoCanvas.width,echoCanvas.height);}
       }
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(raf); unsubscribe?.(); presence.dispose(); echoCanvas.remove(); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
+    return () => { cancelAnimationFrame(raf); unregister?.();unsubscribe?.(); presence.dispose(); echoCanvas.remove(); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
   }, [maskRef, videoRef]);
   return <div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>;
 }

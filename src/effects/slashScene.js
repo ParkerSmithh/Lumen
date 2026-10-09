@@ -10,7 +10,7 @@ export const slashObjectTypes = Object.freeze(Object.fromEntries(
   [['normal',100],['bonus',300],['splitting',100],['child',100]].map(([type,points])=>[type,Object.freeze({value:1,points})])
 ));
 
-export function createSlashScene(ctx, { onLifecycle, arcade=false, random:rng=Math.random, reducedMotion=false } = {}) {
+export function createSlashScene(ctx, { onLifecycle, drawAtmosphere, arcade=false, random:rng=Math.random, reducedMotion=false } = {}) {
   let palette=matterPalette('#b06aff');
   let width=1,height=1,field={x:0,y:0,width:1,height:1},nextSpawn=1,spawned=0,nextId=1,playing=false,ended=false;
   const objects=[],trails=[],flashes=[],fragments=[];
@@ -117,7 +117,7 @@ export function createSlashScene(ctx, { onLifecycle, arcade=false, random:rng=Ma
     for(const p of particles)if(p.life>0){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.exp(-dt*2);p.vy*=Math.exp(-dt*2);}
   }
   function draw() {
-    ctx.clearRect(0,0,width,height);
+    ctx.clearRect(0,0,width,height);try{drawAtmosphere?.(ctx,width,height);}catch{}
     if(overload){ctx.save();ctx.globalAlpha=.045;ctx.fillStyle=palette.color;ctx.fillRect(field.x,field.y,field.width,field.height);ctx.restore();}
     for(const object of objects)drawCrystal(object);
     for(const fragment of fragments){ctx.save();ctx.globalAlpha=Math.min(1,fragment.life*2);ctx.translate(fragment.x,fragment.y);ctx.rotate(fragment.angle);polygon(ctx,fragment.vertices);ctx.fillStyle=fragment.color;ctx.fill();ctx.strokeStyle=fragment.palette.bright;ctx.lineWidth=1;ctx.shadowColor=fragment.palette.color;ctx.shadowBlur=8;ctx.stroke();ctx.restore();}

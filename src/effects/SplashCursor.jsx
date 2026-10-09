@@ -762,6 +762,8 @@ function SplashCursor({
 
     const consumed = {};
     function updateFeedback(){
+      const pulse=inputRef.current.echoSession?.beyond.takeFluidPulse();
+      if(pulse){const color=generateColor(),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,n=reduced?1:6;for(let i=0;i<n;i++){const a=i*Math.PI*2/n,r=reduced?0:.035;splat(pulse.point.x+Math.cos(a)*r,1-pulse.point.y+Math.sin(a)*r,reduced?0:Math.cos(a)*80,reduced?0:Math.sin(a)*80,{r:color.r*.3,g:color.g*.3,b:color.b*.3});}}
       const effect=inputRef.current.effectRef?.current;
       if(!effect||effect.paused||effect.cursor>=effect.points.length||performance.now()<effect.nextAt)return;
       const point=effect.points[effect.cursor++],color=generateColor();effect.nextAt=performance.now()+70;

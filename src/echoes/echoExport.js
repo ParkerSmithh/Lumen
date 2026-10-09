@@ -25,7 +25,7 @@ export async function exportEchoPng(records, options = {}) {
     url = urls.createObjectURL(blob);
     link = doc.createElement('a');
     link.href = url;
-    link.download = 'lumen-echoes.png';
+    link.download = options.filename || 'lumen-echoes.png';
     doc.body.appendChild(link);
     link.click();
     return true;

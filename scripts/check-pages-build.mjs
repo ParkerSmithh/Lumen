@@ -173,7 +173,7 @@ try {
   await expect(gamePage.getByRole('button',{name:'RESUME',exact:true})).toBeVisible();
   await expect(gamePage.getByLabel('Time remaining')).toHaveText(echoTime);
   await gamePage.getByRole('button',{name:'ECHOES',exact:true}).click();
-  await gamePage.getByRole('button',{name:'CLEAR ECHOES'}).click();
+  await gamePage.getByRole('button',{name:'CLEAR ECHOES'}).click();await gamePage.getByRole('button',{name:'CLEAR ARTWORK AND CORE'}).click();
   await expect(gamePage.getByRole('button',{name:'SAVE IMAGE'})).toBeDisabled();
   await gamePage.close();
   if (errors.length || failed.length) throw new Error(JSON.stringify({ errors, failed }));

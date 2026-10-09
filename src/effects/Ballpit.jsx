@@ -718,9 +718,9 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   e.style.webkitUserSelect = 'none';
 
   const consumed = {};
-  const bouncedEchoSlots=new Set();
+  const bouncedEchoSlots=new Set(),wallRippleSlots=new Map();
   const forceEcho=createForceEcho(inputRef.current.gameRef?.current?.echoSession);
-  const grabController=createGrabController({onRelease:(slots,throwing,speed)=>{for(const slot of slots){position.fromArray(s.physics.positionData,slot*3).project(i.camera);forceEcho.sample(slot,{x:(position.x+1)/2,y:(1-position.y)/2},simulationTime,true);}forceEcho.release(slots,throwing,speed);}});s.physics.grabController=grabController;let lastGrabSequence=null;
+  const grabController=createGrabController({onRelease:(slots,throwing,speed)=>{for(const slot of slots){position.fromArray(s.physics.positionData,slot*3).project(i.camera);forceEcho.sample(slot,{x:(position.x+1)/2,y:(1-position.y)/2},simulationTime,true);}forceEcho.release(slots,throwing,speed);inputRef.current.gameRef?.current?.observedAction?.();}});s.physics.grabController=grabController;let lastGrabSequence=null;
   const lastWorld = new a();
   const direction = new a();
   const radial = new a();
@@ -807,20 +807,20 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
       s.geometry.dispose();s.material.dispose();s.environmentTarget?.dispose();s.dispose?.();
     }
     s = new Z(i.renderer, e);
-    if(inputRef.current.gameRef)s.physics.onWallBounce=idx=>{bouncedEchoSlots.add(idx);inputRef.current.gameRef?.current?.wallBounce?.(idx);};
+    if(inputRef.current.gameRef)s.physics.onWallBounce=idx=>{bouncedEchoSlots.add(idx);const speed=Math.hypot(...s.physics.velocityData.subarray(idx*3,idx*3+3));if(speed>=.06)wallRippleSlots.set(idx,Math.min(1,speed/.15));inputRef.current.gameRef?.current?.wallBounce?.(idx);};
     i.scene.add(s);
   }
   const targets=createKineticTargets({arcade:!!inputRef.current.gameRef,reducedMotion:t.reducedMotion,onHit:event=>{
     const game=inputRef.current.gameRef?.current;if(!game)return;
     position.set(event.x,event.y,event.z).project(i.camera);
     const accepted=game.hit({...event,anchor:{x:(position.x+1)/2,y:(1-position.y)/2}});
-    if(accepted){forceEcho.hit(event.slot,event.id,game.color());burst=1;burstRadius=event.radius;burstMesh.position.set(event.x,event.y,event.z);targetMesh.visible=false;}
+    if(accepted){forceEcho.hit(event.slot,event.id,game.color(),game.hitDetails?.(event)||{});burst=1;burstRadius=event.radius;burstMesh.position.set(event.x,event.y,event.z);targetMesh.visible=false;}
   }});
   const targetMesh=new Mesh(new RingGeometry(.88,1,64),new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,side:DoubleSide,depthTest:false}));targetMesh.visible=false;i.scene.add(targetMesh);
   const burstMesh=new Mesh(new RingGeometry(.94,1,48),new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:DoubleSide,depthTest:false}));burstMesh.visible=false;i.scene.add(burstMesh);
   let previous=new Float32Array(s.physics.positionData.length);let lastSession=-1,burst=0,burstRadius=1,simulationTime=0,nextPlacement=0,lastTargetId=null;
   function gameStep(dt){const game=inputRef.current.gameRef?.current;if(!game)return true;
-    if(game.session!==lastSession){lastSession=game.session;bouncedEchoSlots.clear();forceEcho.reset();targets.reset();simulationTime=0;nextPlacement=0;lastTargetId=null;burst=0;burstMesh.visible=false;created=0;grabController.release(s.physics);s.config.activeCount=1;s.count=1;s.physics.positionData.fill(0);s.physics.velocityData.fill(0);consumed.active=false;accumulated=0;}
+    if(game.session!==lastSession){lastSession=game.session;bouncedEchoSlots.clear();wallRippleSlots.clear();forceEcho.reset();targets.reset();simulationTime=0;nextPlacement=0;lastTargetId=null;burst=0;burstMesh.visible=false;created=0;grabController.release(s.physics);s.config.activeCount=1;s.count=1;s.physics.positionData.fill(0);s.physics.velocityData.fill(0);consumed.active=false;accumulated=0;}
     const state=game.state();const playing=state.phase==='playing'&&!state.paused;
     if(!playing){targetMesh.visible=false;burstMesh.visible=false;grabController.release(s.physics);consumed.active=false;s.config.controlSphere0=false;return false;}
     burst=Math.max(0,burst-Math.max(0,dt)*3);burstMesh.visible=burst>0;burstMesh.material.opacity=burst*.6;burstMesh.material.color.set(game.color());burstMesh.scale.setScalar(burstRadius*(1+(1-burst)*.4));
@@ -835,7 +835,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   i.onBeforeRender = e => {
     if (c) { accumulated = 0; return; }
     if(!gameStep(e.delta)){accumulated=0;return;}
-    applyInput();
+    applyInput();inputRef.current.gameRef?.current?.publishInteraction?.({held:grabController.count});
     // The supplied solver uses per-step velocities/friction. Keep that solver at 60 Hz.
     accumulated = Math.min(accumulated + Math.max(0, e.delta), .05);
     while (accumulated + 1e-8 >= 1 / 60) {
@@ -843,7 +843,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
       const game=inputRef.current.gameRef?.current;
       if(game){simulationTime+=1/60;s.physics.stepPrevious=previous;targets.advance(s.physics,game.state().elapsed,simulationTime,1/60);}
       s.update({ delta: 1 / 60, elapsed: e.elapsed });
-      if(game){if(game.echoSession)for(let slot=1;slot<s.config.activeCount;slot++){if(grabController.has(slot))continue;position.fromArray(s.physics.positionData,slot*3).project(i.camera);forceEcho.sample(slot,{x:(position.x+1)/2,y:(1-position.y)/2},simulationTime,bouncedEchoSlots.has(slot));}bouncedEchoSlots.clear();targets.check(s.physics,previous);game.pendingForce?.(forceEcho.pending());}
+      if(game){if(game.echoSession)for(let slot=1;slot<s.config.activeCount;slot++){if(grabController.has(slot))continue;position.fromArray(s.physics.positionData,slot*3).project(i.camera);forceEcho.sample(slot,{x:(position.x+1)/2,y:(1-position.y)/2},simulationTime,bouncedEchoSlots.has(slot));if(wallRippleSlots.has(slot))game.echoSession?.beyond.activity("LAUNCH",{point:{x:(position.x+1)/2,y:(1-position.y)/2},color:forceEcho.colorFor(slot)||game.color(),intensity:wallRippleSlots.get(slot)});}bouncedEchoSlots.clear();wallRippleSlots.clear();targets.check(s.physics,previous);game.pendingForce?.(forceEcho.pending());}
       accumulated -= 1 / 60;
     }
     if(inputRef.current.gameRef?.current){const target=targets.target;targetMesh.visible=!!target;if(target){targetMesh.position.set(target.x,target.y,target.z);targetMesh.scale.setScalar(target.radius);}}

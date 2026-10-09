@@ -10,15 +10,16 @@ import { predictHandPoint } from '../tracking/handPointer';
 import { fitContain } from '../tracking/utils';
 export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError,echoSession}) {
   const hostRef=useRef(null),pointerRef=useRef(null),lightRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
-  const traceProgressRef=useRef(null);
+  const traceProgressRef=useRef(null),lastDrawMotion=useRef(-Infinity);
   const guideRef=useRef(null),scores=useRef([]),targetRef=useRef(null);const [accuracy,setAccuracy]=useState(null);
   const echoPath=useRef(createEchoPath()),echoToken=useRef(echoSession?.store.epoch),echoSerial=useRef(0),echoScope=useRef(echoSession?.allocateScope());
   const [arcade]=useState(createFlowArcade),effectRef=useRef(null),feedbackRef=useRef(null),shapeSerial=useRef(0);
   const round=useRound({echoSession,duration:90,mode:'FLOW',metrics:state=>({...arcade.snapshot(),accuracy:scores.current.length?scores.current.reduce((a,b)=>a+b,0)/scores.current.length:null,feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.expiresAt?feedbackRef.current.id:null}),mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{echoPath.current.sample(null);pointerRef.current=null;if(effectRef.current)effectRef.current.paused=true;targetRef.current?.evaluator.sample(null);if(full){echoPath.current.clear();targetRef.current=null;scores.current=[];setAccuracy(null);arcade.reset();shapeSerial.current=0;effectRef.current=null;feedbackRef.current=null;}}});
   useEffect(()=>echoSession?.store.subscribe(()=>{if(echoToken.current!==echoSession.store.epoch){echoToken.current=echoSession.store.epoch;echoPath.current.clear();}}),[echoSession]);
+  useEffect(()=>echoSession?.registerMode('FLOW',()=>{const state=round.clock.tick(performance.now());return {playing:state.phase==='playing',paused:state.paused,blocked:performance.now()-lastDrawMotion.current<600,point:pointerRef.current||{x:.5,y:.5},color:colorRef.current,autoAllowed:false};}),[echoSession,round.clock]);
   const interactionRef=useRef(onInteraction);interactionRef.current=onInteraction;
   useEffect(()=>{
-    let raf,sequence=0,lastMouse=null;
+    let raf,sequence=0,lastMouse=null,lastAtmospherePoint=null;
     pointerRef.current=null;
     const host=hostRef.current,canvas=lightRef.current,ctx=canvas.getContext('2d');
     const trace=[];let lastSequence=null,lastEpoch=round.epoch.current;
@@ -29,7 +30,7 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
     const drawLight=time=>{
       if(!ctx)return;
       const pointer=pointerRef.current,w=host.clientWidth,h=host.clientHeight;
-      ctx.clearRect(0,0,w,h);
+      ctx.clearRect(0,0,w,h);echoSession?.beyond.draw(ctx,w,h,time,'FLOW',reduced);
       if(pointer?.active&&pointer.sequence!==lastSequence){
         if(pointer.reset||trace.at(-1)?.source!==pointer.source)trace.length=0;
         trace.push({...pointer});if(trace.length>8)trace.shift();lastSequence=pointer.sequence;
@@ -76,14 +77,14 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
             velocityX:hand.velocity.x*rect.width/width,velocityY:hand.velocity.y*rect.height/height};
         }
       }
-      if(lastEpoch!==round.epoch.current){lastEpoch=round.epoch.current;pointerRef.current=null;lastMouse=null;lastSequence=null;trace.length=0;}
+      if(lastEpoch!==round.epoch.current){lastEpoch=round.epoch.current;pointerRef.current=null;lastMouse=null;lastSequence=null;lastAtmospherePoint=null;trace.length=0;}
       const state=round.clock.tick(time),w=host.clientWidth,h=host.clientHeight;gctx?.clearRect(0,0,w,h);
       if(state.phase==='playing'&&!state.paused&&gctx){
         if(targetRef.current?.completedAt!=null&&state.elapsed>=targetRef.current.completedAt+.6)targetRef.current=null;
         if(!targetRef.current){echoPath.current.clear();const hand=handRef.current;const camera=mouseMode?{x:0,y:0,width:w,height:h}:fitContain(hand?.sourceWidth||4,hand?.sourceHeight||3,w,h);const left=Math.max(w*.16,camera.x+camera.width*.1),right=Math.min(w*.84,camera.x+camera.width*.9),top=Math.max(h*.3,camera.y+camera.height*.15),bottom=Math.min(h*.68,camera.y+camera.height*.85);const rect={x:left/w,y:top/h,width:(right-left)/w,height:(bottom-top)/h};const index=shapeSerial.current<8?shapeSerial.current:3+(shapeSerial.current-8)%5;const path=shapePath(index,rect,w,h);targetRef.current={id:shapeSerial.current,path,completedAt:null,evaluator:createTraceEvaluator(path,w,h),created:time};}
         const target=targetRef.current;const progress=target.completedAt!==null?100:Math.floor(target.evaluator.progress*20)*5;const indicator=traceProgressRef.current;if(indicator&&indicator.getAttribute("aria-valuenow")!==String(progress)){indicator.setAttribute("aria-valuenow",String(progress));indicator.textContent=progress+"%";}gctx.strokeStyle=colorRef.current;gctx.shadowColor=colorRef.current;gctx.shadowBlur=8;gctx.lineWidth=1.5;gctx.globalAlpha=target.completedAt===null?.55+.1*Math.cos((time-target.created)/450):.9;gctx.beginPath();target.path.forEach((p,i)=>i?gctx.lineTo(p.x*w,p.y*h):gctx.moveTo(p.x*w,p.y*h));gctx.stroke();const start=target.path[0];gctx.globalAlpha=.9;gctx.beginPath();gctx.arc(start.x*w,start.y*h,4,0,Math.PI*2);gctx.stroke();gctx.shadowBlur=0;gctx.globalAlpha=1;
-        if(target.completedAt===null)echoPath.current.sample(pointerRef.current);
-        const result=target.completedAt===null?target.evaluator.sample(pointerRef.current):{};if(result.newCompletion){round.hit(1,accepted=>{echoSession?.emit({id:"creation:"+echoScope.current+":"+(++echoSerial.current)+":"+round.session.current,mode:"FLOW",kind:"creation",color:colorRef.current,points:echoPath.current.points(),aspect:w/h,intensity:result.accuracy/100,duration:2.5},echoToken.current);scores.current.push(result.accuracy);setAccuracy(scores.current.reduce((a,b)=>a+b,0)/scores.current.length);const award=arcade.complete(target.id,result.accuracy,accepted.elapsed);target.completedAt=accepted.elapsed;shapeSerial.current++;feedbackRef.current={id:target.id,label:award.quality,expiresAt:accepted.elapsed+1};if(!reduced)effectRef.current={points:target.path.filter((_,i)=>i%13===0),cursor:0,nextAt:time,paused:false};});}
+        if(target.completedAt===null){const p=pointerRef.current;if(p?.active&&p.sequence!==lastAtmospherePoint?.sequence){const previous=lastAtmospherePoint,dx=previous?(p.x-previous.x)*w:0,dy=previous?(p.y-previous.y)*h:0,d=Math.hypot(dx,dy);if(previous&&!p.reset&&p.source===previous.source&&p.timestamp>previous.timestamp&&p.timestamp-previous.timestamp<=250&&d>1&&d<=Math.max(80,Math.min(w,h)*.18)){lastDrawMotion.current=time;echoSession?.beyond.activity('FLOW',{point:p,color:colorRef.current,intensity:Math.min(1,d/50)},time);}lastAtmospherePoint={...p};}if(!p?.active)lastAtmospherePoint=null;echoPath.current.sample(p);}
+        const result=target.completedAt===null?target.evaluator.sample(pointerRef.current):{};if(result.newCompletion){round.hit(1,accepted=>{echoSession?.emit({id:"creation:"+echoScope.current+":"+(++echoSerial.current)+":"+round.session.current,mode:"FLOW",kind:"creation",color:colorRef.current,points:echoPath.current.points(),aspect:w/h,intensity:result.accuracy/100,duration:2.5},echoToken.current,{accuracy:result.accuracy});scores.current.push(result.accuracy);setAccuracy(scores.current.reduce((a,b)=>a+b,0)/scores.current.length);const award=arcade.complete(target.id,result.accuracy,accepted.elapsed);target.completedAt=accepted.elapsed;shapeSerial.current++;feedbackRef.current={id:target.id,label:award.quality,expiresAt:accepted.elapsed+1};if(!reduced)effectRef.current={points:target.path.filter((_,i)=>i%13===0),cursor:0,nextAt:time,paused:false};});}
       }
       if(effectRef.current)effectRef.current.paused=state.phase!=='playing'||state.paused;
       drawLight(time);echoSession?.draw(ctx,w,h,time,"FLOW",reduced);raf=requestAnimationFrame(update);
