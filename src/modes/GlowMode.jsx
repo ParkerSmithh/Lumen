@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createGlowRenderer } from '../effects/glowRenderer';
+import { createPresenceEcho } from '../echoes/presenceEcho.js';
 
 function previewMask() {
   const c = document.createElement('canvas'); c.width = 320; c.height = 400;
@@ -13,12 +14,17 @@ function previewMask() {
   const pixels = ctx.getImageData(0,0,320,400).data;
   return { width: 320, height: 400, sourceWidth: 640, sourceHeight: 800, values: Float32Array.from({ length: 320*400 }, (_,i) => pixels[i*4+3]/255), timestamp: Infinity };
 }
-export function GlowMode({ maskRef, videoRef, cameraReady, color, preview }) {
+export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, echoSession }) {
   const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady }); settings.current = { color, preview, cameraReady };
   useEffect(() => {
     const host = hostRef.current;
     let canvas, renderer, raf, previousMask, opacity = 0;
     const illustrated = previewMask();
+    const echoCanvas=document.createElement('canvas');echoCanvas.setAttribute('aria-hidden','true');echoCanvas.style.pointerEvents='none';
+    const echoContext=echoCanvas.getContext('2d');
+    const presence=createPresenceEcho({emit:(event,epoch)=>{try{echoSession?.emit(event,epoch);}catch{/* Echoes are optional. */}}});
+    let echoEpoch=echoSession?.store.epoch;
+    const unsubscribe=echoSession?.store.subscribe(()=>{if(echoEpoch!==echoSession.store.epoch){echoEpoch=echoSession.store.epoch;presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);}});
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const resize = () => {
       const video=videoRef?.current,aspect=video?.videoWidth/video?.videoHeight||4/3;
@@ -26,6 +32,8 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview }) {
       host.style.width=width+'px';host.style.height=width/aspect+'px';
       const scale = Math.min(devicePixelRatio, 1.5, 1280 / host.clientWidth, 900 / host.clientHeight);
       renderer.resize(Math.round(host.clientWidth * scale), Math.round(host.clientHeight * scale));
+      const echoScale=Math.min(1,640/host.clientWidth,480/host.clientHeight);
+      echoCanvas.width=Math.max(1,Math.round(host.clientWidth*echoScale));echoCanvas.height=Math.max(1,Math.round(host.clientHeight*echoScale));presence.clear();
     };
     const lost = event => { event.preventDefault(); renderer.dispose(); mount(true); };
     const mount = fallback => {
@@ -33,12 +41,13 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview }) {
       canvas = document.createElement('canvas'); canvas.setAttribute('aria-hidden','true'); host.append(canvas);
       if (fallback) canvas.getContext('2d');
       try { renderer = createGlowRenderer(canvas); } catch { canvas.remove(); canvas = document.createElement('canvas'); canvas.getContext('2d'); host.append(canvas); renderer = createGlowRenderer(canvas); }
-      canvas.addEventListener('webglcontextlost', lost); resize();
+      canvas.addEventListener('webglcontextlost', lost); host.append(echoCanvas); resize();
     };
     mount(false);
     const observer = new ResizeObserver(resize); observer.observe(host.parentElement);
     let aspect=0;
     const draw = time => {
+      if(echoSession?.gate.suspended){presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);raf=requestAnimationFrame(draw);return;}
       const video=videoRef?.current;
       if(video?.videoWidth&&aspect!==video.videoWidth/video.videoHeight){aspect=video.videoWidth/video.videoHeight;resize();}
       const live = maskRef.current;
@@ -47,10 +56,14 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview }) {
       if (mask) previousMask = mask;
       opacity += ((mask ? 1 : 0) - opacity) * .12;
       renderer.draw({ video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
+      if(echoContext&&echoSession){
+        if(fresh&&settings.current.cameraReady&&!settings.current.preview){presence.sample(live,{time,color:settings.current.color,epoch:echoSession.store.epoch});presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,live,reduced.matches);}
+        else{presence.clear();echoContext.clearRect(0,0,echoCanvas.width,echoCanvas.height);}
+      }
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(raf); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
+    return () => { cancelAnimationFrame(raf); unsubscribe?.(); presence.dispose(); echoCanvas.remove(); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
   }, [maskRef, videoRef]);
   return <div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>;
 }

@@ -1,0 +1,103 @@
+{
+  "environment": "Browser CPU benchmark: deterministic original SLASH canvas renderer and Ballpit solver; 60 warmup + 600 measured frames; no webcam or LAUNCH GPU render. LAUNCH includes 150 rolling buffers, six throw paths and explicit hit-event fixtures.",
+  "slash": [
+    {
+      "enabled": false,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.40000009536743164
+      },
+      "maxObjects": 8,
+      "maxParticles": 192,
+      "hits": 440,
+      "records": 0
+    },
+    {
+      "enabled": true,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.5
+      },
+      "maxObjects": 8,
+      "maxParticles": 192,
+      "hits": 440,
+      "records": 64
+    }
+  ],
+  "launch": [
+    {
+      "scenario": "airborne",
+      "enabled": false,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "finite": true,
+      "maxSpeed": 0.15000000563497032,
+      "records": 0
+    },
+    {
+      "scenario": "airborne",
+      "enabled": true,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "finite": true,
+      "maxSpeed": 0.15000000563497032,
+      "records": 40
+    },
+    {
+      "scenario": "crowded",
+      "enabled": false,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "finite": true,
+      "maxSpeed": 0.15000000733407337,
+      "records": 0
+    },
+    {
+      "scenario": "crowded",
+      "enabled": true,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "finite": true,
+      "maxSpeed": 0.15000000733407337,
+      "records": 40
+    },
+    {
+      "scenario": "resting",
+      "enabled": false,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "finite": true,
+      "maxSpeed": 0.15000000596046448,
+      "records": 0
+    },
+    {
+      "scenario": "resting",
+      "enabled": true,
+      "cpu": {
+        "samples": 600,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "finite": true,
+      "maxSpeed": 0.15000000596046448,
+      "records": 40
+    }
+  ]
+}

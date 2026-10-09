@@ -1,3 +1,4 @@
+import {createForceEcho} from '../echoes/forceEcho';
 import {isBankBounce} from '../game/launchArcade';
 import { RingGeometry, MeshBasicMaterial, Mesh, DoubleSide } from 'three';
 import {createKineticTargets} from '../game/kineticTargets';
@@ -46,6 +47,7 @@ class x {
   size = { width: 0, height: 0, wWidth: 0, wHeight: 0, ratio: 0, pixelRatio: 0 };
   render = this.#i;
   onBeforeRender = () => {};
+  isSuspended = () => false;
   onAfterRender = () => {};
   onAfterResize = () => {};
   #s = false;
@@ -206,6 +208,7 @@ class x {
       this.#h.delta = Math.min(this.#c.getDelta(), .033);
       this.#h.elapsed += this.#h.delta;
       try {
+        if(this.isSuspended())return;
         this.onBeforeRender(this.#h); this.render(); this.onAfterRender(this.#h);
       } catch (error) { this.#z(); this.onError?.(error); }
     };
@@ -715,7 +718,9 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   e.style.webkitUserSelect = 'none';
 
   const consumed = {};
-  const grabController=createGrabController();s.physics.grabController=grabController;let lastGrabSequence=null;
+  const bouncedEchoSlots=new Set();
+  const forceEcho=createForceEcho(inputRef.current.gameRef?.current?.echoSession);
+  const grabController=createGrabController({onRelease:(slots,throwing,speed)=>{for(const slot of slots){position.fromArray(s.physics.positionData,slot*3).project(i.camera);forceEcho.sample(slot,{x:(position.x+1)/2,y:(1-position.y)/2},simulationTime,true);}forceEcho.release(slots,throwing,speed);}});s.physics.grabController=grabController;let lastGrabSequence=null;
   const lastWorld = new a();
   const direction = new a();
   const radial = new a();
@@ -741,7 +746,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     s.physics.center.copy(r);
     if(raw.grab?.active){
       if(raw.sequence!==lastGrabSequence){
-        if(raw.grab.begin){grabController.begin(r,s.physics,raw.timestamp);for(const slot of grabController.indices)inputRef.current.gameRef?.current?.grabbed?.(slot);}else grabController.move(r,raw.timestamp);
+        if(raw.grab.begin){grabController.begin(r,s.physics,raw.timestamp);for(const slot of grabController.indices){forceEcho.grabbed(slot);inputRef.current.gameRef?.current?.grabbed?.(slot);}}else grabController.move(r,raw.timestamp);
         lastGrabSequence=raw.sequence;
       }
       r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;
@@ -749,7 +754,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     }
     if(grabController.count&&!raw.mouseGrab){grabController.move(r,raw.timestamp);grabController.release(s.physics,!!raw.grab?.released);lastGrabSequence=null;r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
     if(raw.mouseGrab){
-      if(raw.mouseGrab.begin){grabController.begin(r,s.physics,raw.timestamp);for(const slot of grabController.indices)inputRef.current.gameRef?.current?.grabbed?.(slot);raw.mouseGrab.begin=false;}else if(raw.mouseGrab.released){grabController.move(r,raw.timestamp);grabController.release(s.physics,true);}else grabController.move(r,raw.timestamp);
+      if(raw.mouseGrab.begin){grabController.begin(r,s.physics,raw.timestamp);for(const slot of grabController.indices){forceEcho.grabbed(slot);inputRef.current.gameRef?.current?.grabbed?.(slot);}raw.mouseGrab.begin=false;}else if(raw.mouseGrab.released){grabController.move(r,raw.timestamp);grabController.release(s.physics,true);}else grabController.move(r,raw.timestamp);
       const captured=grabController.count;if(raw.mouseGrab.released&&captured)grabController.release(s.physics,true);
       if(captured||(raw.mouseGrab.released&&!creation)){if(creation)creation.consumed=true;lastWorld.copy(r);s.config.controlSphere0=false;return;}
     }
@@ -791,7 +796,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     p.toArray(s.physics.positionData,offset);const launchSpeed=Math.min(s.config.maxVelocity,.10+Math.max(0,Math.min(1,strength))*.045)*(t.reducedMotion?.5:1);
     new a(0,launchSpeed*.08,-launchSpeed).clampLength(0,s.config.maxVelocity).toArray(s.physics.velocityData,offset);
     s.setColorAt(slot,new l(color));s.instanceColor.needsUpdate=true;
-    inputRef.current.gameRef?.current?.created?.(slot);
+    forceEcho.created(slot,color,i.camera.aspect);inputRef.current.gameRef?.current?.created?.(slot);
     s.config.activeCount=Math.max(s.config.activeCount,slot+1);s.count=s.config.activeCount;
     U.position.copy(p);U.scale.setScalar(radius);U.updateMatrix();s.setMatrixAt(slot,U.matrix);s.instanceMatrix.needsUpdate=true;
     return true;
@@ -802,20 +807,20 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
       s.geometry.dispose();s.material.dispose();s.environmentTarget?.dispose();s.dispose?.();
     }
     s = new Z(i.renderer, e);
-    if(inputRef.current.gameRef)s.physics.onWallBounce=idx=>inputRef.current.gameRef?.current?.wallBounce?.(idx);
+    if(inputRef.current.gameRef)s.physics.onWallBounce=idx=>{bouncedEchoSlots.add(idx);inputRef.current.gameRef?.current?.wallBounce?.(idx);};
     i.scene.add(s);
   }
   const targets=createKineticTargets({arcade:!!inputRef.current.gameRef,reducedMotion:t.reducedMotion,onHit:event=>{
     const game=inputRef.current.gameRef?.current;if(!game)return;
     position.set(event.x,event.y,event.z).project(i.camera);
     const accepted=game.hit({...event,anchor:{x:(position.x+1)/2,y:(1-position.y)/2}});
-    if(accepted){burst=1;burstRadius=event.radius;burstMesh.position.set(event.x,event.y,event.z);targetMesh.visible=false;}
+    if(accepted){forceEcho.hit(event.slot,event.id,game.color());burst=1;burstRadius=event.radius;burstMesh.position.set(event.x,event.y,event.z);targetMesh.visible=false;}
   }});
   const targetMesh=new Mesh(new RingGeometry(.88,1,64),new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,side:DoubleSide,depthTest:false}));targetMesh.visible=false;i.scene.add(targetMesh);
   const burstMesh=new Mesh(new RingGeometry(.94,1,48),new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:DoubleSide,depthTest:false}));burstMesh.visible=false;i.scene.add(burstMesh);
   let previous=new Float32Array(s.physics.positionData.length);let lastSession=-1,burst=0,burstRadius=1,simulationTime=0,nextPlacement=0,lastTargetId=null;
   function gameStep(dt){const game=inputRef.current.gameRef?.current;if(!game)return true;
-    if(game.session!==lastSession){lastSession=game.session;targets.reset();simulationTime=0;nextPlacement=0;lastTargetId=null;burst=0;burstMesh.visible=false;created=0;grabController.release(s.physics);s.config.activeCount=1;s.count=1;s.physics.positionData.fill(0);s.physics.velocityData.fill(0);consumed.active=false;accumulated=0;}
+    if(game.session!==lastSession){lastSession=game.session;bouncedEchoSlots.clear();forceEcho.reset();targets.reset();simulationTime=0;nextPlacement=0;lastTargetId=null;burst=0;burstMesh.visible=false;created=0;grabController.release(s.physics);s.config.activeCount=1;s.count=1;s.physics.positionData.fill(0);s.physics.velocityData.fill(0);consumed.active=false;accumulated=0;}
     const state=game.state();const playing=state.phase==='playing'&&!state.paused;
     if(!playing){targetMesh.visible=false;burstMesh.visible=false;grabController.release(s.physics);consumed.active=false;s.config.controlSphere0=false;return false;}
     burst=Math.max(0,burst-Math.max(0,dt)*3);burstMesh.visible=burst>0;burstMesh.material.opacity=burst*.6;burstMesh.material.color.set(game.color());burstMesh.scale.setScalar(burstRadius*(1+(1-burst)*.4));
@@ -824,6 +829,9 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     const target=targets.target;if(target.id!==lastTargetId){lastTargetId=target.id;if(target.type==='bonus'){position.set(target.x,target.y,target.z).project(i.camera);game.notify?.('BONUS',{x:(position.x+1)/2,y:(1-position.y)/2});}}targetMesh.position.set(target.x,target.y,target.z);targetMesh.scale.setScalar(target.radius);targetMesh.material.color.set(game.color());targetMesh.material.opacity=(target.type==='bonus'?.95:.7)+Math.min(.3,burst);targetMesh.visible=true;return true;
   }
   let accumulated = 0;
+  let pendingEchoResize=false;
+  const offGallery=inputRef.current.gameRef?.current?.echoSession?.gate.subscribe(open=>{if(!open&&pendingEchoResize){pendingEchoResize=false;i.onAfterResize(i.size);}if(open){forceEcho.interrupt();grabController.release(s.physics);consumed.active=false;s.config.controlSphere0=false;accumulated=0;}});
+  i.isSuspended=()=>!!inputRef.current.gameRef?.current?.echoSession?.gate.suspended;
   i.onBeforeRender = e => {
     if (c) { accumulated = 0; return; }
     if(!gameStep(e.delta)){accumulated=0;return;}
@@ -835,15 +843,17 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
       const game=inputRef.current.gameRef?.current;
       if(game){simulationTime+=1/60;s.physics.stepPrevious=previous;targets.advance(s.physics,game.state().elapsed,simulationTime,1/60);}
       s.update({ delta: 1 / 60, elapsed: e.elapsed });
-      if(game)targets.check(s.physics,previous);
+      if(game){if(game.echoSession)for(let slot=1;slot<s.config.activeCount;slot++){if(grabController.has(slot))continue;position.fromArray(s.physics.positionData,slot*3).project(i.camera);forceEcho.sample(slot,{x:(position.x+1)/2,y:(1-position.y)/2},simulationTime,bouncedEchoSlots.has(slot));}bouncedEchoSlots.clear();targets.check(s.physics,previous);game.pendingForce?.(forceEcho.pending());}
       accumulated -= 1 / 60;
     }
     if(inputRef.current.gameRef?.current){const target=targets.target;targetMesh.visible=!!target;if(target){targetMesh.position.set(target.x,target.y,target.z);targetMesh.scale.setScalar(target.radius);}}
   };
   i.onAfterResize = e => {
+    if(inputRef.current.gameRef?.current?.echoSession?.gate.suspended){pendingEchoResize=true;return;}
+    const changed=Math.abs(s.config.maxX-e.wWidth/2)>1e-6||Math.abs(s.config.maxY-e.wHeight/2)>1e-6;
     s.config.maxX = e.wWidth / 2;
     s.config.maxY = e.wHeight / 2;
-    const game=inputRef.current.gameRef?.current;if(game&&targets.target)targets.relocate(s.physics,game.state().progress,game.reach?.(),game.state().elapsed,simulationTime);
+    const game=inputRef.current.gameRef?.current;if(changed&&game&&targets.target)targets.relocate(s.physics,game.state().progress,game.reach?.(),game.state().elapsed,simulationTime);
   };
   return {
     three: i,
@@ -874,7 +884,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     },
     dispose() {
       if (disposed) return;
-      disposed = true;grabController.release(s.physics);
+      disposed = true;forceEcho.dispose();offGallery?.();grabController.release(s.physics);
       e.removeEventListener('webglcontextlost', lost);
       document.removeEventListener('visibilitychange', visibility);
       i.dispose();

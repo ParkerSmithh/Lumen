@@ -68,7 +68,8 @@ export function createSlashScene(ctx, { onLifecycle, arcade=false, random:rng=Ma
     for(let i=objects.length-1;i>=0;i--)if(sweptHit(slash,objects[i],Math.max(slash.source==='camera-motion'?24:slash.robust?12:8,objects[i].radius*(slash.source==='camera-motion'?.4:slash.robust?.3:.18)))){
       const object=objects[i];burst(object,slash);objects.splice(i,1);hits++;
       if(object.type==='splitting')splitParents.push(object);
-      onLifecycle?.({kind:'destroyed',id:object.id,type:object.type,value:object.value,points:object.points});
+      const cosine=Math.cos(object.angle),sine=Math.sin(object.angle);const echoPoints=shape.map(([x,y])=>({x:(object.x+(x*cosine-y*sine)*object.radius)/width,y:(object.y+(x*sine+y*cosine)*object.radius)/height}));
+      onLifecycle?.({kind:'destroyed',id:object.id,type:object.type,value:object.value,points:object.points,echoPoints,aspect:width/height,color:object.palette.color,strength:slash.strength});
     }
     splitParents.forEach(children);
     return hits;

@@ -1,3 +1,4 @@
+import {drawEchoMark} from '../echoes/echoComposition';
 import {createLaunchArcade} from '../game/launchArcade';
 import {GameFeedback} from '../game/GameFeedback';
 import {useRound} from '../game/useRound';
@@ -9,17 +10,19 @@ import { createGrabDetector,grabFeatures,launchPointFeatures } from '../tracking
 import { fitContain } from '../tracking/utils';
 import { mapLaunchPointer } from '../tracking/launchInput';
 
-export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError}) {
+export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError,echoSession}) {
+  const echoCanvas=useRef(null),forcePathsRef=useRef([]);
   const hostRef=useRef(null),pointerRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
   const [arcade]=useState(createLaunchArcade),feedbackRef=useRef(null),feedbackSerial=useRef(0);
-  const round=useRound({duration:120,mode:'LAUNCH',metrics:state=>({...arcade.snapshot(),feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.until?feedbackRef.current.id:null}),onReset:full=>{if(full){arcade.reset();feedbackRef.current=null;}},mouseMode,cameraReady,videoRef,trackingError});const gameRef=useRef(null);gameRef.current={session:round.session.current,state:()=>round.clock.tick(performance.now()),hit:event=>round.hit(1,accepted=>{const reward=arcade.hit(event,accepted.elapsed);if(reward.label)feedbackRef.current={id:++feedbackSerial.current,label:reward.label.startsWith('BANK')?'BANK SHOT':'BONUS',anchor:event.anchor,until:accepted.elapsed+1};}),created:slot=>arcade.created(slot),grabbed:slot=>arcade.grabbed(slot),wallBounce:slot=>arcade.wallBounce(slot,round.clock.tick(performance.now()).elapsed),notify:(label,anchor)=>{feedbackRef.current={id:++feedbackSerial.current,label,anchor,until:round.clock.tick(performance.now()).elapsed+1};round.refresh();},color:()=>colorRef.current,reach:()=>{const h=handRef.current,w=hostRef.current?.clientWidth||1,hg=hostRef.current?.clientHeight||1,r=fitContain(h?.sourceWidth||4,h?.sourceHeight||3,w,hg);return {x:(r.x+r.width*.16)/w,y:(r.y+r.height*.30)/hg,width:r.width*.68/w,height:r.height*.40/hg};}};
+  const round=useRound({echoSession,duration:120,mode:'LAUNCH',metrics:state=>({...arcade.snapshot(),feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.until?feedbackRef.current.id:null}),onReset:full=>{if(full){arcade.reset();feedbackRef.current=null;}},mouseMode,cameraReady,videoRef,trackingError});const gameRef=useRef(null);gameRef.current={echoSession,pendingForce:paths=>{forcePathsRef.current=paths;},session:round.session.current,state:()=>round.clock.tick(performance.now()),hit:event=>round.hit(1,accepted=>{const reward=arcade.hit(event,accepted.elapsed);if(reward.label)feedbackRef.current={id:++feedbackSerial.current,label:reward.label.startsWith('BANK')?'BANK SHOT':'BONUS',anchor:event.anchor,until:accepted.elapsed+1};}),created:slot=>arcade.created(slot),grabbed:slot=>arcade.grabbed(slot),wallBounce:slot=>arcade.wallBounce(slot,round.clock.tick(performance.now()).elapsed),notify:(label,anchor)=>{feedbackRef.current={id:++feedbackSerial.current,label,anchor,until:round.clock.tick(performance.now()).elapsed+1};round.refresh();},color:()=>colorRef.current,reach:()=>{const h=handRef.current,w=hostRef.current?.clientWidth||1,hg=hostRef.current?.clientHeight||1,r=fitContain(h?.sourceWidth||4,h?.sourceHeight||3,w,hg);return {x:(r.x+r.width*.16)/w,y:(r.y+r.height*.30)/hg,width:r.width*.68/w,height:r.height*.40/hg};}};
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
   useEffect(()=>{
     let raf,sequence=0,pendingCreation=null,lastHandSequence=null,lastEpoch=round.epoch.current,dragging=false,grabPacket=null;
     const push=createPushDetector(),grab=createGrabDetector(),host=hostRef.current;pointerRef.current=null;
-    const reset=()=>{pointerRef.current=null;pendingCreation=null;lastHandSequence=null;dragging=false;grabPacket=null;push.reset();grab.reset();};
+    const reset=()=>{forcePathsRef.current=[];pointerRef.current=null;pendingCreation=null;lastHandSequence=null;dragging=false;grabPacket=null;push.reset();grab.reset();};
     const retainCreation=()=>{if(pendingCreation?.consumed)pendingCreation=null;return pendingCreation;};
     const mouse=event=>{
+      if(echoSession?.gate.suspended)return;
       if(!mouseMode)return;
       if(event.target.closest?.('button,nav,header,footer,.slash-game-overlay,.camera-invitation'))return;
       const state=round.clock.tick(performance.now());if(state.phase!=='playing'||state.paused)return;
@@ -42,8 +45,10 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,came
     if(mouseMode){window.addEventListener('pointermove',mouse,{passive:false});window.addEventListener('pointerdown',mouse);window.addEventListener('pointerup',release);document.addEventListener('pointerleave',reset);window.addEventListener('pointercancel',reset);window.addEventListener('blur',reset);}
     document.addEventListener('visibilitychange',visibility);
     const tick=time=>{
+      if(echoSession?.gate.suspended){reset();raf=requestAnimationFrame(tick);return;}
       if(lastEpoch!==round.epoch.current){lastEpoch=round.epoch.current;reset();dragging=false;}
-      const state=round.clock.tick(time);if(state.phase!=='playing'||state.paused){reset();raf=requestAnimationFrame(tick);return;}
+      const state=round.clock.tick(time);if(state.phase!=='playing'||state.paused){reset();const c=echoCanvas.current;c?.getContext('2d')?.clearRect(0,0,c.width,c.height);raf=requestAnimationFrame(tick);return;}
+      const canvas=echoCanvas.current,ctx=canvas?.getContext('2d');if(ctx){const scale=Math.min(1,1280/host.clientWidth,900/host.clientHeight),w=Math.max(1,Math.round(host.clientWidth*scale)),h=Math.max(1,Math.round(host.clientHeight*scale));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}ctx.clearRect(0,0,w,h);echoSession?.draw(ctx,w,h,time,'LAUNCH',reduced);for(const path of forcePathsRef.current)try{drawEchoMark(ctx,path,w,h,.25);}catch{/* Optional light. */}}
       retainCreation();
       if(mouseMode){if(dragging&&pointerRef.current)pointerRef.current.timestamp=time; if(pointerRef.current?.releaseAfterCreation&&!pendingCreation)pointerRef.current=null;}
       else{
@@ -77,5 +82,5 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,came
       minSize={.25} maxSize={.55} size0={.85} maxZ={3} controllerForce={.35} controllerResponse={40} reducedMotion={reduced}
       colors={[0xffffff,0xffffff]} ambientColor={0xffffff} ambientIntensity={.65} lightIntensity={130}
       materialParams={{metalness:.55,roughness:.24,clearcoat:1,clearcoatRoughness:.12,emissive:0x080808,emissiveIntensity:.5,envMapIntensity:1.1}}/>
-  </div><GameHUD round={round} title="KINETIC" introduction="Create and throw digital matter into the target." label="TARGETS HIT"/><GameFeedback label={feedbackRef.current?.label} anchor={feedbackRef.current?.anchor} active={round.display.phase==='playing'&&!round.display.paused&&round.display.feedbackId!=null}/></>;
+  </div><canvas ref={echoCanvas} className="echo-layer" aria-hidden="true"/><GameHUD round={round} title="KINETIC" introduction="Create and throw digital matter into the target." label="TARGETS HIT"/><GameFeedback label={feedbackRef.current?.label} anchor={feedbackRef.current?.anchor} active={round.display.phase==='playing'&&!round.display.paused&&round.display.feedbackId!=null}/></>;
 }

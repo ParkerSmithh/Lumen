@@ -1,0 +1,1 @@
+export function createEchoGate(){let suspended=false;const listeners=new Set();return {get suspended(){return suspended;},set(value){value=Boolean(value);if(value===suspended)return;suspended=value;for(const fn of listeners)fn(value);},subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);}};}

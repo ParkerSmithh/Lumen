@@ -126,8 +126,8 @@ try {
     await gamePage.evaluate(seconds => window.advanceGameTime(seconds), seconds);
     await gamePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   };
-  await gamePage.goto(target + '?debugSlash');
-  if (await gamePage.evaluate(() => !!window.__lumenSlash)) throw new Error('SLASH diagnostics escaped into production.');
+  await gamePage.goto(target + '?debugSlash&debugEchoes');
+  if (await gamePage.evaluate(() => !!window.__lumenSlash||!!window.__lumenEchoes)) throw new Error('SLASH diagnostics escaped into production.');
   await gamePage.getByRole('button', { name: 'SLASH', exact: true }).click();
   await expect(gamePage.getByRole('button', { name: 'START', exact: true })).toBeDisabled();
   await gamePage.getByRole('button', { name: 'Mouse / touch fallback' }).click();
@@ -162,9 +162,22 @@ try {
     await expect(gamePage.getByRole('button',{name:'PLAY AGAIN',exact:true})).toBeVisible();
     await gamePage.getByRole('button',{name:'PLAY AGAIN',exact:true}).click();await expect(gamePage.getByLabel('Starting in')).toHaveText('3');
   }
+  await advance(3);
+  const echoTime=await gamePage.getByLabel('Time remaining').textContent();
+  await gamePage.getByRole('button',{name:'ECHOES',exact:true}).click();
+  await expect(gamePage.getByRole('img',{name:/Generative echo artwork from FLOW, LAUNCH/})).toBeVisible();
+  const pngPromise=gamePage.waitForEvent('download');await gamePage.getByRole('button',{name:'SAVE IMAGE',exact:true}).click();
+  const png=await pngPromise,pngBytes=await readFile(await png.path());
+  if(pngBytes.readUInt32BE(16)!==2048||pngBytes.readUInt32BE(20)!==2048)throw new Error('Wrong ECHOES export dimensions');
+  await advance(30);await gamePage.getByRole('button',{name:'BACK TO LUMEN'}).click();
+  await expect(gamePage.getByRole('button',{name:'RESUME',exact:true})).toBeVisible();
+  await expect(gamePage.getByLabel('Time remaining')).toHaveText(echoTime);
+  await gamePage.getByRole('button',{name:'ECHOES',exact:true}).click();
+  await gamePage.getByRole('button',{name:'CLEAR ECHOES'}).click();
+  await expect(gamePage.getByRole('button',{name:'SAVE IMAGE'})).toBeDisabled();
   await gamePage.close();
   if (errors.length || failed.length) throw new Error(JSON.stringify({ errors, failed }));
-  console.log(JSON.stringify({ target, referenceClock, offlineFonts, assets: assets.length, inference, lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified', slashGame: 'ready, keyboard countdown, 120-second expiry, results, replay, mode reset verified',flowGame:'90-second expiry, exact trace score 200, saved best and replay verified',kineticGame:'120-second expiry, target score 100, saved best and replay verified' }));
+  console.log(JSON.stringify({ target, referenceClock, offlineFonts, assets: assets.length, inference, echoes:"actual FLOW/LAUNCH artwork, 2048 PNG, pause/back/clear verified", lazyLaunch: true, layout: 'all modes, five viewport sizes', consoleErrors: 0, interactionGuides: 'four modes verified', slashGame: 'ready, keyboard countdown, 120-second expiry, results, replay, mode reset verified',flowGame:'90-second expiry, exact trace score 200, saved best and replay verified',kineticGame:'120-second expiry, target score 100, saved best and replay verified' }));
 } finally {
   await browser?.close();
   if (server) await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve()));

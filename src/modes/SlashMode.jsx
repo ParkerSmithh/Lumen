@@ -9,7 +9,7 @@ import { createSlashScene } from '../effects/slashScene';
 import { createSlashGame } from '../game/slashGame';
 import { SlashHUD } from '../game/SlashHUD';
 
-export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,onFailure,onSessionStart,onStateChange}) {
+export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,onFailure,onSessionStart,onStateChange,echoSession}) {
   const [arcade]=useState(createSlashArcade);
   const [game]=useState(createSlashGame),[display,setDisplay]=useState(()=>game.tick(performance.now()));
   const actions=useRef(null);
@@ -18,7 +18,8 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
   useEffect(()=>{
     const canvas=canvasRef.current,ctx=canvas.getContext('2d');
     if(!ctx){settings.current.onFailure('SLASH needs Canvas rendering. Try another browser.');return;}
-    const destroyed=[];let bestResult=null,finished=false,lastFeedback=null;
+    const echoScope=echoSession?.allocateScope();
+    const destroyed=[];let bestResult=null,finished=false,lastFeedback=null,sessionSerial=0;
     const scene=createSlashScene(ctx,{arcade:true,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,onLifecycle:event=>{if(event.kind==='destroyed')destroyed.push(event);}}),detector=createSlashDetector(),motionDetector=createSlashDetector(),frameMotion=createSlashFrameMotion();
     const frameCanvas=document.createElement('canvas'),frameContext=frameCanvas.getContext('2d',{willReadFrequently:true});
     let lastVideoTime=-1,lastFrameTime=0,frameSequence=0,recognizedSegments=0;
@@ -41,13 +42,15 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
     resize();const observer=new ResizeObserver(resize);observer.observe(canvas);
     const reset=()=>{pressed=false;mouse=null;detector.reset();motionDetector.reset();frameMotion.reset();lastVideoTime=-1;lastFrameTime=0;};
     const cameraUsable=()=>{const video=videoRef?.current;return !!(settings.current.cameraReady&&video&&video.readyState>=2&&!video.paused&&!video.ended);};
+    const offGallery=echoSession?.gate.subscribe(open=>{if(open){reset();last=performance.now();publish(game.pause(last,"echoes"));}});
     const canPlay=()=>settings.current.mouseMode||cameraUsable();
     actions.current={
-      start(){if(!canPlay()||document.hidden)return;const state=game.tick(performance.now());if(state.phase!=='ready'&&state.phase!=='results')return;reset();scene.reset();arcade.reset();finished=false;bestResult=null;lastFeedback=null;last=performance.now();publish(game.start(last));settings.current.onSessionStart?.();},
-      resume(){if(!canPlay()||document.hidden)return;reset();last=performance.now();publish(game.resume(last));},
+      start(){if(echoSession?.gate.suspended||!canPlay()||document.hidden)return;const state=game.tick(performance.now());if(state.phase!=='ready'&&state.phase!=='results')return;sessionSerial++;reset();scene.reset();arcade.reset();finished=false;bestResult=null;lastFeedback=null;last=performance.now();publish(game.start(last));settings.current.onSessionStart?.();},
+      resume(){if(echoSession?.gate.suspended||!canPlay()||document.hidden)return;reset();last=performance.now();publish(game.resume(last));},
     };
     if(import.meta.env.DEV&&new URLSearchParams(location.search).has('debugSlash'))window.__lumenSlash={state:()=>({...game.tick(performance.now()),...arcade.snapshot(game.tick(performance.now()).elapsed),...slashArcadeDifficulty(game.tick(performance.now()).progress)}),inspect:scene.inspect,input:()=>({pressed,mouse,recognizedSegments})};
     const move=event=>{
+      if(echoSession?.gate.suspended)return;
       const state=game.tick(performance.now());
       if(!settings.current.mouseMode||!pressed||state.phase!=='playing'||state.paused)return;
       if(event.target.closest?.('button,nav,header,footer,.slash-game-overlay')){mouse=null;detector.reset();return;}
@@ -55,10 +58,11 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
       mouse={active:true,center:{x,y},edge:[{x,y:y-.018},{x,y:y+.018}],aspect:width/height,timestamp:performance.now(),sequence:++sequence,source:'mouse'};
       if(event.pointerType==='touch')event.preventDefault();
     };
-    const down=event=>{const state=game.tick(performance.now());if(!settings.current.mouseMode||state.phase!=='playing'||state.paused||event.target.closest?.('button,nav,header,footer,.slash-game-overlay'))return;event.preventDefault();pressed=true;detector.reset();move(event);};
+    const down=event=>{if(echoSession?.gate.suspended)return;const state=game.tick(performance.now());if(!settings.current.mouseMode||state.phase!=='playing'||state.paused||event.target.closest?.('button,nav,header,footer,.slash-game-overlay'))return;event.preventDefault();pressed=true;detector.reset();move(event);};
     const visibility=()=>{last=performance.now();if(document.hidden){reset();publish(game.pause(last,'visibility'));}};
     window.addEventListener('pointerdown',down);window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',reset);window.addEventListener('pointercancel',reset);window.addEventListener('blur',reset);document.addEventListener('visibilitychange',visibility);
     const draw=time=>{
+      if(echoSession?.gate.suspended){last=time;raf=requestAnimationFrame(draw);return;}
       if(mode!==settings.current.mouseMode){mode=settings.current.mouseMode;reset();}
       const dt=(time-last)/1000;last=time;
       if(document.hidden){reset();raf=requestAnimationFrame(draw);return;}
@@ -67,7 +71,7 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
       let state=game.tick(performance.now());
       if(!canPlay()&&(state.phase==='playing'||state.phase==='countdown')){state=game.pause(time,'camera');reset();}
       scene.setColor(settings.current.color);const difficulty=slashArcadeDifficulty(state.progress);scene.setCombo?.(arcade.snapshot(state.elapsed).combo);scene.setOverload?.(difficulty.overload);scene.update(dt,{...state,...difficulty});publish(state);
-      if(state.phase!=='playing'||state.paused){reset();scene.draw();raf=requestAnimationFrame(draw);return;}
+      if(state.phase!=='playing'||state.paused){reset();scene.draw();echoSession?.draw(ctx,width,height,time,"SLASH",matchMedia("(prefers-reduced-motion: reduce)").matches);raf=requestAnimationFrame(draw);return;}
       const hand=handRef.current;
       let sample;
       if(mode)sample=mouse;
@@ -97,13 +101,13 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
         const project=point=>({x:mapping.x+point.x*mapping.width,y:mapping.y+point.y*mapping.height});
         destroyed.length=0;
         const hit=scene.cut({...slash,start:project(slash.start),end:project(slash.end),edge:slash.edge.map(project),previousEdge:slash.previousEdge.map(project),path:slash.path?.map(node=>({center:project(node.center),edge:node.edge.map(project)}))});
-        const now=performance.now();if(hit>0)awardRoundHit(game,now,hit,accepted=>{arcade.record(destroyed,accepted.elapsed);if(destroyed.some(event=>event.type==='bonus'))lastFeedback={label:'BONUS',until:accepted.elapsed+1};});scene.setCombo?.(arcade.snapshot(game.tick(now).elapsed).combo);publish(game.tick(now));
+        const now=performance.now();if(hit>0)awardRoundHit(game,now,hit,accepted=>{arcade.record(destroyed,accepted.elapsed);for(const event of destroyed)echoSession?.emit({id:"destruction:"+echoScope+":"+sessionSerial+":"+event.id,mode:"SLASH",kind:"destruction",color:event.color,points:event.echoPoints,aspect:event.aspect,intensity:event.strength,duration:2},echoSession.store.epoch);if(destroyed.some(event=>event.type==='bonus'))lastFeedback={label:'BONUS',until:accepted.elapsed+1};});scene.setCombo?.(arcade.snapshot(game.tick(now).elapsed).combo);publish(game.tick(now));
         settings.current.onSlash(hit>0);
       }
-      scene.draw();raf=requestAnimationFrame(draw);
+      scene.draw();echoSession?.draw(ctx,width,height,time,"SLASH",matchMedia("(prefers-reduced-motion: reduce)").matches);raf=requestAnimationFrame(draw);
     };
     raf=requestAnimationFrame(draw);
-    return()=>{cancelAnimationFrame(raf);observer.disconnect();window.removeEventListener('pointerdown',down);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',reset);window.removeEventListener('pointercancel',reset);window.removeEventListener('blur',reset);document.removeEventListener('visibilitychange',visibility);reset();game.reset();actions.current=null;if(import.meta.env.DEV)delete window.__lumenSlash;frameCanvas.width=frameCanvas.height=0;scene.dispose();canvas.width=canvas.height=0;};
+    return()=>{offGallery?.();cancelAnimationFrame(raf);observer.disconnect();window.removeEventListener('pointerdown',down);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',reset);window.removeEventListener('pointercancel',reset);window.removeEventListener('blur',reset);document.removeEventListener('visibilitychange',visibility);reset();game.reset();actions.current=null;if(import.meta.env.DEV)delete window.__lumenSlash;frameCanvas.width=frameCanvas.height=0;scene.dispose();canvas.width=canvas.height=0;};
   },[handRef,videoRef,game,arcade]);
   return <><canvas ref={canvasRef} className={`artwork slash-artwork ${mouseMode?'':'hand-input'}`} aria-hidden="true"/><SlashHUD game={display} canPlay={mouseMode||(cameraReady&&usableCamera)} onStart={()=>actions.current?.start()} onResume={()=>actions.current?.resume()}/></>;
 }

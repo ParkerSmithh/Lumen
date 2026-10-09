@@ -21,14 +21,15 @@ function SplashCursor({
   TRANSPARENT = true,
   RAINBOW_MODE = true,
   COLOR = '#ff0000',
+  echoSession,
   pointerRef,
   effectRef,
   onFailure
 }) {
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
-  const inputRef = useRef({ pointerRef, effectRef, onFailure, COLOR });
-  inputRef.current = { pointerRef, effectRef, onFailure, COLOR };
+  const inputRef = useRef({ pointerRef, effectRef, onFailure, COLOR, echoSession });
+  inputRef.current = { pointerRef, effectRef, onFailure, COLOR, echoSession };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -717,6 +718,7 @@ function SplashCursor({
 
     function updateFrame() {
       if (!isActive) return;
+      if(inputRef.current.echoSession?.gate.suspended){lastUpdateTime=Date.now();animationFrameId.current=requestAnimationFrame(updateFrame);return;}
       const dt = calcDeltaTime();
       if (resizeCanvas()) initFramebuffers();
       updateColors(dt);

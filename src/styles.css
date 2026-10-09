@@ -117,3 +117,7 @@ main:has(.flow-artwork):has(.slash-hud) .live-caption:not(.has-error),main:has(.
 @media(prefers-reduced-motion:reduce){.game-feedback{animation:none}}
 
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.echoes-open{position:absolute;right:48px;top:108px;z-index:8;font-size:10px;letter-spacing:.14em;color:#dcc5ff;padding:10px}.echo-loading{position:absolute;inset:0;z-index:30;background:#050407;display:grid;place-content:center;text-align:center}.echo-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}@media(max-width:800px){.echoes-open{top:151px;right:20px}}@media(max-height:600px){.echoes-open{top:100px}}
+
+.mode-stage:has(.slash-game-overlay)~.lumen-chrome .live-caption:not(.has-error){opacity:0;pointer-events:none}

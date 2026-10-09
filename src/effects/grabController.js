@@ -1,6 +1,6 @@
 const finite=p=>p&&Number.isFinite(p.x+p.y+p.z);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-export function createGrabController({radius=1.6,maxGrabbed=12,followResponse=36,historyMs=120,throwGain=1.6,spread=.06}={}){
+export function createGrabController({radius=1.6,maxGrabbed=12,followResponse=36,historyMs=120,throwGain=1.6,spread=.06,onRelease}={}){
  const held=new Map();let target=null,lastTime=0,velocity={x:0,y:0,z:0};const history=[];
  const boundVelocity=(v,max)=>{const scale=Math.min(1,max/(Math.hypot(v.x,v.y,v.z)||1));return {x:v.x*scale,y:v.y*scale,z:v.z*scale};};
  // Segment medians reject an isolated landmark spike and its return segment.
@@ -25,7 +25,9 @@ export function createGrabController({radius=1.6,maxGrabbed=12,followResponse=36
    const v=boundVelocity({x:base.x+(offset.x-center.x)/length*variation,y:base.y+(offset.y-center.y)/length*variation,z:base.z+(offset.z-center.z)/length*variation},physics.config.maxVelocity);
    physics.velocityData.set([v.x,v.y,v.z],i*3);
   }
+  const released=[...held.keys()];
   held.clear();target=null;velocity={x:0,y:0,z:0};lastTime=0;history.length=0;
+  if(released.length)try{onRelease?.(released,throwing,speed);}catch{/* Echo observers cannot change physics. */}
  }
  return {get count(){return held.size;},get indices(){return [...held.keys()];},has(i){return held.has(i);},release,
  begin(point,physics,time=0){release(physics);if(!finite(point))return 0;const candidates=[];for(let i=1;i<physics.config.activeCount;i++){const o=i*3,dx=physics.positionData[o]-point.x,dy=physics.positionData[o+1]-point.y,dz=physics.positionData[o+2]-point.z;const d=Math.hypot(dx,dy,dz*.35);if(d<=radius+physics.sizeData[i])candidates.push({i,d,offset:{x:dx,y:dy,z:dz}});}candidates.sort((a,b)=>a.d-b.d);for(const c of candidates.slice(0,maxGrabbed))held.set(c.i,c.offset);target={...point};lastTime=time;history.push({...point,time});return held.size;},

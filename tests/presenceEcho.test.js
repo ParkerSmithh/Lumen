@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createPresenceEcho} from '../src/echoes/presenceEcho.js';
+function mask(x,timestamp){const values=new Float32Array(32*24);for(let y=5;y<20;y++)for(let i=x;i<x+6;i++)values[y*32+i]=1;return {width:32,height:24,values,timestamp};}
+test('presence responds to changed segmentation at bounded frequency without retaining identifying geometry',()=>{const events=[];const echo=createPresenceEcho({emit:(...args)=>events.push(args)});echo.sample(mask(5,0),{time:0,color:'#b06aff',epoch:4});echo.sample(mask(9,100),{time:100,color:'#b06aff',epoch:4});assert.equal(events.length,0);echo.sample(mask(9,200),{time:200,color:'#b06aff',epoch:4});assert.equal(events.length,1);assert.equal(events[0][1],4);assert.equal(events[0][0].mode,'GLOW');assert.ok(events[0][0].points.length<=2);assert.equal('values' in events[0][0],false);assert.equal(echo.size,1);});
+test('presence expires promptly, never exceeds three buffers, and clears its baseline',()=>{const echo=createPresenceEcho({emit(){}});for(let i=0;i<7;i++)echo.sample(mask(2+i*3,i*200),{time:i*200,color:'#ff354e',epoch:0});assert.ok(echo.size<=3);echo.expire(2200);assert.equal(echo.size,0);echo.clear();echo.sample(mask(12,2400),{time:2400,color:'#ff354e',epoch:1});assert.equal(echo.size,0);});
