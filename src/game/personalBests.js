@@ -1,4 +1,5 @@
-const MODES = ['FLOW', 'SLASH', 'LAUNCH'];
+const MODES = ['FLOW', 'SLASH', 'SLASH_CHAOS', 'LAUNCH'];
+const storageKey = mode => mode === 'SLASH_CHAOS' ? 'lumen.arcade.bests.chaos.v1.SLASH' : `lumen.arcade.bests.v1.${mode}`;
 const empty = () => ({ score: 0, count: 0, accuracy: null });
 const validInt = value => Number.isSafeInteger(value) && value >= 0;
 const sanitize = (value = {}) => ({
@@ -15,7 +16,7 @@ export function createPersonalBests(provider = () => globalThis.localStorage) {
     if (!MODES.includes(mode)) return empty();
     let stored = empty();
     try {
-      const raw = JSON.parse(provider()?.getItem(`lumen.arcade.bests.v1.${mode}`) || 'null');
+      const raw = JSON.parse(provider()?.getItem(storageKey(mode)) || 'null');
       if (raw?.version === 1) stored = sanitize(raw.metrics);
     } catch { /* Storage and malformed data are optional, never gameplay failures. */ }
     const best = merge(stored, memory.get(mode) || empty());
@@ -28,7 +29,7 @@ export function createPersonalBests(provider = () => globalThis.localStorage) {
     const newBest = bests.score > previous.score || bests.count > previous.count ||
       (bests.accuracy !== null && bests.accuracy > (previous.accuracy ?? 0));
     memory.set(mode,bests);
-    try { provider()?.setItem(`lumen.arcade.bests.v1.${mode}`, JSON.stringify({version:1,metrics:bests})); } catch {}
+    try { provider()?.setItem(storageKey(mode), JSON.stringify({version:1,metrics:bests})); } catch {}
     return { bests: { ...bests }, newBest };
   }};
 }

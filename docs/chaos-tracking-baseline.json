@@ -1,0 +1,137 @@
+{
+  "environment": "headless msedge, synthetic 640x480 30 fps scene, actual CPU MediaPipe worker, no real hand",
+  "results": [
+    {
+      "requested": "20",
+      "samples": 53,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "resets": {
+        "loss": 0
+      },
+      "rejectedSpikes": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 19.856422789425242,
+      "motionHz": null,
+      "filterLag": {
+        "median": 0,
+        "p95": 0
+      },
+      "smoothingMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "estimatedFilterDelayMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "captureMs": {
+        "median": 0.3000001907348633,
+        "p95": 0.5
+      },
+      "inferenceMs": {
+        "median": 16.299999952316284,
+        "p95": 17.200000047683716
+      },
+      "roundTripMs": {
+        "median": 16.5,
+        "p95": 17.40000009536743
+      },
+      "ageMs": {
+        "median": 17.100000047683807,
+        "p95": 18.100000095367477
+      }
+    },
+    {
+      "requested": "30",
+      "samples": 75,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "resets": {
+        "loss": 0
+      },
+      "rejectedSpikes": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 27.90241695360695,
+      "motionHz": null,
+      "filterLag": {
+        "median": 0,
+        "p95": 0
+      },
+      "smoothingMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "estimatedFilterDelayMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "captureMs": {
+        "median": 0.2999999523162842,
+        "p95": 0.40000009536743164
+      },
+      "inferenceMs": {
+        "median": 16.200000047683716,
+        "p95": 17.40000009536743
+      },
+      "roundTripMs": {
+        "median": 16.40000009536743,
+        "p95": 17.59999990463257
+      },
+      "ageMs": {
+        "median": 16.999999952316102,
+        "p95": 18.19999999999999
+      }
+    },
+    {
+      "requested": "max",
+      "samples": 51,
+      "dropped": 0,
+      "losses": 0,
+      "acquisitions": 0,
+      "reacquisitions": 0,
+      "resets": {
+        "loss": 0
+      },
+      "rejectedSpikes": 0,
+      "sourceWidth": 640,
+      "sourceHeight": 480,
+      "hz": 30.372980195937128,
+      "motionHz": null,
+      "filterLag": {
+        "median": 0,
+        "p95": 0
+      },
+      "smoothingMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "estimatedFilterDelayMs": {
+        "median": 0,
+        "p95": 0
+      },
+      "captureMs": {
+        "median": 0.2999999523162842,
+        "p95": 0.40000009536743164
+      },
+      "inferenceMs": {
+        "median": 16.200000047683716,
+        "p95": 17.700000047683716
+      },
+      "roundTripMs": {
+        "median": 16.399999856948853,
+        "p95": 17.90000009536743
+      },
+      "ageMs": {
+        "median": 16.899999856948853,
+        "p95": 18.299999999999955
+      }
+    }
+  ]
+}

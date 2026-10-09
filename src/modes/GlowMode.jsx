@@ -53,18 +53,20 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, echoS
       if(video?.videoWidth&&aspect!==video.videoWidth/video.videoHeight){aspect=video.videoWidth/video.videoHeight;resize();}
       const live = maskRef.current;
       const fresh = live && time - live.timestamp < 500;
+      echoSession?.beyond.chaos.tick('GLOW',time,!!(fresh&&settings.current.cameraReady&&!settings.current.preview&&!document.hidden));
       const mask = settings.current.preview ? illustrated : fresh ? live : null;
       if (mask) previousMask = mask;
       opacity += ((mask ? 1 : 0) - opacity) * .12;
-      renderer.draw({ video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
+      renderer.draw({ energy:reduced.matches?1:echoSession?.beyond.chaos.snapshot('GLOW').surge?1.9:({CALM:.85,WILD:1.35,MAX:1.6}[echoSession?.beyond.chaos.preferenceIntensity()]||1),video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
       if(echoContext&&echoSession){
         if(fresh&&settings.current.cameraReady&&!settings.current.preview){presence.sample(live,{time,color:settings.current.color,epoch:echoSession.store.epoch});presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,live,reduced.matches);}
         else{echoSession.beyond.presence({valid:false},time);presence.clear();if(settings.current.preview)presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,illustrated,reduced.matches);else echoContext.clearRect(0,0,echoCanvas.width,echoCanvas.height);}
       }
       raf = requestAnimationFrame(draw);
     };
+    const visibility=()=>{if(document.hidden)echoSession?.beyond.chaos.leave('GLOW');};document.addEventListener('visibilitychange',visibility);
     raf = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(raf); unregister?.();unsubscribe?.(); presence.dispose(); echoCanvas.remove(); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
+    return () => { document.removeEventListener('visibilitychange',visibility);cancelAnimationFrame(raf); unregister?.();unsubscribe?.(); presence.dispose(); echoCanvas.remove(); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
   }, [maskRef, videoRef]);
   return <div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>;
 }

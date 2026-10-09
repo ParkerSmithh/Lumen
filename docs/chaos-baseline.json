@@ -1,0 +1,412 @@
+{
+  "environment": {
+    "browser": "msedge",
+    "headless": true,
+    "viewport": "1366x768",
+    "deviceScaleFactor": 1,
+    "warmupFrames": 60,
+    "measuredFrames": 180
+  },
+  "method": "Mounted GLOW renderer and segmentation hook with synthetic camera/masks; mounted FLOW fluid with pointer trails; mounted SLASH Overload with eight objects, real cuts and GridScan; mounted LAUNCH renderer/solver with 150 balls. Seeded input and geometry paired by mode; identical KeyP input before warmup after a 1.6-second idle gate invokes the real PULSE control when BEYOND is enabled. Native clock measures aggregate synchronous RAF callback CPU and native frame intervals; coherent offset only advances game setup.",
+  "limitations": "Synthetic camera and mask worker exclude neural inference. RAF CPU excludes async tasks, GPU completion and compositor work. Frame intervals include browser scheduling and GPU contention. Sequential headless pairs are diagnostic, not causal or real-device acceptance; no human visual acceptance has occurred. No timing threshold is asserted.",
+  "results": [
+    {
+      "mode": "GLOW",
+      "enabled": false,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.20000004768371582,
+        "p95Ms": 0.5999999046325684
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.5
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.300000000000182
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "beyondEnabled": false,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 0,
+        "resonance": 0,
+        "pulse": 0,
+        "presence": 0,
+        "accepted": 0
+      }
+    },
+    {
+      "mode": "GLOW",
+      "enabled": true,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.20000004768371582,
+        "p95Ms": 0.6000001430511475
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.5
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 1,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 1,
+        "accepted": 9
+      }
+    },
+    {
+      "mode": "FLOW",
+      "enabled": false,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.3000001907348633
+      },
+      "cpuPerCallback": {
+        "samples": 540,
+        "medianMs": 0,
+        "p95Ms": 0.19999980926513672
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "beyondEnabled": false,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 0,
+        "resonance": 0,
+        "pulse": 0,
+        "presence": 0,
+        "accepted": 0
+      }
+    },
+    {
+      "mode": "FLOW",
+      "enabled": true,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.10000014305114746,
+        "p95Ms": 0.39999985694885254
+      },
+      "cpuPerCallback": {
+        "samples": 540,
+        "medianMs": 0,
+        "p95Ms": 0.20000004768371582
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": true,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 1,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 1
+      }
+    },
+    {
+      "mode": "SLASH",
+      "enabled": false,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.5
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.19999980926513672,
+        "p95Ms": 0.3000001907348633
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.200000000000728
+      },
+      "maximumObjects": 8,
+      "maximumParticles": 124,
+      "recognizedCuts": 19,
+      "slashState": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 4,
+        "elapsed": 106.70970000004769,
+        "remaining": 13.29029999995231,
+        "seconds": 14,
+        "countdown": 0,
+        "progress": 0.8892475000003974,
+        "interval": 0.38630753969546927,
+        "cap": 8,
+        "score": 600,
+        "combo": 4,
+        "maxCombo": 4,
+        "comboExpiresAt": 108.35110000014305,
+        "overload": true
+      },
+      "beyondEnabled": false,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 0,
+        "resonance": 0,
+        "pulse": 0,
+        "presence": 0,
+        "accepted": 0
+      }
+    },
+    {
+      "mode": "SLASH",
+      "enabled": true,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.39999985694885254,
+        "p95Ms": 0.5
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.20000004768371582,
+        "p95Ms": 0.39999985694885254
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.300000000000182
+      },
+      "maximumObjects": 8,
+      "maximumParticles": 124,
+      "recognizedCuts": 18,
+      "slashState": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 4,
+        "elapsed": 106.65979999995231,
+        "remaining": 13.340200000047687,
+        "seconds": 14,
+        "countdown": 0,
+        "progress": 0.8888316666662692,
+        "interval": 0.3867874732662954,
+        "cap": 8,
+        "score": 600,
+        "combo": 4,
+        "maxCombo": 4,
+        "comboExpiresAt": 108.297,
+        "overload": true
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": true,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 4
+      }
+    },
+    {
+      "mode": "LAUNCH",
+      "enabled": false,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.2999999523162842
+      },
+      "cpuPerCallback": {
+        "samples": 540,
+        "medianMs": 0,
+        "p95Ms": 0.20000004768371582
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "activeBalls": 150,
+      "finitePhysics": true,
+      "beyondEnabled": false,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 0,
+        "resonance": 0,
+        "pulse": 0,
+        "presence": 0,
+        "accepted": 0
+      }
+    },
+    {
+      "mode": "LAUNCH",
+      "enabled": true,
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.2999999523162842
+      },
+      "cpuPerCallback": {
+        "samples": 540,
+        "medianMs": 0,
+        "p95Ms": 0.20000004768371582
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.300000000000182
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "activeBalls": 150,
+      "finitePhysics": true,
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 0,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 0
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "mode": "GLOW",
+      "medianCpuDeltaMs": 0,
+      "p95CpuDeltaMs": 2.384185791015625e-7,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": -4.547473508864641e-13
+    },
+    {
+      "mode": "FLOW",
+      "medianCpuDeltaMs": 2.384185791015625e-7,
+      "p95CpuDeltaMs": 0.09999966621398926,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": 0
+    },
+    {
+      "mode": "SLASH",
+      "medianCpuDeltaMs": 0.09999990463256836,
+      "p95CpuDeltaMs": 0,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": 0.0999999999994543
+    },
+    {
+      "mode": "LAUNCH",
+      "medianCpuDeltaMs": 0,
+      "p95CpuDeltaMs": 0,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": 4.547473508864641e-13
+    }
+  ]
+}

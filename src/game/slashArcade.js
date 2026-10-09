@@ -66,3 +66,22 @@ export function selectCrystalType({ elapsed = 0, random = Math.random, hasSplitt
   if (sample < .18 && !hasSplitter && Number.isFinite(capacityAvailable) && capacityAvailable >= 2) return 'splitting';
   return 'normal';
 }
+
+/** CHAOS gameplay density is independent of CALM/WILD/MAX presentation. */
+export function chaosSlashDifficulty(progress, storm=false) {
+ const bounded=Number.isFinite(progress)?Math.max(0,Math.min(1,progress)):0;
+ const position=bounded*4,index=Math.min(3,Math.floor(position)),fraction=position-index;
+ const ease=fraction*fraction*(3-2*fraction),caps=[3,6,8,10,10];
+ return {...slashArcadeDifficulty(bounded),cap:storm?12:Math.floor(caps[index]+(caps[index+1]-caps[index])*ease+1e-10)};
+}
+/** Active gameplay seconds freeze naturally with the existing round clock. */
+export function createFractureStorm(){
+ let until=-Infinity,ready=-Infinity,crossed=false,last=0;
+ const reset=(combo=0)=>{until=ready=-Infinity;crossed=combo>=10;last=0;};
+ return {reset,update(combo,elapsed){
+  if(!Number.isFinite(elapsed)||elapsed<last)return {active:last<until,until};
+  last=elapsed;if(combo===0)crossed=false;
+  if(combo>=10&&!crossed){crossed=true;if(elapsed>=ready){until=elapsed+4;ready=until+8;}}
+  return {active:elapsed<until,until};
+ }};
+}

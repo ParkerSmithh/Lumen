@@ -5,11 +5,11 @@ test('SLASH truthful multi-hit count, combo score, expiration and overload',asyn
  for(let n=0;n<60;n++){await page.evaluate(()=>window.arcadeAdvance(.1));await page.evaluate(()=>new Promise(requestAnimationFrame));}
  const objects=await page.evaluate(()=>window.__lumenSlash.inspect().objects);expect(objects.length).toBe(3);
  const points=objects.sort((a,b)=>a.x-b.x);await page.mouse.move(points[0].x-80,points[0].y);await page.mouse.down();
- for(const point of [...points,{x:points.at(-1).x+80,y:points.at(-1).y}]){await page.mouse.move(point.x,point.y,{steps:8});await page.waitForTimeout(20);}await page.mouse.up();
+ let previous={x:points[0].x-80,y:points[0].y};for(const point of [...points,{x:points.at(-1).x+80,y:points.at(-1).y}]){const steps=Math.ceil(Math.hypot(point.x-previous.x,point.y-previous.y)/38);for(let i=1;i<=steps;i++){await page.mouse.move(previous.x+(point.x-previous.x)*i/steps,previous.y+(point.y-previous.y)*i/steps);await page.waitForTimeout(16);}previous=point;}await page.mouse.up();
  await expect(page.getByLabel('Objects slashed')).toHaveText('3');await expect(page.getByLabel('Score',{exact:true})).toHaveText('400');await expect(page.getByText('COMBO 3',{exact:true})).toBeVisible();
  await page.evaluate(()=>window.arcadeAdvance(2.01));await expect(page.getByText('COMBO 3',{exact:true})).toHaveCount(0);
  await page.evaluate(()=>window.arcadeAdvance(100));await expect(page.getByText('OVERLOAD',{exact:true})).toBeVisible();
- expect(await page.evaluate(()=>window.__lumenSlash.state().cap)).toBe(8);
+ expect(await page.evaluate(()=>window.__lumenSlash.state().cap)).toBe(10);
  await page.evaluate(()=>window.arcadeAdvance(120));await expect(page.getByRole('button',{name:'PLAY AGAIN'})).toBeVisible();await expect(page.getByText('NEW BEST',{exact:true})).toBeVisible();
- expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('lumen.arcade.bests.v1.SLASH')).metrics)).toMatchObject({score:400,count:3});
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('lumen.arcade.bests.chaos.v1.SLASH')).metrics)).toMatchObject({score:400,count:3});
 });

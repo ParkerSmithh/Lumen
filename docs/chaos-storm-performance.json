@@ -1,0 +1,21 @@
+{
+  "method": "Isolated actual Canvas SLASH scene with public storm, Overload and Surge flags; twelve-crystal cap; real swept cuts. Measures synchronous update/draw workload only, not mounted-mode scheduling or GPU completion.",
+  "peakObjects": 12,
+  "peakReservation": 12,
+  "peakParticles": 320,
+  "peakFragments": 48,
+  "peakFlashes": 12,
+  "destroyed": 360,
+  "clean": {
+    "objects": [],
+    "reserved": 0,
+    "effects": {
+      "trails": 0,
+      "flashes": 0,
+      "fragments": 0,
+      "particles": 0
+    }
+  },
+  "cpuMedianMs": 0.5,
+  "cpuP95Ms": 0.9000000953674316
+}

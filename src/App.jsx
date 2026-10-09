@@ -13,6 +13,7 @@ import { TrackingDiagnostics } from './TrackingDiagnostics';
 import { colors } from './colors';
 import {createEchoSession} from './echoes/echoRuntime';
 import LumenCore from './beyond/LumenCore';
+import {ChaosControl} from './beyond/ChaosControl';
 import {PulseControl} from './beyond/PulseControl';
 const Convergence=lazy(()=>import('./beyond/Convergence'));
 const EchoGallery=lazy(()=>import('./echoes/EchoGallery'));
@@ -22,9 +23,10 @@ const concepts = ['PRESENCE', 'CREATION', 'DESTRUCTION', 'FORCE'];
 export default function App() {
   const [mode, setMode] = useState('GLOW');
   const camera = useWebcam();
-  const [echoSession]=useState(()=>createEchoSession({beyondEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("beyondOff"))}));
+  const [echoSession]=useState(()=>createEchoSession({chaosEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("chaosOff")),beyondEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("beyondOff"))}));
   const [view,setView]=useState('lumen');const gallery=view!=='lumen';
   useEffect(()=>{if(import.meta.env.DEV&&new URLSearchParams(location.search).has('debugBeyond')){window.__lumenBeyond={snapshot:()=>echoSession.beyond.snapshot(),counts:()=>echoSession.beyond.counts(),enabled:()=>echoSession.beyond.stateEnabled};return()=>{delete window.__lumenBeyond;};}},[echoSession]);
+  useEffect(()=>{if(import.meta.env.DEV&&new URLSearchParams(location.search).has('debugChaos')){window.__lumenChaos={snapshot:mode=>echoSession.beyond.chaos.snapshot(mode),counts:()=>echoSession.beyond.chaos.counts(),profile:mode=>echoSession.beyond.chaos.profile(mode)};return()=>{delete window.__lumenChaos;};}},[echoSession]);
   const openConvergence=()=>{if(view==='convergence'||!echoSession.beyond.snapshot().complete)return;echoSession.gate.set(true);echoSession.clearLive();setView('convergence');};
   useEffect(()=>{if(import.meta.env.DEV&&new URLSearchParams(location.search).has("debugEchoes")){window.__lumenEchoes={snapshot:()=>echoSession.store.snapshot()};return()=>{delete window.__lumenEchoes;};}},[echoSession]);
   const openEchoes=()=>{if(echoSession.gate.suspended)return;echoSession.gate.set(true);echoSession.clearLive();setView('echoes');};
@@ -94,7 +96,7 @@ export default function App() {
     {import.meta.env.DEV && new URLSearchParams(location.search).has('debugTracking') && mode !== 'GLOW' && <TrackingDiagnostics hands={hands} mode={mode} />}
     <div className="atmosphere" aria-hidden="true" />
     <div className="lumen-chrome" inert={gallery} aria-hidden={gallery} style={gallery?{visibility:"hidden"}:undefined}><header><div><h1>LUMEN</h1><p>BODY / LIGHT / DIGITAL MATTER</p></div><span className="edition">AN INTERACTIVE EXPERIMENT<br />0{modes.indexOf(mode) + 1} — {concepts[modes.indexOf(mode)]}</span></header>
-    <nav aria-label="Artwork modes">{modes.map((name, i) => <button key={name} onClick={() => selectMode(name)} aria-label={name} aria-current={mode === name ? 'page' : undefined}><span className="mode-number">0{i + 1}</span>{name}{mode === name && <span className="active-dot" />}</button>)}</nav><button className="echoes-open" onPointerDown={openEchoes} onClick={openEchoes}>ECHOES</button><LumenCore session={echoSession} onConverge={openConvergence}/><PulseControl session={echoSession} mode={mode}/>
+    <nav aria-label="Artwork modes">{modes.map((name, i) => <button key={name} onClick={() => selectMode(name)} aria-label={name} aria-current={mode === name ? 'page' : undefined}><span className="mode-number">0{i + 1}</span>{name}{mode === name && <span className="active-dot" />}</button>)}</nav><button className="echoes-open" onPointerDown={openEchoes} onClick={openEchoes}>ECHOES</button><LumenCore session={echoSession} onConverge={openConvergence}/><PulseControl session={echoSession} mode={mode}/><ChaosControl session={echoSession} mode={mode}/>
     {entry && <section className="invitation"><h2>Become<br /><em>light.</em></h2><p>Your body becomes light. Your world stays in view.</p><button className="enter" onClick={enter}>{camera.status === 'error' ? 'RETRY CAMERA' : 'ENABLE CAMERA'}<span aria-hidden="true">↗</span></button>{!error && <p className="privacy">Your camera brings movement into the work.<br />Video stays on your device. GLOW shows your live scene.</p>}<button className="preview-link" onClick={() => setPreview(true)}>Preview light</button>{caption}</section>}
     {!entry && caption}
     {mode !== 'GLOW' && !active && !mouseMode && <section className="camera-invitation" aria-label="Camera connection"><button className="enter" onClick={enter}>{camera.status === 'error' ? 'RETRY CAMERA' : 'ENABLE CAMERA'}</button><p>{camera.status === 'error' ? 'Camera access needs your attention. Retry when ready, or use mouse / touch.' : 'Bring your movement into the light.'}</p></section>}

@@ -1,23 +1,25 @@
+import {createChaosRuntime} from './chaosRuntime.js';
 import {colors} from '../colors.js';
 const modes=['GLOW','FLOW','SLASH','LAUNCH'],palette=new Set(colors.map(([,hex])=>hex));
 const validPoint=p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1;
 const point=p=>({x:p.x,y:p.y});
-export function createBeyondRuntime({enabled=true,now=()=>performance.now()}={}){
+export function createBeyondRuntime({enabled=true,now=()=>performance.now(),chaosEnabled=true}={}){
+ const chaos=createChaosRuntime({enabled:enabled&&chaosEnabled,now});
  let bits=Object.fromEntries(modes.map(m=>[m,false])),version=0,suspended=false,atmosphere=[],resonance=[],pulseMark=null,fluidPulse=null,presenceBase=null,chainMarked=false;
  const seen=new Set(),listeners=new Set(),cooldowns=new Map(),pulseTimes=new Map();
  const notify=()=>{version++;for(const fn of listeners){try{fn();}catch{}}};
  const activate=m=>{if(!bits[m]){bits[m]=true;notify();}};
  const available=t=>enabled&&!suspended&&Number.isFinite(t);
  const prune=t=>{atmosphere=atmosphere.filter(m=>t-m.born<1800);resonance=resonance.filter(m=>t-m.born<3000);if(pulseMark&&t-pulseMark.born>=3000)pulseMark=null;};
- const addResonance=(mode,p,color,t)=>{if(t-(cooldowns.get(mode)??-Infinity)<(mode==='GLOW'?20000:15000))return;cooldowns.set(mode,t);resonance.push({mode,point:point(p),color,born:t});if(resonance.length>2)resonance.shift();};
+ const addResonance=(mode,p,color,t)=>{if(t-(cooldowns.get(mode)??-Infinity)<(mode==='GLOW'?20000:15000))return;cooldowns.set(mode,t);chaos.activity(mode,{type:'resonance',point:p,color,intensity:.8},t);resonance.push({mode,point:point(p),color,born:t});if(resonance.length>2)resonance.shift();};
  const clearTransient=()=>{atmosphere=[];resonance=[];pulseMark=fluidPulse=presenceBase=null;};
- const api={
+ const api={chaos,
   get stateEnabled(){return enabled;},setEnabled(value){enabled=!!value;if(!enabled)clearTransient();},
   snapshot(){const activated={...bits},count=Object.values(bits).filter(Boolean).length;return {activated,count,complete:count===4,version};},
   subscribe(fn){if(typeof fn==='function')listeners.add(fn);return()=>listeners.delete(fn);},
-  reset(){bits=Object.fromEntries(modes.map(m=>[m,false]));seen.clear();cooldowns.clear();pulseTimes.clear();chainMarked=false;clearTransient();notify();},
-  suspend(open){suspended=!!open;clearTransient();},
-  combo(value){if(value===0)chainMarked=false;},
+  reset(){chaos.reset();bits=Object.fromEntries(modes.map(m=>[m,false]));seen.clear();cooldowns.clear();pulseTimes.clear();chainMarked=false;clearTransient();notify();},
+  suspend(open){chaos.setSuspended(open);suspended=!!open;clearTransient();},
+  combo(value){chaos.combo(value);if(value===0)chainMarked=false;},
   accept(record,details={},time=now()){
    if(!available(time)||!record||!modes.includes(record.mode)||!palette.has(record.color)||typeof record.id!=='string'||!record.id.length||record.id.length>128||!Array.isArray(record.points)||!record.points.length||!record.points.every(validPoint))return false;
    const kind={GLOW:'presence',FLOW:'creation',SLASH:'destruction',LAUNCH:'hit'}[record.mode];if(record.kind!==kind)return false;
@@ -29,6 +31,7 @@ export function createBeyondRuntime({enabled=true,now=()=>performance.now()}={})
    if(earned)addResonance(record.mode,p,record.color,time);return true;
   },
   presence(input,time=now()){
+   chaos.presence(input,time);
    if(!available(time)||!input?.valid||!validPoint(input.center)||!palette.has(input.color)||!Number.isFinite(input.timestamp)||input.timestamp>time||time-input.timestamp>500){presenceBase=null;return false;}
    if(presenceBase&&input.timestamp===presenceBase.last)return false;
    if(!presenceBase||input.timestamp-presenceBase.last>500||input.timestamp<presenceBase.last)presenceBase={start:input.timestamp,last:input.timestamp,anchor:point(input.center),samples:0,motionStart:null};
@@ -43,11 +46,12 @@ export function createBeyondRuntime({enabled=true,now=()=>performance.now()}={})
    atmosphere.push({mode,point:point(input.point),color:input.color,intensity:Number.isFinite(input.intensity)?Math.max(0,Math.min(1,input.intensity)):.5,born:time});
    const matching=atmosphere.filter(m=>m.mode===mode);if(matching.length>4)atmosphere.splice(atmosphere.indexOf(matching[0]),1);return true;
   },
-  pulse(mode,p,color,time=now()){if(!available(time)||!modes.includes(mode)||!validPoint(p)||!palette.has(color)||time-(pulseTimes.get(mode)??-Infinity)<3000)return false;pulseTimes.set(mode,time);pulseMark={mode,point:point(p),color,born:time};fluidPulse=mode==='FLOW'?{point:point(p),color}:null;return true;},
+  pulse(mode,p,color,time=now()){if(!available(time)||!modes.includes(mode)||!validPoint(p)||!palette.has(color)||time-(pulseTimes.get(mode)??-Infinity)<3000)return false;pulseTimes.set(mode,time);chaos.activity(mode,{type:'pulse',point:p,color,intensity:.7},time);pulseMark={mode,point:point(p),color,born:time};fluidPulse=mode==='FLOW'?{point:point(p),color}:null;return true;},
   takeFluidPulse(){const value=fluidPulse;fluidPulse=null;return value;},
   counts(){return {atmosphere:atmosphere.length,resonance:resonance.length,pulse:pulseMark?1:0,presence:presenceBase?1:0,accepted:seen.size};},
   draw(ctx,w,h,time=now(),mode,reduced=false){
    if(!available(time)||!ctx||!Number.isFinite(w)||!Number.isFinite(h)||w<=0||h<=0)return;prune(time);
+   chaos.draw(ctx,w,h,time,mode,reduced);
    try{ctx.save();for(const m of [...atmosphere,...resonance,...(pulseMark?[pulseMark]:[])]){if(m.mode!==mode)continue;const isPulse=m===pulseMark,isRes=resonance.includes(m),life=isPulse||isRes?3000:1800,age=Math.max(0,(time-m.born)/life);ctx.globalAlpha=(1-age)*(isPulse?.22:isRes?.16:.055);ctx.strokeStyle=m.color;ctx.lineWidth=isPulse?2:1;const x=m.point.x*w,y=m.point.y*h,size=18+(m.intensity??.5)*14,drift=reduced?0:age*12;
 ctx.beginPath();
 if(!isPulse&&m.mode==='FLOW'){

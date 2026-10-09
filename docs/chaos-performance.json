@@ -1,0 +1,928 @@
+{
+  "environment": {
+    "browser": "msedge",
+    "headless": true,
+    "viewport": "1366x768",
+    "deviceScaleFactor": 1,
+    "warmupFrames": 60,
+    "measuredFrames": {
+      "GLOW": 180,
+      "FLOW": 180,
+      "SLASH": 180,
+      "LAUNCH": 360
+    }
+  },
+  "method": "CHAOS OFF/WILD/MAX with identical new density rules. Mounted GLOW renderer and segmentation hook with synthetic camera/masks; mounted FLOW fluid with pointer trails; mounted SLASH Overload with ten objects, real cuts and GridScan; mounted LAUNCH renderer/solver with 150 balls and real spawn-at-current-target hit events. Seeded input and geometry paired by mode; identical KeyP input before warmup after a 1.6-second idle gate invokes the real PULSE control when BEYOND is enabled. Native clock measures aggregate synchronous RAF callback CPU and native frame intervals; coherent offset only advances game setup.",
+  "limitations": "Synthetic camera and mask worker exclude neural inference. Synthetic callback cadence/latency are reported solely for scheduling diagnostics; they are not neural tracking measurements. React commits are measured separately by a standalone actual ChaosControl Profiler test; mounted full-app React commits are not instrumented. RAF CPU excludes async tasks, GPU completion and compositor work. Frame intervals include browser scheduling and GPU contention. Sequential headless pairs are diagnostic, not causal or real-device acceptance; no human visual acceptance has occurred. No timing threshold is asserted.",
+  "results": [
+    {
+      "mode": "GLOW",
+      "intensity": "OFF",
+      "syntheticTracking": {
+        "samples": 15,
+        "latency": {
+          "samples": 15,
+          "medianMs": 0.8000001430509656,
+          "p95Ms": 1.1000000476838068
+        },
+        "cadence": {
+          "samples": 14,
+          "medianMs": 66.70000004768372,
+          "p95Ms": 66.90000009536743
+        }
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.40000009536743164,
+        "p95Ms": 1
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.10000014305114746,
+        "p95Ms": 0.8000001907348633
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "chaos": {
+        "meter": 0,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 0
+      },
+      "chaosCounts": {
+        "effects": 0,
+        "fluid": 0,
+        "accepted": 0,
+        "visualDedup": 0,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 1,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 1,
+        "accepted": 9
+      }
+    },
+    {
+      "mode": "GLOW",
+      "intensity": "WILD",
+      "syntheticTracking": {
+        "samples": 15,
+        "latency": {
+          "samples": 15,
+          "medianMs": 0.9000000476835339,
+          "p95Ms": 2.400000000000091
+        },
+        "cadence": {
+          "samples": 14,
+          "medianMs": 66.60000014305115,
+          "p95Ms": 68.20000004768372
+        }
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.5,
+        "p95Ms": 1.2000000476837158
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.10000014305114746,
+        "p95Ms": 0.9000000953674316
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.300000000000182
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "chaos": {
+        "meter": 8,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 2
+      },
+      "chaosCounts": {
+        "effects": 2,
+        "fluid": 0,
+        "accepted": 0,
+        "visualDedup": 0,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 1,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 1,
+        "accepted": 9
+      }
+    },
+    {
+      "mode": "GLOW",
+      "intensity": "MAX",
+      "syntheticTracking": {
+        "samples": 15,
+        "latency": {
+          "samples": 15,
+          "medianMs": 1.0999998569486706,
+          "p95Ms": 1.2000000476837158
+        },
+        "cadence": {
+          "samples": 14,
+          "medianMs": 66.70000004768372,
+          "p95Ms": 67.09999990463257
+        }
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.3000001907348633,
+        "p95Ms": 0.8999998569488525
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.19999980926513672,
+        "p95Ms": 0.7000000476837158
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "chaos": {
+        "meter": 8,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 2
+      },
+      "chaosCounts": {
+        "effects": 3,
+        "fluid": 0,
+        "accepted": 0,
+        "visualDedup": 0,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 0,
+        "complete": false,
+        "version": 0
+      },
+      "counts": {
+        "atmosphere": 1,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 1,
+        "accepted": 9
+      }
+    },
+    {
+      "mode": "FLOW",
+      "intensity": "OFF",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.20000004768371582,
+        "p95Ms": 0.5
+      },
+      "cpuPerCallback": {
+        "samples": 540,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "chaos": {
+        "meter": 0,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 1
+      },
+      "chaosCounts": {
+        "effects": 0,
+        "fluid": 0,
+        "accepted": 0,
+        "visualDedup": 0,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": true,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 1,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 1
+      }
+    },
+    {
+      "mode": "FLOW",
+      "intensity": "WILD",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.20000004768371582,
+        "p95Ms": 0.5
+      },
+      "cpuPerCallback": {
+        "samples": 540,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "chaos": {
+        "meter": 77,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 21
+      },
+      "chaosCounts": {
+        "effects": 32,
+        "fluid": 0,
+        "accepted": 1,
+        "visualDedup": 1,
+        "shapes": 1
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": true,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 1,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 1
+      }
+    },
+    {
+      "mode": "FLOW",
+      "intensity": "MAX",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.5
+      },
+      "cpuPerCallback": {
+        "samples": 540,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.20000004768371582
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.200000000000273
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "chaos": {
+        "meter": 77,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 21
+      },
+      "chaosCounts": {
+        "effects": 48,
+        "fluid": 0,
+        "accepted": 1,
+        "visualDedup": 1,
+        "shapes": 1
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": true,
+          "SLASH": false,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 1,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 1
+      }
+    },
+    {
+      "mode": "SLASH",
+      "intensity": "OFF",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.6000001430511475,
+        "p95Ms": 0.9000000953674316
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.6999998092651367
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.200000000000273,
+        "p95Ms": 8.400000000000546
+      },
+      "maximumObjects": 10,
+      "maximumParticles": 213,
+      "recognizedCuts": 21,
+      "slashState": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 7,
+        "elapsed": 104.01990000009536,
+        "remaining": 15.980099999904638,
+        "seconds": 16,
+        "countdown": 0,
+        "progress": 0.8668325000007947,
+        "interval": 0.40895249435151704,
+        "cap": 10,
+        "score": 1400,
+        "combo": 7,
+        "maxCombo": 7,
+        "comboExpiresAt": 105.86740000009537,
+        "overload": true,
+        "storm": false
+      },
+      "chaos": {
+        "meter": 0,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 1
+      },
+      "chaosCounts": {
+        "effects": 0,
+        "fluid": 0,
+        "accepted": 0,
+        "visualDedup": 0,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": true,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 7
+      }
+    },
+    {
+      "mode": "SLASH",
+      "intensity": "WILD",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.6000001430511475,
+        "p95Ms": 0.9000000953674316
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.6999998092651367
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 4.200000000000273,
+        "p95Ms": 12.400000000000091
+      },
+      "maximumObjects": 10,
+      "maximumParticles": 213,
+      "recognizedCuts": 20,
+      "slashState": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 7,
+        "elapsed": 104.08259999990463,
+        "remaining": 15.91740000009537,
+        "seconds": 16,
+        "countdown": 0,
+        "progress": 0.8673549999992053,
+        "interval": 0.4085147423580132,
+        "cap": 10,
+        "score": 1400,
+        "combo": 7,
+        "maxCombo": 7,
+        "comboExpiresAt": 105.88019999980926,
+        "overload": true,
+        "storm": false
+      },
+      "chaos": {
+        "meter": 60,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 8
+      },
+      "chaosCounts": {
+        "effects": 5,
+        "fluid": 0,
+        "accepted": 7,
+        "visualDedup": 7,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": true,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 7
+      }
+    },
+    {
+      "mode": "SLASH",
+      "intensity": "MAX",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 180,
+        "medianMs": 0.6999998092651367,
+        "p95Ms": 1
+      },
+      "cpuPerCallback": {
+        "samples": 360,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.7000000476837158
+      },
+      "nativeFrameInterval": {
+        "samples": 180,
+        "medianMs": 8.200000000000273,
+        "p95Ms": 12.5
+      },
+      "maximumObjects": 10,
+      "maximumParticles": 240,
+      "recognizedCuts": 21,
+      "slashState": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 7,
+        "elapsed": 104.18590000009537,
+        "remaining": 15.814099999904627,
+        "seconds": 16,
+        "countdown": 0,
+        "progress": 0.8682158333341281,
+        "interval": 0.407782594363779,
+        "cap": 10,
+        "score": 1400,
+        "combo": 7,
+        "maxCombo": 7,
+        "comboExpiresAt": 105.85470000004769,
+        "overload": true,
+        "storm": false
+      },
+      "chaos": {
+        "meter": 60,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 8
+      },
+      "chaosCounts": {
+        "effects": 8,
+        "fluid": 0,
+        "accepted": 7,
+        "visualDedup": 7,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": true,
+          "LAUNCH": false
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 0,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 7
+      }
+    },
+    {
+      "mode": "LAUNCH",
+      "intensity": "OFF",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 360,
+        "medianMs": 0.20000004768371582,
+        "p95Ms": 0.5
+      },
+      "cpuPerCallback": {
+        "samples": 1080,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.2999999523162842
+      },
+      "nativeFrameInterval": {
+        "samples": 360,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "activeBalls": 150,
+      "launchTarget": {
+        "id": 5,
+        "serial": 5,
+        "type": "normal",
+        "moving": false,
+        "x": -1.4968249075655333,
+        "y": -0.6455870562301272,
+        "z": -0.65,
+        "radius": 1.238611999999682,
+        "halfDepth": 0.9,
+        "minX": -12.150617744650274,
+        "maxX": 12.150617744650274,
+        "motionStart": 3.3333333333333264,
+        "motionAmplitude": 0.6,
+        "expiresAt": null,
+        "baseX": -1.4968249075655333,
+        "baseY": -0.6455870562301272,
+        "previousCenter": {
+          "x": -1.4968249075655333,
+          "y": -0.6455870562301272,
+          "z": -0.65
+        }
+      },
+      "launchRound": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 4,
+        "elapsed": 3.4837000000476834,
+        "remaining": 116.51629999995231,
+        "seconds": 117,
+        "countdown": 0,
+        "progress": 0.029030833333730695
+      },
+      "finitePhysics": true,
+      "chaos": {
+        "meter": 0,
+        "state": "BUILDING",
+        "surge": false,
+        "version": 1
+      },
+      "chaosCounts": {
+        "effects": 0,
+        "fluid": 0,
+        "accepted": 0,
+        "visualDedup": 0,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": true
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 1,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 4
+      }
+    },
+    {
+      "mode": "LAUNCH",
+      "intensity": "WILD",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 360,
+        "medianMs": 0.2999999523162842,
+        "p95Ms": 0.5999999046325684
+      },
+      "cpuPerCallback": {
+        "samples": 1080,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.39999985694885254
+      },
+      "nativeFrameInterval": {
+        "samples": 360,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.300000000000182
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "activeBalls": 150,
+      "launchTarget": {
+        "id": 5,
+        "serial": 5,
+        "type": "normal",
+        "moving": false,
+        "x": -1.4968249075655333,
+        "y": -0.6455870562301272,
+        "z": -0.65,
+        "radius": 1.238597000000477,
+        "halfDepth": 0.9,
+        "minX": -12.15063274464948,
+        "maxX": 12.15063274464948,
+        "motionStart": 3.3333333333333264,
+        "motionAmplitude": 0.6,
+        "expiresAt": null,
+        "baseX": -1.4968249075655333,
+        "baseY": -0.6455870562301272,
+        "previousCenter": {
+          "x": -1.4968249075655333,
+          "y": -0.6455870562301272,
+          "z": -0.65
+        }
+      },
+      "launchRound": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 4,
+        "elapsed": 3.488299999952316,
+        "remaining": 116.51170000004768,
+        "seconds": 117,
+        "countdown": 0,
+        "progress": 0.0290691666662693
+      },
+      "finitePhysics": true,
+      "chaos": {
+        "meter": 0,
+        "state": "SURGE",
+        "surge": true,
+        "version": 5
+      },
+      "chaosCounts": {
+        "effects": 32,
+        "fluid": 0,
+        "accepted": 4,
+        "visualDedup": 4,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": true
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 1,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 4
+      }
+    },
+    {
+      "mode": "LAUNCH",
+      "intensity": "MAX",
+      "syntheticTracking": {
+        "samples": 0,
+        "latency": null,
+        "cadence": null
+      },
+      "cpuCallbacksPerFrame": {
+        "samples": 360,
+        "medianMs": 0.20000004768371582,
+        "p95Ms": 0.5
+      },
+      "cpuPerCallback": {
+        "samples": 1080,
+        "medianMs": 0.09999990463256836,
+        "p95Ms": 0.2999999523162842
+      },
+      "nativeFrameInterval": {
+        "samples": 360,
+        "medianMs": 4.199999999999818,
+        "p95Ms": 4.299999999999727
+      },
+      "maximumObjects": 0,
+      "maximumParticles": 0,
+      "recognizedCuts": 0,
+      "activeBalls": 150,
+      "launchTarget": null,
+      "launchRound": {
+        "phase": "playing",
+        "paused": false,
+        "pauseReason": "",
+        "count": 7,
+        "elapsed": 3.4928999998569488,
+        "remaining": 116.50710000014305,
+        "seconds": 117,
+        "countdown": 0,
+        "progress": 0.029107499998807906
+      },
+      "finitePhysics": true,
+      "chaos": {
+        "meter": 0,
+        "state": "SURGE",
+        "surge": true,
+        "version": 5
+      },
+      "chaosCounts": {
+        "effects": 48,
+        "fluid": 0,
+        "accepted": 7,
+        "visualDedup": 7,
+        "shapes": 0
+      },
+      "beyondEnabled": true,
+      "beyond": {
+        "activated": {
+          "GLOW": false,
+          "FLOW": false,
+          "SLASH": false,
+          "LAUNCH": true
+        },
+        "count": 1,
+        "complete": false,
+        "version": 1
+      },
+      "counts": {
+        "atmosphere": 4,
+        "resonance": 1,
+        "pulse": 1,
+        "presence": 0,
+        "accepted": 7
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "mode": "GLOW",
+      "maxP95CpuDeltaMs": -0.10000014305114746,
+      "medianCpuDeltaMs": 0.09999990463256836,
+      "p95CpuDeltaMs": 0.20000004768371582,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": 4.547473508864641e-13
+    },
+    {
+      "mode": "FLOW",
+      "maxP95CpuDeltaMs": 0,
+      "medianCpuDeltaMs": 0,
+      "p95CpuDeltaMs": 0,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": 0
+    },
+    {
+      "mode": "SLASH",
+      "maxP95CpuDeltaMs": 0.09999990463256836,
+      "medianCpuDeltaMs": 0,
+      "p95CpuDeltaMs": 0,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": 3.9999999999995453
+    },
+    {
+      "mode": "LAUNCH",
+      "maxP95CpuDeltaMs": 0,
+      "medianCpuDeltaMs": 0.09999990463256836,
+      "p95CpuDeltaMs": 0.09999990463256836,
+      "medianFrameDeltaMs": 0,
+      "p95FrameDeltaMs": 4.547473508864641e-13
+    }
+  ]
+}

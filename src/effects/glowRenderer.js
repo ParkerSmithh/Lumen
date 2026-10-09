@@ -1,7 +1,7 @@
 import { fitContain, toMaskRGBA } from '../tracking/utils';
 const vertex=`attribute vec2 position; varying vec2 uv; void main(){uv=position*.5+.5;gl_Position=vec4(position,0.,1.);}`;
 const fragment=`precision highp float;
-varying vec2 uv; uniform sampler2D mask; uniform sampler2D camera; uniform vec2 resolution; uniform vec4 rect; uniform vec3 color; uniform float opacity; uniform float live; uniform float darkness;
+varying vec2 uv; uniform sampler2D mask; uniform sampler2D camera; uniform vec2 resolution; uniform vec4 rect; uniform vec3 color; uniform float opacity; uniform float live; uniform float darkness; uniform float energy;
 float body(vec2 p){if(p.x<0.||p.x>1.||p.y<0.||p.y>1.)return 0.;return texture2D(mask,p).a;}
 void main(){
  vec2 pixel=vec2(uv.x,1.-uv.y)*resolution;vec2 p=(pixel-rect.xy)/rect.zw;p.x=1.-p.x;
@@ -15,7 +15,7 @@ void main(){
  float edge=max(0.,a-nearGlow*opacity);vec3 halo=color*(edge*.55+max(0.,bloom-a)*opacity*.25+max(0.,outer-a)*opacity*.16);
  vec3 background=original*(1.-darkness*.82*opacity);
  halo+=color*darkness*opacity*(edge*1.8+max(0.,nearGlow-body(p))*.85+max(0.,bloom-body(p))*.65+max(0.,outer-body(p))*.35);
- vec3 scene=mix(background,tinted,a)+halo*(vec3(1.)-original);vec3 preview=color*(a*.62+nearGlow*opacity*.25+bloom*opacity*.12);
+ vec3 scene=mix(background,tinted,a)+halo*energy*(vec3(1.)-original);vec3 preview=color*(a*.62+nearGlow*opacity*.25+bloom*opacity*.12);
  gl_FragColor=vec4(mix(preview,scene,live),1.);
 }`;
 // Sample only background pixels at 5 Hz. Smooth exposure changes to avoid flicker.
@@ -49,14 +49,14 @@ export function createGlowRenderer(canvas){
  const position=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
  const texture=(unit,name)=>{const value=gl.createTexture();textures.push(value);gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,value);for(const param of [gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER])gl.texParameteri(gl.TEXTURE_2D,param,gl.LINEAR);for(const param of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,param,gl.CLAMP_TO_EDGE);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));gl.uniform1i(gl.getUniformLocation(program,name),unit);return value;};
  const maskTexture=texture(0,'mask'),cameraTexture=texture(1,'camera');
- const uniforms=Object.fromEntries(['resolution','rect','color','opacity','live','darkness'].map(name=>[name,gl.getUniformLocation(program,name)]));let previous;const measure=ambientMeter();
+ const uniforms=Object.fromEntries(['resolution','rect','color','opacity','live','darkness','energy'].map(name=>[name,gl.getUniformLocation(program,name)]));let previous;const measure=ambientMeter();
  return {
  resize(w,h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);},
- draw({video,mask,color,opacity}){if(gl.isContextLost())return;const live=video&&(video.readyState===undefined||video.readyState>=2);
+ draw({video,mask,color,opacity,energy=1}){if(gl.isContextLost())return;const live=video&&(video.readyState===undefined||video.readyState>=2);
  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,cameraTexture);if(live)gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,video);
  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,maskTexture);if(mask&&mask!==previous){gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,mask.width,mask.height,0,gl.RGBA,gl.UNSIGNED_BYTE,toMaskRGBA(mask.values));previous=mask;}
  const r=fitContain(video?.videoWidth||video?.width||mask?.sourceWidth||640,video?.videoHeight||video?.height||mask?.sourceHeight||480,canvas.width,canvas.height);
- gl.uniform2f(uniforms.resolution,canvas.width,canvas.height);gl.uniform4f(uniforms.rect,r.x,r.y,r.width,r.height);gl.uniform3fv(uniforms.color,[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255));gl.uniform1f(uniforms.darkness,measure(live?video:null,mask));gl.uniform1f(uniforms.live,live?1:0);gl.uniform1f(uniforms.opacity,mask?opacity:0);gl.drawArrays(gl.TRIANGLES,0,6);},
+ gl.uniform2f(uniforms.resolution,canvas.width,canvas.height);gl.uniform4f(uniforms.rect,r.x,r.y,r.width,r.height);gl.uniform3fv(uniforms.color,[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255));gl.uniform1f(uniforms.energy,energy);gl.uniform1f(uniforms.darkness,measure(live?video:null,mask));gl.uniform1f(uniforms.live,live?1:0);gl.uniform1f(uniforms.opacity,mask?opacity:0);gl.drawArrays(gl.TRIANGLES,0,6);},
  dispose(){textures.forEach(t=>gl.deleteTexture(t));gl.deleteBuffer(buffer);gl.deleteProgram(program);shaders.forEach(s=>gl.deleteShader(s));}
  };
 }
@@ -66,7 +66,7 @@ function createCanvasRenderer(canvas){
  const tint=document.createElement('canvas'),t=tint.getContext('2d'),m=document.createElement('canvas');let previous;const measure=ambientMeter();
  return {
  resize(w,h){canvas.width=layer.width=tint.width=halo.width=w;canvas.height=layer.height=tint.height=halo.height=h;},
- draw({video,mask,color,opacity}){ctx.fillStyle='#050407';ctx.fillRect(0,0,canvas.width,canvas.height);const live=video&&(video.readyState===undefined||video.readyState>=2);
+ draw({video,mask,color,opacity,energy=1}){ctx.fillStyle='#050407';ctx.fillRect(0,0,canvas.width,canvas.height);const live=video&&(video.readyState===undefined||video.readyState>=2);
  const r=fitContain(video?.videoWidth||video?.width||mask?.sourceWidth||640,video?.videoHeight||video?.height||mask?.sourceHeight||480,canvas.width,canvas.height);const darkness=measure(live?video:null,mask);ctx.save();ctx.translate(canvas.width,0);ctx.scale(-1,1);if(live){ctx.drawImage(video,r.x,r.y,r.width,r.height);ctx.fillStyle='black';ctx.globalAlpha=darkness*.82*opacity;ctx.fillRect(r.x,r.y,r.width,r.height);ctx.globalAlpha=1;}
  if(mask){if(previous!==mask){m.width=mask.width;m.height=mask.height;m.getContext('2d').putImageData(new ImageData(toMaskRGBA(mask.values),mask.width,mask.height),0,0);previous=mask;}
  light.clearRect(0,0,layer.width,layer.height);light.drawImage(m,r.x,r.y,r.width,r.height);light.globalCompositeOperation='source-in';light.fillStyle=color;light.fillRect(0,0,layer.width,layer.height);light.globalCompositeOperation='source-over';
@@ -77,7 +77,7 @@ function createCanvasRenderer(canvas){
   h.clearRect(0,0,halo.width,halo.height);h.filter=`blur(${radius}px)`;h.drawImage(layer,0,0);h.filter='none';
   // Keep bloom outside the person so facial detail does not wash out.
   if(live){h.globalCompositeOperation='destination-out';h.drawImage(layer,0,0);h.globalCompositeOperation='source-over';}
-  ctx.globalAlpha=opacity*strength;ctx.drawImage(halo,0,0);
+  ctx.globalAlpha=opacity*strength*energy;ctx.drawImage(halo,0,0);
  }}
  ctx.restore();},dispose(){layer.width=layer.height=tint.width=tint.height=halo.width=halo.height=m.width=m.height=0;}
  };

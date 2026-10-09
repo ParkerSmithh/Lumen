@@ -762,6 +762,7 @@ function SplashCursor({
 
     const consumed = {};
     function updateFeedback(){
+      const chaos=inputRef.current.echoSession?.beyond.chaos,commands=chaos?.takeFluidCommands()||[],quiet=matchMedia('(prefers-reduced-motion: reduce)').matches;for(const command of commands){const color=hexToRGB(command.color),n=quiet?1:chaos.preferenceIntensity()==='MAX'?8:4;for(let i=0;i<n;i++){const a=i*Math.PI*2/n,r=quiet?0:.04;splat(command.point.x+Math.cos(a)*r,1-command.point.y+Math.sin(a)*r,quiet?0:Math.cos(a)*45,quiet?0:Math.sin(a)*45,{r:color.r*.18,g:color.g*.18,b:color.b*.18});}}
       const pulse=inputRef.current.echoSession?.beyond.takeFluidPulse();
       if(pulse){const color=generateColor(),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,n=reduced?1:6;for(let i=0;i<n;i++){const a=i*Math.PI*2/n,r=reduced?0:.035;splat(pulse.point.x+Math.cos(a)*r,1-pulse.point.y+Math.sin(a)*r,reduced?0:Math.cos(a)*80,reduced?0:Math.sin(a)*80,{r:color.r*.3,g:color.g*.3,b:color.b*.3});}}
       const effect=inputRef.current.effectRef?.current;
