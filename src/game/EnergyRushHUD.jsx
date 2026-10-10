@@ -2,11 +2,12 @@ import {useEffect,useRef,useState} from 'react';
 import './energyRush.css';
 const challengeLabels={left:'MOVE LEFT',right:'MOVE RIGHT',expand:'EXPAND YOUR ENERGY FIELD',reach:'REACH HIGH'};
 export function EnergyRushHUD({game,cameraReady,preview,onCamera,poseEnabled,onPoseToggle,poseStatus,instructions}){
- const s=game.display,action=useRef(null),pad=useRef(null),lastPhase=useRef(s.phase);
+ const s=game.display,action=useRef(null),pad=useRef(null),lastPhase=useRef(s.phase),activePointer=useRef(null);
+ useEffect(()=>{activePointer.current=null;},[s.phase]);
  const [announcement,setAnnouncement]=useState(''),previous=useRef({shields:3,fever:false});
  useEffect(()=>{if(s.shields<previous.current.shields)setAnnouncement(`Shield used. ${s.shields} shields remaining.`);else if(s.fever&&!previous.current.fever)setAnnouncement('ENERGY FEVER. Eight active seconds of extra light.');else if(!s.fever&&previous.current.fever)setAnnouncement('ENERGY FEVER complete. Keep collecting the light.');previous.current={shields:s.shields,fever:s.fever};},[s.shields,s.fever]);
  useEffect(()=>{if(!announcement)return;const timer=setTimeout(()=>setAnnouncement(''),2400);return()=>clearTimeout(timer);},[announcement]);
- useEffect(()=>{if(lastPhase.current!==s.phase&&['PAUSED','RESULTS'].includes(s.phase))action.current?.focus({preventScroll:true});lastPhase.current=s.phase;},[s.phase]);
+ useEffect(()=>{if(lastPhase.current!==s.phase&&['PAUSED','RESULTS'].includes(s.phase)){action.current?.focus({preventScroll:true});action.current?.scrollIntoView({block:'nearest',behavior:'instant'});}lastPhase.current=s.phase;},[s.phase]);
  const assisted=game.inputMode==='assist',ready=s.phase==='READY'||s.phase==='RESULTS';
  const touch=e=>{const r=pad.current.getBoundingClientRect();game.move(.06+(e.clientX-r.left)/r.width*.88,.1+(e.clientY-r.top)/r.height*.8);};
  return <><div className="energy-ui" data-energy-phase={s.phase}>
@@ -35,7 +36,7 @@ export function EnergyRushHUD({game,cameraReady,preview,onCamera,poseEnabled,onP
   <div className="energy-bottom" data-energy-exclude>
    <div className="energy-round-actions">{s.phase==='PLAYING'&&<button onClick={game.pause}>PAUSE</button>}{!ready&&<button onClick={game.recalibrate}>RECALIBRATE</button>}<button onClick={game.exit}>EXIT</button></div>
    {assisted&&s.phase==='PLAYING'&&<div className="energy-assist" role="group" aria-label="Touch movement">
-    <div className="energy-touch-pad" ref={pad} onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);touch(e);}} onPointerMove={e=>{if(e.buttons)touch(e);}} aria-hidden="true"><span>DRAG TO MOVE</span></div>
+    <div className="energy-touch-pad" ref={pad} onPointerDown={e=>{activePointer.current=e.pointerId;try{e.currentTarget.setPointerCapture(e.pointerId);}catch{/* Synthetic input has no native capture. */}touch(e);}} onPointerMove={e=>{if(activePointer.current===e.pointerId&&e.buttons)touch(e);}} onPointerUp={()=>{activePointer.current=null;}} onPointerCancel={()=>{activePointer.current=null;}} onLostPointerCapture={()=>{activePointer.current=null;}} aria-hidden="true"><span>DRAG TO MOVE</span></div>
     {s.challenge&&['expand','reach'].includes(s.challenge.kind)&&<button onPointerDown={()=>game.action(s.challenge.kind,true)} onPointerUp={()=>game.action(s.challenge.kind,false)} onPointerCancel={()=>game.action(s.challenge.kind,false)} onPointerLeave={()=>game.action(s.challenge.kind,false)} onKeyDown={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();game.action(s.challenge.kind,true);}}} onKeyUp={()=>game.action(s.challenge.kind,false)}>HOLD TO {s.challenge.kind==='reach'?'REACH':'EXPAND'}</button>}
    </div>}
   </div>

@@ -34,6 +34,7 @@ test('prepared inputs distinguish hand initialization, camera-frame motion and f
  const camera={cameraReady:true,video:{readyState:2,paused:false,ended:false},trackingStatus:'loading'};
  assert.equal(inputReady(camera),false);assert.equal(inputReady({...camera,frameMotion:true,trackingError:true}),true);
  assert.equal(inputReady({...camera,assisted:true,cameraReady:false}),true);
+ assert.equal(inputReady({...camera,assisted:true,renderReady:false}),false);
  assert.equal(inputReady({...camera,trackingStatus:'searching'}),true);
  assert.equal(inputReady({...camera,trackingStatus:'tracking',video:{readyState:1}}),false);
 });

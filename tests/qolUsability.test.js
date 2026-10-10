@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {trackingNotice} from '../src/tracking/trackingNotice.js';
 import {shapePath,createTraceEvaluator} from '../src/game/lightTrace.js';
+import {getGameInstructions,instructionReadiness} from '../src/game/gameInstructions.js';
 test('tracking notices distinguish connectivity from detection and describe recovery',()=>{
  assert.match(trackingNotice({camera:'loading'}),/connecting/i);
  assert.match(trackingNotice({camera:'ready',tracking:'loading'}),/preparing/i);
@@ -21,4 +22,13 @@ test('FLOW short interruption preserves earned progress without inventing trace 
  const progress=e.progress;e.sample(null);assert.equal(e.progress,progress);
  const r=e.sample({...path[70],active:true,timestamp:1300,sequence:70,source:'hand',reset:true});
  assert.equal(e.progress,progress);assert.equal(r.complete,false);
+});
+test('SLASH camera-frame readiness remains understandable when hand tracking is unavailable',()=>{
+ assert.match(trackingNotice({camera:'ready',tracking:'error',frameMotion:true}),/camera motion ready/i);
+ assert.match(instructionReadiness('SLASH',false,true,{status:'ready',trackingStatus:'loading'}),/camera motion/i);
+ assert.match(instructionReadiness('SLASH',false,true,{status:'ready',trackingError:'Unavailable'}),/camera motion/i);
+});
+test('LAUNCH assisted instructions describe pressing and release instead of a fist',()=>{
+ assert.match(getGameInstructions('LAUNCH',true).subtitle,/PRESS.*RELEASE/);
+ assert.match(getGameInstructions('LAUNCH',false).subtitle,/CLOSE FIST.*OPEN HAND/);
 });

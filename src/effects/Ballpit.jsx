@@ -933,10 +933,10 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   };
 }
 
-const Ballpit = ({ className = '', gameRef, pointerRef, onFailure, onInteraction, creationColor, followCursor = false, ...props }) => {
+const Ballpit = ({ className = '', gameRef, pointerRef, onFailure, onReady, onInteraction, creationColor, followCursor = false, ...props }) => {
   const hostRef = useRef(null);
-  const inputRef = useRef({ gameRef, pointerRef, onFailure, onInteraction, creationColor });
-  inputRef.current = { gameRef, pointerRef, onFailure, onInteraction, creationColor };
+  const inputRef = useRef({ gameRef, pointerRef, onFailure, onReady, onInteraction, creationColor });
+  inputRef.current = { gameRef, pointerRef, onFailure, onReady, onInteraction, creationColor };
   useEffect(() => {
     const host = hostRef.current;
     const canvas = document.createElement('canvas');
@@ -946,7 +946,7 @@ const Ballpit = ({ className = '', gameRef, pointerRef, onFailure, onInteraction
     let instance;
     const failure = error => { instance?.dispose(); inputRef.current.onFailure?.('LAUNCH requires WebGL on this device. Try another browser or mode.'); };
     const bridge = { get current() { return { ...inputRef.current, onFailure: failure }; } };
-    try { instance = createBallpit(canvas, { followCursor, ...props }, bridge); }
+    try { instance = createBallpit(canvas, { followCursor, ...props }, bridge);inputRef.current.onReady?.(); }
     catch (error) { failure(error); }
     if(import.meta.env.DEV&&new URLSearchParams(location.search).has('debugKinetic'))window.__lumenKinetic={get instance(){return instance;},input:()=>inputRef.current.pointerRef?.current,game:()=>inputRef.current.gameRef?.current?.state()};
     return () => { if(import.meta.env.DEV)delete window.__lumenKinetic;instance?.dispose(); canvas.remove(); };

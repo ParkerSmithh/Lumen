@@ -39,5 +39,23 @@ No physical device acceptance is implied by automated fixtures.
   Existing ENERGY RUSH tests (8) and physical-landmark FLOW tracing fixture (1)
   passed in the focused run; an arrow encoding issue and a test-only React module
   import mismatch were corrected without changing assertions.
-- P2: pending.
+- P2: implemented: shared 44px hit areas, responsive control reservations,
+  readable game overlays, and contained short-screen focus scrolling. Five
+  viewport tests and existing entry/tutorial layouts passed in focused runs.
+  The mechanical design detector returned zero findings.
+- Review fixes: reject held-key repeats, require a new touch-pad pointer,
+  clear keyboard/palm baselines, pause sustained hand loss, and include both
+  fluid/WebGL and 2D readiness in FLOW and renderer readiness in LAUNCH.
+  Camera cancellation/retry and stalled playback regressions passed.
+- Performance: measured unused hand-worker dispatches during assisted input:
+  14 per 500ms before, zero after. Active dispatches were 13 in both samples.
+  Camera remains live by user choice; selecting camera input restarts the worker.
+- Long sessions: all-game two-round cycles passed with bounded canvas ownership.
+  ENERGY RUSH's >250ms interruption guard is retained; the test uses admitted
+  200ms frames. Readiness changes now publish immediately, including when the
+  simulation clock is held during instruction review.
+- Final focused readiness/cycle validation: 11 passed; current unit suite:
+  308 passed, zero failed. Earlier failed runs exposed actual defects, test
+  import/encoding issues, and held-clock fixture admission issues; assertions
+  and gameplay thresholds were preserved.
 - Full validation and final review: pending.

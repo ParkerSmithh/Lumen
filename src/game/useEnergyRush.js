@@ -10,7 +10,7 @@ export function useEnergyRush({enabled,cameraReady,preview,videoRef,echoSession,
  const [grid]=useState(createSilhouetteGrid),[assist]=useState(createAssistField),[events]=useState(()=>createEnergyEvents(echoSession));
  const [display,setDisplay]=useState(()=>engine.snapshot),[inputMode,setInputMode]=useState('body');
  const settings=useRef(null);settings.current={enabled,cameraReady,preview,videoRef,echoSession,onExit,inputMode,color};
- const keys=useRef(new Set()),point=useRef({x:.5,y:.5}),actions=useRef({}),lastMask=useRef(null),lastFrame=useRef(null),lastPublish=useRef(-Infinity),phase=useRef('READY'),finished=useRef(-1),resultAt=useRef(-Infinity),best=useRef(null),excluded=useRef([]);
+ const keys=useRef(new Set()),point=useRef({x:.5,y:.5}),actions=useRef({}),lastMask=useRef(null),lastFrame=useRef(null),lastPublish=useRef(-Infinity),phase=useRef('READY'),lastReadiness=useRef(false),finished=useRef(-1),resultAt=useRef(-Infinity),best=useRef(null),excluded=useRef([]);
  const bestMode=()=>engine.snapshot.inputMode==='assist'?'ENERGY_RUSH_ASSIST':'ENERGY_RUSH_BODY';
  const publish=useCallback(()=>{const s=engine.snapshot;setDisplay({...s,bests:best.current?.bests??personalBests.read(s.phase==='READY'?(settings.current.inputMode==='assist'?'ENERGY_RUSH_ASSIST':'ENERGY_RUSH_BODY'):bestMode()),newBest:best.current?.newBest??false});},[engine]);
  useEffect(()=>{if(!enabled){engine.exit();grid.reset();assist.reset();lastMask.current=null;keys.current.clear();echoSession?.beyond.chaos.setEnergyRush(false);publish();}return()=>{keys.current.clear();};},[enabled]);
@@ -22,7 +22,7 @@ export function useEnergyRush({enabled,cameraReady,preview,videoRef,echoSession,
   const down=e=>{if(!settings.current.enabled||editable(e)||echoSession?.gate.suspended||document.hidden)return;
    if(e.code==='Escape'&&engine.snapshot.phase==='PLAYING'){e.preventDefault();suspend('user');return;}
    if(settings.current.inputMode!=='assist'||engine.snapshot.phase!=='PLAYING')return;
-   if(energyKeyDirection(e.code)){e.preventDefault();keys.current.add(e.code);}
+   if(energyKeyDirection(e.code)){e.preventDefault();if(!e.repeat)keys.current.add(e.code);}
   };
   const up=e=>keys.current.delete(e.code),blur=()=>suspend('focus');
   document.addEventListener('visibilitychange',visibility);document.addEventListener('keydown',down);document.addEventListener('keyup',up);window.addEventListener('blur',blur);
@@ -46,7 +46,7 @@ export function useEnergyRush({enabled,cameraReady,preview,videoRef,echoSession,
   if(state.phase==='RESULTS'&&finished.current!==state.session){finished.current=state.session;resultAt.current=now;best.current=personalBests.record(bestMode(),{score:state.score,count:state.collections},true);}
   s.echoSession?.beyond.chaos.tick('GLOW',now,playing||state.phase==='RESULTS'&&now-resultAt.current<1600);
   for(const event of engine.drainEvents())events.accept(event,s.color??'#b06aff');
-  if(state.phase!==phase.current||now-lastPublish.current>=100){phase.current=state.phase;lastPublish.current=now;publish();}
+  if(state.phase!==phase.current||state.canResume!==lastReadiness.current||now-lastPublish.current>=100){lastReadiness.current=state.canResume;phase.current=state.phase;lastPublish.current=now;publish();}
   return engine.scene;
  },[engine,grid,assist,events,publish]);
  return {engine,display,inputMode,grid,frame,

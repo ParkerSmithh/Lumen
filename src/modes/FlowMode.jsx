@@ -9,12 +9,14 @@ import SplashCursor from '../effects/SplashCursor';
 import { predictHandPoint } from '../tracking/handPointer';
 import { fitContain } from '../tracking/utils';
 export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError,echoSession,onCamera,onChooseInput,instructionCamera}) {
+  const [canvasStatus,setCanvasStatus]=useState('preparing'),[fluidStatus,setFluidStatus]=useState('preparing');
+  const renderStatus=canvasStatus==='error'||fluidStatus==='error'?'error':canvasStatus==='ready'&&fluidStatus==='ready'?'ready':'preparing';
   const hostRef=useRef(null),pointerRef=useRef(null),lightRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
   const traceProgressRef=useRef(null),lastDrawMotion=useRef(-Infinity);
   const guideRef=useRef(null),scores=useRef([]),targetRef=useRef(null);const [accuracy,setAccuracy]=useState(null);
   const echoPath=useRef(createEchoPath()),echoToken=useRef(echoSession?.store.epoch),echoSerial=useRef(0),echoScope=useRef(echoSession?.allocateScope());
   const [arcade]=useState(createFlowArcade),effectRef=useRef(null),feedbackRef=useRef(null),shapeSerial=useRef(0);
-  const round=useRound({echoSession,color,onCamera,onChooseInput,instructionCamera,duration:90,mode:'FLOW',metrics:state=>({...arcade.snapshot(),accuracy:scores.current.length?scores.current.reduce((a,b)=>a+b,0)/scores.current.length:null,feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.expiresAt?feedbackRef.current.id:null}),mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{echoPath.current.sample(null);pointerRef.current=null;if(effectRef.current)effectRef.current.paused=true;targetRef.current?.evaluator.sample(null);if(full){echoPath.current.clear();targetRef.current=null;scores.current=[];setAccuracy(null);arcade.reset();shapeSerial.current=0;effectRef.current=null;feedbackRef.current=null;}}});
+  const round=useRound({echoSession,color,onCamera,onChooseInput,instructionCamera,renderStatus,duration:90,mode:'FLOW',metrics:state=>({...arcade.snapshot(),accuracy:scores.current.length?scores.current.reduce((a,b)=>a+b,0)/scores.current.length:null,feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.expiresAt?feedbackRef.current.id:null}),mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{echoPath.current.sample(null);pointerRef.current=null;if(effectRef.current)effectRef.current.paused=true;targetRef.current?.evaluator.sample(null);if(full){echoPath.current.clear();targetRef.current=null;scores.current=[];setAccuracy(null);arcade.reset();shapeSerial.current=0;effectRef.current=null;feedbackRef.current=null;}}});
   useEffect(()=>echoSession?.store.subscribe(()=>{if(echoToken.current!==echoSession.store.epoch){echoToken.current=echoSession.store.epoch;echoPath.current.clear();}}),[echoSession]);
   useEffect(()=>echoSession?.registerMode('FLOW',()=>{const state=round.clock.tick(performance.now());return {playing:state.phase==='playing',paused:state.paused,blocked:performance.now()-lastDrawMotion.current<600,point:pointerRef.current||{x:.5,y:.5},color:colorRef.current,autoAllowed:false};}),[echoSession,round.clock]);
   const interactionRef=useRef(onInteraction);interactionRef.current=onInteraction;
@@ -24,6 +26,7 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
     const host=hostRef.current,canvas=lightRef.current,ctx=canvas.getContext('2d');
     const trace=[];let lastSequence=null,lastEpoch=round.epoch.current;
     const guide=guideRef.current,gctx=guide.getContext('2d');
+    if(!ctx||!gctx){setCanvasStatus('error');onFailure?.('FLOW needs Canvas rendering. Try another mode.');return;}setCanvasStatus('ready');
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
     let measuredWidth=0,measuredHeight=0;
     const resize=()=>{const changed=measuredWidth>0&&(measuredWidth!==host.clientWidth||measuredHeight!==host.clientHeight);if(changed){round.pause('resize');}measuredWidth=host.clientWidth;measuredHeight=host.clientHeight;const ratio=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(host.clientWidth*ratio);canvas.height=Math.round(host.clientHeight*ratio);ctx?.setTransform(ratio,0,0,ratio,0,0);trace.length=0;guide.width=canvas.width;guide.height=canvas.height;gctx?.setTransform(ratio,0,0,ratio,0,0);targetRef.current=null;echoPath.current.clear();};
@@ -95,7 +98,7 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
     return()=>{if(import.meta.env.DEV)delete window.__lumenTrace;observer.disconnect();canvas.width=canvas.height=0;cancelAnimationFrame(raf);pointerRef.current=null;window.removeEventListener('pointermove',mouse);window.removeEventListener('pointerdown',mouse);window.removeEventListener('blur',leave);document.removeEventListener('pointerleave',leave);};
   },[handRef,mouseMode]);
   return <><div className={`artwork flow-artwork ${mouseMode?'':'hand-input'}`} ref={hostRef}>
-    <SplashCursor echoSession={echoSession} effectRef={effectRef} pointerRef={pointerRef} onFailure={onFailure} SIM_RESOLUTION={128} DYE_RESOLUTION={512}
+    <SplashCursor echoSession={echoSession} effectRef={effectRef} pointerRef={pointerRef} onReady={()=>setFluidStatus('ready')} onFailure={message=>{setFluidStatus('error');onFailure?.(message);}} SIM_RESOLUTION={128} DYE_RESOLUTION={512}
       DENSITY_DISSIPATION={.25} VELOCITY_DISSIPATION={2} PRESSURE={.1} CURL={3}
       SPLAT_RADIUS={.2} SPLAT_FORCE={6000} COLOR_UPDATE_SPEED={10} SHADING RAINBOW_MODE={false} COLOR={color} />
     <canvas ref={guideRef} className="flow-guide" aria-hidden="true"/><canvas ref={lightRef} className="flow-light" aria-hidden="true"/>

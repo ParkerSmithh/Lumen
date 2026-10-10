@@ -24,12 +24,13 @@ function SplashCursor({
   echoSession,
   pointerRef,
   effectRef,
-  onFailure
+  onFailure,
+  onReady
 }) {
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
-  const inputRef = useRef({ pointerRef, effectRef, onFailure, COLOR, echoSession });
-  inputRef.current = { pointerRef, effectRef, onFailure, COLOR, echoSession };
+  const inputRef = useRef({ pointerRef, effectRef, onFailure, onReady, COLOR, echoSession });
+  inputRef.current = { pointerRef, effectRef, onFailure, onReady, COLOR, echoSession };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1048,6 +1049,7 @@ function SplashCursor({
 
     // LUMEN: mouse/touch and hand tracking share one normalized pointer ref.
     updateFrame();
+    inputRef.current.onReady?.();
     return dispose;
     } catch (error) {
       dispose();

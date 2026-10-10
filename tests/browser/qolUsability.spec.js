@@ -24,8 +24,11 @@ test('tracking search has a grace period and recovers without camera reconnectio
  });
  await page.goto('/');await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
  const status=page.getByRole('status',{name:'Input status'});await expect(status).toContainText('Hand tracking active');
+ await page.getByRole('button',{name:'PLAY',exact:true}).click();await page.getByRole('button',{name:'START GAME',exact:true}).click();await expect(page.getByLabel('Time remaining')).toBeVisible();
  await page.evaluate(()=>window.poseVisible=false);await page.waitForTimeout(200);await expect(status).not.toContainText('Tracking lost');
- await expect(status).toContainText('Tracking lost');await page.evaluate(()=>window.poseVisible=true);await expect(status).toContainText('Hand tracking active');
+ await expect(status).toContainText('Tracking lost');await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeDisabled();
+ const time=await page.getByLabel('Time remaining').textContent();await page.waitForTimeout(300);await expect(page.getByLabel('Time remaining')).toHaveText(time);
+ await page.evaluate(()=>window.poseVisible=true);await expect(status).toContainText('Hand tracking active');await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeEnabled();await page.getByRole('button',{name:'RESUME',exact:true}).click();
 });
 test('real Ballpit ownership survives detector loss grace and sustained loss cannot throw',async({page})=>{
  await page.goto('/');const result=await page.evaluate(async()=>{

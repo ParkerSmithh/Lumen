@@ -1,0 +1,103 @@
+/* Shared hit areas and reserved shell space. Gameplay geometry stays owned by modes. */
+nav button,.camera-controls button,.flow-controls button,.preview-link,
+.echoes-open,.pulse-control button,.body-controls button,.lumen-core button{min-height:44px;min-width:44px}
+nav{top:35px}
+nav button{min-width:52px;justify-content:center}
+.chaos-control button{min-height:44px;min-width:44px}
+.color-picker .color{width:44px;height:44px;flex-shrink:0}
+.color-picker .color:after{inset:16px}
+.color-picker>div{gap:2px}
+.color-picker>span{margin-bottom:6px}
+.camera-controls button:last-child{min-width:44px;min-height:44px}
+.tracking-status{top:-28px;bottom:auto;left:0;right:auto;text-align:left}
+.game-how-to,.game-pause,.shape-skip{min-height:44px;min-width:76px}
+.shape-skip{background:#100a1ddb;border:1px solid #ad93c866;border-radius:5px;color:#eee0ff}
+.slash-game-overlay{padding:18px 20px;background:#08060deb;border-radius:8px}
+.energy-top{top:158px}
+.energy-ui[data-energy-phase=READY] .energy-panel,.energy-ui[data-energy-phase=RESULTS] .energy-panel{top:230px}
+.energy-event{top:286px}
+.body-controls label{min-height:44px}
+.body-controls{top:182px}
+.pulse-control{top:322px}
+footer{pointer-events:none}
+footer button,footer a{pointer-events:auto}
+main:has(.slash-game-overlay) .live-caption:not(.has-error){opacity:0;pointer-events:none}
+main:has(.slash-hud) .interaction-guide{opacity:0}
+button:disabled{opacity:.5}
+@media(max-width:800px) and (min-height:601px){
+ nav{top:108px}
+ .chaos-control{top:160px}
+ .echoes-open{top:28px}
+ .edition{visibility:hidden}
+ .camera-input.camera-preview{top:232px}
+ .slash-hud{top:232px}
+ .trace-status{top:310px}
+ .arcade-state{top:280px}
+ .camera-invitation{top:235px}
+ .slash-game-overlay{top:54%}
+ .body-controls{top:338px}
+ .pulse-control{top:478px}
+ .energy-top{top:234px}
+ .energy-ui .energy-panel{top:370px}
+ .energy-ui[data-energy-phase=READY] .energy-panel,.energy-ui[data-energy-phase=RESULTS] .energy-panel{top:300px}
+ .energy-challenge{top:358px}
+ .energy-event{top:374px}
+}
+@media(max-width:480px){
+ footer{display:grid;grid-template-columns:1fr auto;gap:4px}
+ .color-picker{width:100%;grid-column:1/-1}
+ .flow-controls{grid-column:1;grid-row:2;width:auto;margin:0}
+ .camera-controls{position:static;grid-column:2;grid-row:2;gap:4px}
+ .tracking-status{top:-26px;max-width:200px}
+ .game-how-to{bottom:172px}
+ .game-pause{bottom:224px}
+ .shape-skip{bottom:234px}
+ .launch-grab-status{bottom:280px}
+ .slash-swipe-hint{bottom:234px}
+ .energy-bottom{bottom:172px}
+ .energy-ui .energy-panel{bottom:240px}
+ .interaction-guide{bottom:230px}
+}
+@media(max-height:600px){
+ nav{top:14px}
+ .chaos-control{top:64px}
+ .body-controls{top:170px}
+ .pulse-control{top:310px}
+ .energy-top{top:124px}
+ .energy-ui[data-energy-phase=READY] .energy-panel,.energy-ui[data-energy-phase=RESULTS] .energy-panel{top:180px}
+ .energy-event{top:204px}
+ .game-how-to{bottom:114px}
+ .game-pause{bottom:166px}
+ .invitation{top:43%}
+ .camera-invitation{top:112px;left:24px;transform:none;width:168px}
+}
+@media(max-height:600px) and (max-width:800px){
+ main nav,main:has(.energy-ui) nav{top:60px}
+ main .chaos-control,main:has(.energy-ui) .chaos-control{top:112px;left:auto;right:20px;transform:none;width:min(168px,calc((100% - 48px)/2))}
+ main .chaos-control button{min-height:44px;padding:6px 2px;font-size:8px}
+ main .echoes-open,main:has(.energy-ui) .echoes-open{top:12px;right:20px}
+ .edition{visibility:hidden}
+ .camera-invitation{top:112px;left:20px;transform:none;width:min(168px,calc((100% - 48px)/2))}
+ .camera-invitation .enter{min-width:0;width:100%;padding:10px 4px;font-size:12px}
+ .camera-invitation p{font-size:9px}
+ .camera-input.camera-preview{top:174px}
+ .slash-hud{top:174px}
+ .trace-status{top:218px}
+ .arcade-state{top:210px}
+ .body-controls{top:214px}
+ .pulse-control{top:354px}
+ .energy-top{top:164px}
+ .energy-ui .energy-panel{top:244px}
+ .energy-ui[data-energy-phase=READY] .energy-panel,.energy-ui[data-energy-phase=RESULTS] .energy-panel{top:206px}
+ .energy-challenge{top:234px}
+}
+@media(max-height:600px) and (max-width:480px){
+ .game-how-to{bottom:146px}
+ .game-pause{bottom:198px}
+ .shape-skip,.slash-swipe-hint{bottom:202px}
+ .launch-grab-status{bottom:252px}
+ .energy-bottom{bottom:140px}
+ .energy-ui .energy-panel{top:224px;bottom:188px}
+ main:has(.energy-ui) .tracking-status{top:auto;bottom:-2px}
+}
+@media(prefers-reduced-motion:reduce){.tracking-status{transition:none}}

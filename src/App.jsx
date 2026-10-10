@@ -27,6 +27,7 @@ const concepts = ['PRESENCE', 'CREATION', 'DESTRUCTION', 'FORCE'];
 export default function App(){return <GameInstructionProvider><LumenApp/></GameInstructionProvider>;}
 function LumenApp() {
   const [mode, setMode] = useState('GLOW');const [poseEnabled,setPoseEnabled]=useState(false);const [energyRush,setEnergyRush]=useState(false);
+  const [mouseMode, setMouseMode] = useState(false);
   const camera = useWebcam();
   const [echoSession]=useState(()=>createEchoSession({bodyshiftEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("bodyOff")),chaosEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("chaosOff")),beyondEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("beyondOff"))}));
   const [view,setView]=useState('lumen');const gallery=view!=='lumen';
@@ -38,10 +39,9 @@ function LumenApp() {
   const openEchoes=()=>{if(echoSession.gate.suspended)return;echoSession.gate.set(true);echoSession.clearLive();setView('echoes');};
   const closeEchoes=()=>{echoSession.gate.set(false);setView('lumen');};
   const tracking = useBodyTracking(camera.videoRef, camera.status === 'ready' && !gallery && mode === 'GLOW',poseEnabled);
-  const hands = useHandTracking(camera.videoRef, camera.status === 'ready' && !gallery && mode !== 'GLOW');
+  const hands = useHandTracking(camera.videoRef, camera.status === 'ready' && !gallery && !mouseMode && mode !== 'GLOW');
   const [color, setColor] = useState(colors[5]);
   const [preview, setPreview] = useState(false);
-  const [mouseMode, setMouseMode] = useState(false);
   const [modeError, setModeError] = useState('');
   const [reloadNeeded, setReloadNeeded] = useState(false);
   const [renderAttempt, setRenderAttempt] = useState(0);
@@ -53,7 +53,7 @@ function LumenApp() {
     .catch(() => { throw Object.assign(new Error('Light unavailable'), { reloadArtwork: true }); })), [renderAttempt]);
   const active = camera.status === 'ready' || camera.status === 'loading';
   const tracker = mode === 'GLOW' ? tracking : hands;
-  const error = camera.error || modeError || (!mouseMode && !preview ? tracker.error : '');
+  const error = camera.error || modeError || (!mouseMode && !preview && mode!=='SLASH' ? tracker.error : '');
   const guidanceKey = mode === 'SLASH' ? slashSession : '';
   const { quiet, understood } = useArtworkGuidance({ mode, mouseMode, cameraStatus: camera.status, trackingStatus: tracker.status, error, preview, guidanceKey });
   const [guideInteraction, setGuideInteraction] = useState(null);
@@ -109,7 +109,7 @@ function LumenApp() {
     {mode === 'GLOW' && preview && <div className="preview-label">Illustrated preview · camera off <button onClick={() => setPreview(false)} aria-label="Close preview">×</button></div>}
     {mode==='GLOW'&&!energyRush&&!entry&&<button className="glow-play" onClick={()=>setEnergyRush(true)}>PLAY ENERGY RUSH</button>}
     {!energyRush&&<InteractionGuide mode={mode} mouseMode={mouseMode} quiet={guideQuiet} />}
-    <footer><TrackingStatus camera={camera.status} tracking={tracker.status} assisted={mouseMode} body={mode==='GLOW'} error={error}/><div className="color-picker"><span>EMISSION <b>{color[0]}</b></span><div role="group" aria-label="Light color">{colors.map(entry => <button key={entry[0]} className="color" style={{ '--swatch': entry[1] }} aria-label={entry[0]} aria-pressed={color[0] === entry[0]} onClick={() => setColor(entry)} />)}</div></div>
+    <footer><TrackingStatus camera={camera.status} tracking={tracker.status} assisted={mouseMode} frameMotion={mode==='SLASH'} body={mode==='GLOW'} error={error}/><div className="color-picker"><span>EMISSION <b>{color[0]}</b></span><div role="group" aria-label="Light color">{colors.map(entry => <button key={entry[0]} className="color" style={{ '--swatch': entry[1] }} aria-label={entry[0]} aria-pressed={color[0] === entry[0]} onClick={() => setColor(entry)} />)}</div></div>
       {mode !== 'GLOW' && <div className="flow-controls"><span>{mode === 'FLOW' ? 'LIGHT, IN MOTION' : mode === 'SLASH' ? 'DIGITAL MATTER' : 'MATTER, IN MOTION'}</span><button aria-pressed={mouseMode} onClick={() => { setMouseMode(value => !value); setSlashHit(false); }}>{mouseMode ? 'Use camera interaction' : 'Mouse / touch fallback'}</button></div>}
       <div className="camera-controls">{active ? <button onClick={camera.stop}>Stop camera</button> : preview || (mode !== 'GLOW' && mouseMode) ? <button className="camera-connect" disabled={camera.status === 'loading'} onClick={enter}>{camera.status === 'error' ? 'RETRY CAMERA' : 'ENABLE CAMERA'} <span aria-hidden="true">↗</span></button> : <span>CAMERA PROCESSED ON YOUR DEVICE</span>}<button aria-label="Fullscreen" onClick={() => { (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.())?.catch(() => {}); }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" /></svg></button></div>
     </footer></div>

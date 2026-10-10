@@ -14,7 +14,8 @@ export function getGameInstructions(gameId, assisted=false) {
  const config=GAME_INSTRUCTIONS[gameId];
  if(!config)throw new Error(`Unknown instruction game: ${gameId}`);
  const note=assisted&&gameId==='ENERGY_RUSH'?'90 seconds, or until all three shields are lost. Keyboard / touch skips body calibration. ENERGY FEVER intensifies the arena; assisted bests stay separate.':config.note;
- return {...config,note,steps:assisted?config.assisted:config.steps};
+ const subtitle=assisted&&gameId==='LAUNCH'?'REACH → PRESS + HOLD → MOVE → RELEASE TO THROW':config.subtitle;
+ return {...config,note,subtitle,steps:assisted?config.assisted:config.steps};
 }
 
 // Camera availability and tracker detection are deliberately separate claims.
@@ -22,6 +23,7 @@ export function instructionReadiness(gameId,assisted,ready,camera={}) {
  if(assisted)return `${GAME_INSTRUCTIONS[gameId].assistedLabel||'Keyboard / touch'} ready. Camera optional.`;
  if(camera.error)return `${camera.error} Choose ${GAME_INSTRUCTIONS[gameId].assistedLabel||'keyboard / touch'} to play without a camera.`;
  if(camera.status==='loading')return 'Waiting for camera permission. You can choose another input method.';
+ if(gameId==='SLASH'&&ready&&camera.status==='ready'&&!['tracking','drawing'].includes(camera.trackingStatus))return 'Camera connected. Raise your hand and swipe quickly; camera motion is ready.';
  if(camera.trackingError)return `${camera.trackingError} Choose another input method to play.`;
  if(camera.status==='ready'){
   if(camera.trackingStatus==='loading')return 'Camera connected. Preparing tracking…';

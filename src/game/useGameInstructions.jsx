@@ -37,7 +37,7 @@ export function useGameInstructions(gameId,settings){
   if(!resumeOnly){context?.seen.add(gameId);s.start();}
  };
  const back=()=>{close();if(!resumeOnly)latest.current.back?.();};
- const readiness=resumeOnly?'Round paused. Your time and score are safe. Close these instructions, then choose RESUME.':instructionReadiness(gameId,settings.assisted,settings.ready,settings.instructionCamera);
+ const readiness=resumeOnly?'Round paused. Your time and score are safe. Close these instructions, then choose RESUME.':settings.preparation||instructionReadiness(gameId,settings.assisted,settings.ready,settings.instructionCamera);
  const dialog=open?createPortal(<GameInstructions gameId={gameId} assisted={settings.assisted} ready={resumeOnly||settings.ready} readiness={readiness} onStart={accept} onBack={back} onCamera={settings.onCamera} onChooseInput={settings.onChooseInput} color={settings.color} resumeOnly={resumeOnly} primaryLabel={resumeOnly?'BACK TO GAME':'START GAME'}/>,document.body):null;
  return {supported:!!context,start,show:()=>show(true),dialog,open,first:!context?.seen.has(gameId)};
 }
