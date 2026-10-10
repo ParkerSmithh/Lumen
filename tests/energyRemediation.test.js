@@ -31,7 +31,7 @@ test('uncorroborated lateral excursion cannot enlarge reachable space',()=>{
 });
 test('exact one-column stationary flicker never collects or adds noise-only hazard contacts',()=>{
  const r=body();lateral(r);for(let i=0;i<900&&r.g.snapshot.phase!=='RESULTS';i++){r.frame(0,i%2);assert.equal(r.grid.contact(1-40.5/64,.5,0,true),false);assert.equal(r.grid.contact(.36,.5,.009),false);}
- assert.equal(r.g.snapshot.collections,0);assert.equal(r.g.snapshot.score,0);
+ assert.equal(r.g.snapshot.collections,0);assert.equal(r.g.snapshot.score,0);assert.equal(r.g.snapshot.shields,3);
 });
 test('reach-only calibration without demonstrated geometry stays safe and explains recovery',()=>{
  const r=body();for(let i=0;i<6;i++)r.frame(0,0,1);assert.equal(r.g.finishCalibration(),false);assert.equal(r.g.snapshot.phase,'CALIBRATING');assert.match(r.g.snapshot.calibration.reason,/reachable|range|space/i);
@@ -47,7 +47,7 @@ test('deliberate slow body movement remains collectable with small-range calibra
  for(let step=1;step<=4;step++)for(let i=0;i<5;i++)r.frame(direction*step);assert.ok(r.g.snapshot.collections>0);
 });
 test('stable stationary masks never collect even while orbs drift',()=>{
- const r=body();lateral(r);for(let i=0;i<400;i++)r.frame();assert.equal(r.g.snapshot.collections,0);assert.equal(r.g.snapshot.score,0);
+ const r=body();lateral(r);for(let i=0;i<400;i++)r.frame();assert.equal(r.g.snapshot.collections,0);assert.equal(r.g.snapshot.score,0);assert.equal(r.g.snapshot.shields,3);
 });
 test('confidence threshold flicker cannot create new stable silhouette entry',()=>{
  const g=createSilhouetteGrid();for(let t=0;t<=300;t+=100){const values=new Float32Array(64*48);for(let y=6;y<43;y++)for(let x=24;x<40;x++)values[y*64+x]=1;g.update({values,width:64,height:48,timestamp:t},t);}
@@ -85,4 +85,12 @@ test('damage then a milestone reached during FEVER can earn FEVER on a fresh pos
  const g=createEnergyRush({seed:17});let t=0,collect=true,damage=false;const input={snapshot:null,fresh:()=>true,contact:()=>false,sweep:(a,b,r,entry)=>entry?collect:damage};
  const step=()=>{t+=100;input.snapshot={valid:true,timestamp:t,center:{x:.5,y:.5},occupancy:.05,bounds:{minX:.43,maxX:.57,minY:.41,maxY:.59},actions:{}};g.frame(t,{input});assert.ok(t<90000);};
  g.start(0,'assist');while(!g.snapshot.fever)step();damage=true;while(g.snapshot.shields===3)step();damage=false;while(g.snapshot.combo<9)step();const oldEnd=g.snapshot.elapsed+g.snapshot.feverRemaining;while(g.snapshot.elapsed<=oldEnd+.1)step();while(!g.snapshot.fever)step();assert.ok(g.snapshot.combo>=9);
+});
+test('deliberate slow body contact still damages once per hazard',()=>{
+ const r=body();lateral(r);const damageIds=new Set();let damages=0;
+ for(let i=0;i<500&&r.g.snapshot.phase!=='RESULTS';i++){
+  const step=i%80,shift=step<40?Math.floor(step/5)-4:4-Math.floor((step-40)/5);r.frame(shift);
+  for(const e of r.g.drainEvents())if(e.kind==='energy-damage'){assert.equal(damageIds.has(e.id),false);damageIds.add(e.id);damages++;}
+ }
+ assert.ok(damages>0);assert.equal(r.g.snapshot.shields,3-damages);
 });

@@ -53,7 +53,7 @@ export function createEnergyRush({seed=Date.now(),scope=0}={}){
   }
   for(const h of hazardPool)if(h.active&&clock-h.born>=h.warning){
    if(inExcluded(h.x,h.y,h.radius)){h.contactCount=0;continue;}
-   const hit=input.sweep({x:h.px,y:h.py},{x:h.x,y:h.y},h.radius);
+   const hit=(inputMode==='assist'||moving)&&input.sweep({x:h.px,y:h.py},{x:h.x,y:h.y},h.radius);
    h.contactCount=hit?(distinct?h.contactCount+1:1):0;
    if(h.contactCount>=2&&clock>=invulnerableUntil){h.active=false;shields--;combo=0;feverArmed=true;invulnerableUntil=clock+1.5;emit('energy-damage',h,{id:h.id});notice('SHIELD USED');if(shields===0){finish('shields');return;}}
   }
