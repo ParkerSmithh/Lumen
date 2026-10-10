@@ -1,5 +1,6 @@
+import {ENERGY_RULES_VERSION} from './energyRush.js';
 const MODES = ['FLOW', 'SLASH', 'SLASH_CHAOS', 'LAUNCH', 'ENERGY_RUSH_BODY', 'ENERGY_RUSH_ASSIST'];
-const storageKey = mode => mode.startsWith('ENERGY_RUSH_') ? `lumen.arcade.bests.energy-rush.v1.${mode==='ENERGY_RUSH_BODY'?'body':'assist'}` : mode === 'SLASH_CHAOS' ? 'lumen.arcade.bests.chaos.v1.SLASH' : `lumen.arcade.bests.v1.${mode}`;
+const storageKey = mode => mode.startsWith('ENERGY_RUSH_') ? `lumen.arcade.bests.energy-rush.v${ENERGY_RULES_VERSION}.${mode==='ENERGY_RUSH_BODY'?'body':'assist'}` : mode === 'SLASH_CHAOS' ? 'lumen.arcade.bests.chaos.v1.SLASH' : `lumen.arcade.bests.v1.${mode}`;
 const empty = () => ({ score: 0, count: 0, accuracy: null });
 const validInt = value => Number.isSafeInteger(value) && value >= 0;
 const sanitize = (value = {}) => ({
@@ -17,7 +18,7 @@ export function createPersonalBests(provider = () => globalThis.localStorage) {
     let stored = empty();
     try {
       const raw = JSON.parse(provider()?.getItem(storageKey(mode)) || 'null');
-      if (raw?.version === 1) stored = sanitize(raw.metrics);
+      if (raw?.version === 1&&(!mode.startsWith('ENERGY_RUSH_')||raw.rulesVersion===ENERGY_RULES_VERSION)) stored = sanitize(raw.metrics);
     } catch { /* Storage and malformed data are optional, never gameplay failures. */ }
     const best = merge(stored, memory.get(mode) || empty());
     memory.set(mode,best); return { ...best };
@@ -29,7 +30,7 @@ export function createPersonalBests(provider = () => globalThis.localStorage) {
     const newBest = bests.score > previous.score || bests.count > previous.count ||
       (bests.accuracy !== null && bests.accuracy > (previous.accuracy ?? 0));
     memory.set(mode,bests);
-    try { provider()?.setItem(storageKey(mode), JSON.stringify({version:1,metrics:bests})); } catch {}
+    try { provider()?.setItem(storageKey(mode), JSON.stringify({version:1,metrics:bests,...(mode.startsWith('ENERGY_RUSH_')?{rulesVersion:ENERGY_RULES_VERSION}:{})})); } catch {}
     return { bests: { ...bests }, newBest };
   }};
 }

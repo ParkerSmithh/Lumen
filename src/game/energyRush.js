@@ -1,11 +1,14 @@
 import {createEnergyCalibration,freshEnergyPose} from './energyCalibration.js';
-export const ENERGY_RULES_VERSION=1;
+import {createEnergyReachability} from './energyReachability.js';
+import {createEnergyMotionEvidence} from './energyMotionEvidence.js';
+export const ENERGY_RULES_VERSION=2;
 export const ENERGY_LIMITS=Object.freeze({orbs:6,hazards:2,trailSamples:12,spawnAttempts:12,events:16,duration:90});
 export const comboMultiplier=n=>Math.min(5,Math.max(1,Math.ceil(n/2)));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const slot=()=>({active:false,generation:0,trail:new Float32Array(24),trailCount:0});
 export function createEnergyRush({seed=Date.now(),scope=0}={}){
  const calibration=createEnergyCalibration(),orbPool=Array.from({length:6},slot),hazardPool=Array.from({length:2},slot);
+ const reachableField=createEnergyReachability(),motion=createEnergyMotionEvidence();let calibrationReason='',orbRadius=.024,nextCalibrationAttempt=0;
  let randomSeed=seed>>>0,phase='READY',returnPhase='PLAYING',inputMode='body',session=0,last=null,clock=0,countdown=3,score=0,combo=0,maxCombo=0,shields=3,collections=0,challenges=0;
  let feverEnd=0,feverArmed=true,invulnerableUntil=0,nextOrb=.2,nextHazard=3,nextChallenge=15,challenge=null,challengeSerial=0,events=[],cal=null,calStart=null,calElapsed=0,recalibrating=false;
  let freshStart=null,recoveryAnchor=null,recovered=true,needsRecalibration=false,lastSample=-Infinity,lastContact=-Infinity,exclusions=[],lastInput=null,feedback='',feedbackUntil=0,endReason='';
@@ -15,47 +18,44 @@ export function createEnergyRush({seed=Date.now(),scope=0}={}){
  const fever=()=>clock<feverEnd;
  const emit=(kind,p,extra={})=>{const {id,...details}=extra;events.push({kind,id:`rush:${scope}:${session}:${kind}:${id??Math.round(clock*1000)}`,x:p.x,y:p.y,time:clock,...details});if(events.length>16)events.shift();};
  const notice=text=>{feedback=text;feedbackUntil=clock+1.2;};
- const clearObjects=()=>{for(const o of [...orbPool,...hazardPool]){o.active=false;o.trailCount=0;o.contactCount=0;}lastContact=-Infinity;};
+ const clearObjects=()=>{for(const o of [...orbPool,...hazardPool]){o.active=false;o.trailCount=0;o.contactCount=0;o.pendingEntry=-Infinity;}lastContact=-Infinity;};
  const fresh=(input,now)=>!!(input?.snapshot.valid&&input.fresh(now));
- const clean=()=>{clock=score=combo=maxCombo=collections=challenges=feverEnd=0;shields=3;countdown=3;nextOrb=.2;nextHazard=3;nextChallenge=15;feverArmed=true;invulnerableUntil=0;challenge=null;events=[];blockers.clear();external.clear();feedback='';endReason='';calibration.reset();cal=null;calStart=null;calElapsed=0;recalibrating=false;freshStart=null;recoveryAnchor=null;recovered=true;needsRecalibration=false;lastSample=-Infinity;clearObjects();};
+ const clean=()=>{clock=score=combo=maxCombo=collections=challenges=feverEnd=0;shields=3;countdown=3;nextOrb=.2;nextHazard=3;nextChallenge=15;feverArmed=true;invulnerableUntil=0;challenge=null;events=[];blockers.clear();external.clear();feedback='';endReason='';calibration.reset();reachableField.reset();motion.reset();nextCalibrationAttempt=0;calibrationReason='';cal=null;calStart=null;calElapsed=0;recalibrating=false;freshStart=null;recoveryAnchor=null;recovered=true;needsRecalibration=false;lastSample=-Infinity;clearObjects();};
  function finish(reason){phase='RESULTS';endReason=reason;challenge=null;clearObjects();emit('energy-end',{x:.5,y:.5},{score});}
- function inExcluded(x,y,r){return exclusions.some(b=>x+r>b.minX&&x-r<b.maxX&&y+r*4/3>b.minY&&y-r*4/3<b.maxY);}
+ function inExcluded(x,y,r){const aspect=lastInput?.snapshot.aspect||4/3;return exclusions.some(b=>x+r>b.minX&&x-r<b.maxX&&y+r*aspect>b.minY&&y-r*aspect<b.maxY);}
  function reachable(input,x,y,r){
   if(inputMode==='assist')return true;
-  const b=cal.baseline,center=input.snapshot.center;
-  const left=cal.envelope.minX-b.minX,right=cal.envelope.maxX-b.maxX;
-  // Translate the current real silhouette through the demonstrated lateral
-  // envelope. A bounding box alone can include unreachable empty corners.
-  for(let i=0;i<5;i++){const target=b.x+left+(right-left)*i/4;if(input.contact(x-(target-center.x),y,r))return true;}
-  return false;
+  return reachableField.contact(x,y,r);
  }
  function spawn(pool,hazard,input){
   const o=pool.find(v=>!v.active),env=cal?.envelope;if(!o||!env)return;
-  const range=Math.max(cal.baseline.minX-env.minX,env.maxX-cal.baseline.maxX);
-  const radius=hazard?.026:inputMode==='assist'?.024:clamp(range*.3,.008,.024);
+  const radius=hazard?.026:inputMode==='assist'?.024:orbRadius;
   if(env.maxX-env.minX<radius*4||env.maxY-env.minY<radius*4)return;
   for(let attempt=0;attempt<12;attempt++){
-   const x=env.minX+radius+(env.maxX-env.minX-radius*2)*rng(),y=env.minY+radius*4/3+(env.maxY-env.minY-radius*8/3)*rng();
+   const candidate=!hazard&&inputMode==='body'?reachableField.candidate(rng()):null;
+   const x=candidate?.x??env.minX+radius+(env.maxX-env.minX-radius*2)*rng(),y=candidate?.y??env.minY+radius*4/3+(env.maxY-env.minY-radius*8/3)*rng();
    if(inExcluded(x,y,radius*2)||input.contact(x,y,radius)||!hazard&&!reachable(input,x,y,radius)||[...active(orbPool),...active(hazardPool)].some(p=>Math.hypot(p.x-x,p.y-y)<.11))continue;
-   o.generation++;Object.assign(o,{active:true,id:`${scope}:${session}:${hazard?'h':'o'}:${pool.indexOf(o)}:${o.generation}`,x,y,px:x,py:y,radius,born:clock,warning:hazard?1.2:.5,life:hazard?8:7,vx:(rng()-.5)*(hazard?.06:.025),vy:(rng()-.5)*.02,kind:hazard?(rng()>.5?'ring':'danger'):'orb',contactCount:0,trailCount:0,colorIndex:Math.floor(rng()*4)});return;
+   o.generation++;Object.assign(o,{active:true,id:`${scope}:${session}:${hazard?'h':'o'}:${pool.indexOf(o)}:${o.generation}`,x,y,px:x,py:y,radius,born:clock,warning:hazard?1.2:.5,life:hazard?8:7,vx:(rng()-.5)*(hazard?.06:.025),vy:(rng()-.5)*.02,kind:hazard?(rng()>.5?'ring':'danger'):'orb',contactCount:0,trailCount:0,pendingEntry:-Infinity,colorIndex:Math.floor(rng()*4)});return;
   }
  }
- function move(pool,dt){for(const o of pool)if(o.active){o.px=o.x;o.py=o.y;if(clock-o.born<o.warning)continue;o.x=clamp(o.x+o.vx*dt,cal.envelope.minX+o.radius,cal.envelope.maxX-o.radius);o.y=clamp(o.y+o.vy*dt,cal.envelope.minY+o.radius,cal.envelope.maxY-o.radius);if(o.x===cal.envelope.minX+o.radius||o.x===cal.envelope.maxX-o.radius)o.vx*=-1;if(clock-o.born>o.life){o.active=false;continue;}if(o.trailCount<12)o.trailCount++;o.trail.copyWithin(2,0,22);o.trail[0]=o.x;o.trail[1]=o.y;}}
- function collide(input,s){
+ function move(pool,dt){for(const o of pool)if(o.active){o.px=o.x;o.py=o.y;if(clock-o.born<o.warning)continue;const nx=clamp(o.x+o.vx*dt,cal.envelope.minX,cal.envelope.maxX),ny=clamp(o.y+o.vy*dt,cal.envelope.minY,cal.envelope.maxY);if(o.kind==='orb'&&!reachable(lastInput,nx,ny,o.radius)){o.vx*=-1;o.vy*=-1;}else{o.x=nx;o.y=ny;}if(o.x===cal.envelope.minX||o.x===cal.envelope.maxX)o.vx*=-1;if(clock-o.born>o.life){o.active=false;continue;}if(o.trailCount<12)o.trailCount++;o.trail.copyWithin(2,0,22);o.trail[0]=o.x;o.trail[1]=o.y;}}
+ function collide(input,s,moving){
   if(s.timestamp<=lastContact)return;const distinct=s.timestamp-lastContact<=250;lastContact=s.timestamp;
   for(const o of orbPool)if(o.active&&clock-o.born>=o.warning){
    if(inExcluded(o.x,o.y,o.radius))continue;
-   if(input.sweep({x:o.px,y:o.py},{x:o.x,y:o.y},o.radius,true)){
+   const entry=input.sweep({x:o.px,y:o.py},{x:o.x,y:o.y},o.radius,true);
+   if(entry)o.pendingEntry=clock+.8;
+   if(inputMode==='assist'?entry:moving&&clock<o.pendingEntry&&input.contact(o.x,o.y,o.radius)){
     o.active=false;combo++;maxCombo=Math.max(maxCombo,combo);const points=100*comboMultiplier(combo);score+=points;collections++;
     emit('energy-orb',o,{id:o.id,points,combo});notice(`+${points} · ${comboMultiplier(combo)}×`);
-    if(combo===9&&feverArmed&&!fever()){feverEnd=clock+8;feverArmed=false;emit('energy-milestone',o,{id:`fever:${o.id}`,combo});notice('ENERGY FEVER');}
+    if(combo>=9&&feverArmed&&!fever()){feverEnd=clock+8;feverArmed=false;emit('energy-milestone',o,{id:`fever:${o.id}`,combo});notice('ENERGY FEVER');}
    }
   }
   for(const h of hazardPool)if(h.active&&clock-h.born>=h.warning){
    if(inExcluded(h.x,h.y,h.radius)){h.contactCount=0;continue;}
    const hit=input.sweep({x:h.px,y:h.py},{x:h.x,y:h.y},h.radius);
    h.contactCount=hit?(distinct?h.contactCount+1:1):0;
-   if(h.contactCount>=2&&clock>=invulnerableUntil){h.active=false;shields--;combo=0;if(!fever())feverArmed=true;invulnerableUntil=clock+1.5;emit('energy-damage',h,{id:h.id});notice('SHIELD USED');if(shields===0){finish('shields');return;}}
+   if(h.contactCount>=2&&clock>=invulnerableUntil){h.active=false;shields--;combo=0;feverArmed=true;invulnerableUntil=clock+1.5;emit('energy-damage',h,{id:h.id});notice('SHIELD USED');if(shields===0){finish('shields');return;}}
   }
  }
  function challengeStep(s,body,now){
@@ -81,13 +81,13 @@ export function createEnergyRush({seed=Date.now(),scope=0}={}){
   if(challenge.hold>=.3){score+=250;challenges++;emit('energy-challenge',s.center,{id:`challenge:${challenge.id}`,points:250});notice('CHALLENGE +250');challenge=null;}
  }
  const api={
-  get snapshot(){return {phase,inputMode,session,score,combo,multiplier:comboMultiplier(combo),maxCombo,shields,collections,challenges,elapsed:clock,remaining:Math.max(0,90-clock),countdown:Math.ceil(countdown),fever:fever(),feverRemaining:Math.max(0,feverEnd-clock),invulnerable:clock<invulnerableUntil,calibration:calibration.snapshot,canResume:phase==='PAUSED'&&recovered&&external.size===0,blockers:[...blockers],endReason,feedback:clock<feedbackUntil?feedback:'',challenge:challenge&&{kind:challenge.kind,remaining:Math.ceil(challenge.end-clock)},orbs:active(orbPool).map(({trail,...o})=>({...o})),hazards:active(hazardPool).map(({trail,...o})=>({...o}))};},
+  get snapshot(){return {phase,inputMode,session,score,combo,multiplier:comboMultiplier(combo),maxCombo,shields,collections,challenges,elapsed:clock,remaining:Math.max(0,90-clock),countdown:Math.ceil(countdown),fever:fever(),feverRemaining:Math.max(0,feverEnd-clock),invulnerable:clock<invulnerableUntil,calibration:{...(cal??calibration.snapshot),reason:calibrationReason},canResume:phase==='PAUSED'&&recovered&&external.size===0,blockers:[...blockers],endReason,feedback:clock<feedbackUntil?feedback:'',challenge:challenge&&{kind:challenge.kind,remaining:Math.ceil(challenge.end-clock)},orbs:active(orbPool).map(({trail,...o})=>({...o})),hazards:active(hazardPool).map(({trail,...o})=>({...o}))};},
   get scene(){return {phase,inputMode,clock,fever:fever(),invulnerable:clock<invulnerableUntil,orbs:orbPool,hazards:hazardPool,center:lastInput?.snapshot.center,feedback:clock<feedbackUntil?feedback:'',shields};},
   start(now,mode='body'){if(!['READY','RESULTS'].includes(phase))return false;clean();session++;inputMode=mode;last=now;if(mode==='assist'){cal=calibration.assisted();phase='COUNTDOWN';}else phase='CALIBRATING';return true;},
-  pause(reason='user',now=last){if(!['CALIBRATING','COUNTDOWN','PLAYING','PAUSED'].includes(phase))return; if(phase!=='PAUSED')returnPhase=phase;phase='PAUSED';blockers.add(reason);last=now;lastContact=-Infinity;},
+  pause(reason='user',now=last){if(!['CALIBRATING','COUNTDOWN','PLAYING','PAUSED'].includes(phase))return; if(phase!=='PAUSED')returnPhase=phase;phase='PAUSED';blockers.add(reason);last=now;lastContact=-Infinity;motion.reset();for(const o of orbPool)o.pendingEntry=-Infinity;},
   resume(now){if(phase!=='PAUSED'||!recovered||external.size)return false;blockers.clear();phase=returnPhase;last=now;lastSample=lastContact=-Infinity;invulnerableUntil=Math.max(invulnerableUntil,clock+.5);for(const h of hazardPool)if(h.active){h.born=clock;h.contactCount=0;}return true;},
-  recalibrate(now){if(!['PLAYING','PAUSED','COUNTDOWN','CALIBRATING'].includes(phase))return;clearObjects();calibration.reset();calStart=null;calElapsed=0;cal=null;challenge=null;needsRecalibration=false;recalibrating=true;phase='CALIBRATING';last=now;blockers.clear();},
-  finishCalibration(){const result=calibration.finish();if(result.ready){cal=result;phase=recalibrating?'PAUSED':'COUNTDOWN';returnPhase='PLAYING';recovered=true;if(recalibrating)blockers.add('recalibration');}return result.ready;},
+  recalibrate(now){if(!['PLAYING','PAUSED','COUNTDOWN','CALIBRATING'].includes(phase))return;clearObjects();calibration.reset();reachableField.reset();motion.reset();nextCalibrationAttempt=0;calibrationReason='';calStart=null;calElapsed=0;cal=null;challenge=null;needsRecalibration=false;recalibrating=true;phase='CALIBRATING';last=now;blockers.clear();},
+  finishCalibration(){if(phase!=='CALIBRATING'||!lastInput?.fresh(last))return false;const result=calibration.snapshot;if(!result.capabilities.length)return false;const space=inputMode==='assist'?{envelope:result.envelope,radius:.024}:reachableField.prepare(result,lastInput,exclusions);if(!space){calibrationReason='No reachable target space yet. Demonstrate a comfortable reach or expansion, recalibrate, or choose keyboard / touch.';return false;}calibration.finish();cal={...calibration.snapshot,envelope:space.envelope};orbRadius=space.radius;calibrationReason='';phase=recalibrating?'PAUSED':'COUNTDOWN';returnPhase='PLAYING';recovered=true;if(recalibrating)blockers.add('recalibration');return true;},
   exit(){clean();phase='READY';last=null;lastInput=null;},
   drainEvents(){const out=events;events=[];return out;},
   frame(now,{input,body=null,blocked=[],excluded=[]}={}){
@@ -111,8 +111,8 @@ export function createEnergyRush({seed=Date.now(),scope=0}={}){
    if(dt>.25){api.pause('interrupted',now);return;}
    if(phase==='CALIBRATING'){
     if(inputMode==='assist'){cal=calibration.assisted();phase='PAUSED';returnPhase='PLAYING';blockers.add('recalibration');return;}
-    calibration.sample(s,now,body);calStart??=now;calElapsed+=dt;
-    if(calibration.snapshot.stage==='explore'&&calElapsed>=6)api.finishCalibration();return;
+    calibration.sample(s,now,body);reachableField.sample(s,calibration.snapshot);calStart??=now;calElapsed+=dt;
+    if(calibration.snapshot.stage==='explore'&&calElapsed>=6&&now>=nextCalibrationAttempt){nextCalibrationAttempt=now+1000;api.finishCalibration();}return;
    }
    if(phase==='COUNTDOWN'){countdown=Math.max(0,countdown-dt);if(countdown===0){phase='PLAYING';lastContact=-Infinity;}return;}
    // Bound physical catch-up independently: accepted active time must never slow
@@ -126,7 +126,8 @@ export function createEnergyRush({seed=Date.now(),scope=0}={}){
    const cap=fever()?6:4;
    if(clock>=nextOrb){if(active(orbPool).length<cap)spawn(orbPool,false,input);nextOrb=clock+(fever()?.55:.9);}
    if(clock>=nextHazard){if(active(hazardPool).length<2)spawn(hazardPool,true,input);nextHazard=clock+4.5;}
-   collide(input,s);if(phase==='PLAYING')challengeStep(s,body,now);
+   const moving=inputMode==='assist'||motion.sample(s,cal,body,now);
+   collide(input,s,moving);if(phase==='PLAYING')challengeStep(s,body,now);
   }
  };return api;
 }

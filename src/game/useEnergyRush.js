@@ -37,7 +37,8 @@ export function useEnergyRush({enabled,cameraReady,preview,videoRef,echoSession,
   const dt=Math.min(.07,Math.max(0,(now-(lastFrame.current??now))/1000));lastFrame.current=now;
   if(s.inputMode==='assist'){
    if(engine.snapshot.phase==='PLAYING'&&!blocked.length){let dx=0,dy=0;for(const key of keys.current){const d=energyKeyDirection(key);dx+=d.x;dy+=d.y;}const length=Math.max(1,Math.hypot(dx,dy));point.current={x:Math.max(.06,Math.min(.94,point.current.x+dx/length*dt*.45)),y:Math.max(.1,Math.min(.9,point.current.y+dy/length*dt*.6))};}
-   assist.update(now,{...point.current,...actions.current});
+   const video=s.videoRef?.current;
+   assist.update(now,{...point.current,...actions.current,aspect:video?.videoWidth/video?.videoHeight||4/3});
   }
   engine.frame(now,{input:s.inputMode==='assist'?assist:grid,body,blocked,excluded:excluded.current});
   const state=engine.snapshot;

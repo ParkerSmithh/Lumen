@@ -4,7 +4,7 @@ ENERGY RUSH is an optional arcade submode of GLOW. Choose PLAY ENERGY RUSH; EXIT
 
 ## Playing
 
-Body play uses the real mirrored silhouette. START asks for a stable neutral position, then comfortable lateral movement. USE THIS RANGE begins a three-second countdown; a demonstrated range may also finish automatically after six calibration seconds. Seated and partial-body play are supported. Small movement ranges produce smaller collectible cores. Calibration can wait indefinitely for usable movement instead of inventing a reach envelope.
+Body play uses the real mirrored silhouette. START asks for a stable neutral position, then comfortable lateral movement, widening, or pose-supported reach. USE THIS RANGE begins a three-second countdown; a demonstrated range may also finish automatically after six calibration seconds. Seated and partial-body play are supported. Small movement ranges produce smaller collectible cores. Calibration can wait indefinitely for usable movement instead of inventing a reach envelope.
 
 Collect light by entering a target with fresh silhouette geometry. Moving targets cannot award points merely by drifting into an unchanged body. Danger objects use warning rings, diamonds, exclamation marks and DANGER text before activating. Three shields, ninety active seconds. Accepted damage resets combo and grants 1.5 seconds of invulnerability.
 
@@ -12,17 +12,17 @@ PAUSE, gallery/CONVERGENCE, camera loss, hidden tabs and tracking failure freeze
 
 Keyboard / touch is an explicit alternative with a visible interaction field. Arrows/WASD move it; the touch pad maps the arena. HOLD TO REACH / EXPAND appears only for the corresponding assisted challenge. Body and assisted personal bests use separate storage keys.
 
-## Rules v1
+## Rules v2
 
 - Orb: 100 points multiplied by the collection's resulting combo tier.
 - Collections 1–2: 1x; 3–4: 2x; 5–6: 3x; 7–8: 4x; 9+: 5x.
 - Supported, calibration-relative movement challenge:250 points, once, no orb combo increment.
-- FEVER: crossing nine collections earns eight active seconds of extra orbs and shared visual energy. Further collections cannot recursively extend it.
+- FEVER: an earned combo of nine collections triggers eight active seconds of extra orbs and shared visual energy. Further collections cannot recursively extend it. Damage breaks the combo and rearms a new milestone after the current period expires.
 - Normal orb target cap4; FEVER cap6; absolute cap6. Existing extra orbs can expire after FEVER.
 - Hazards: cap2, at least1.2 seconds warning, two distinct fresh contact samples for damage.
 - Orb grace:500ms. No collection from a newly acquired or stale segmentation mask.
 
-Storage: `lumen.arcade.bests.energy-rush.v1.body` and `.assist`. Only timer/shield-ended rounds record bests. Existing FLOW/SLASH/LAUNCH bests and GLOW CORE participation remain separate.
+Storage: `lumen.arcade.bests.energy-rush.v2.body` and `.assist`. Only timer/shield-ended rounds record bests. Existing FLOW/SLASH/LAUNCH bests and GLOW CORE participation remain separate.
 
 ## Technical boundaries
 
@@ -42,8 +42,8 @@ Deterministic tests cover mirrored collision, freshness, deduplication, calibrat
 
 Performance measurements in `energy-rush-performance.json` compare mounted FREE GLOW and ENERGY RUSH under CALM/WILD/MAX using the actual segmentation worker/model with a painted canvas camera. The reports explicitly distinguish real inference measurements from real-person mask quality. These are diagnostic headless measurements, not human-play acceptance.
 
-Verified: 257 unit tests; 116 full-suite browser tests, followed by 16 affected-area and 8 final identity/lifecycle browser tests; production build and `/Lumen/` checks. The production check uses its supported offline-font option because this environment blocks Google Fonts. An additional production game probe verifies full assisted-round expiry, storage, replay and exit. A thirty-round pure-engine soak is recorded in `energy-rush-soak.json`.
+Final remediation verification is recorded in `energy-rush-remediation.md`. Existing rules-v1 bests remain untouched; corrected rules-v2 records begin separately. Calibration-rejected geometry cannot expand the spawn region. Gameplay cells require three fresh observations spanning100ms and calibrated time-based movement evidence for scoring.
 
 Real webcam testing remains required: seated/standing, partial visibility, different body sizes, small movement ranges, dim lighting, fast motion, camera approach, loss/reacquisition and sustained rounds. Tune collision thresholds, warning comfort and calibration noise from that evidence before claiming physical-play reliability.
 
-Development branch only. No merge or GitHub Pages deployment without separate release approval. The starting BODYSHIFT work remains preserved in the working tree.
+Development branch only. No merge or GitHub Pages deployment without separate release approval. The starting BODYSHIFT work is preserved in the committed development baseline.

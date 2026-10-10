@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createEnergyRush, comboMultiplier} from '../src/game/energyRush.js';
 import {createAssistField} from '../src/game/energyInput.js';
+import {createSilhouetteGrid} from '../src/tracking/silhouetteGrid.js';
 
 function game(scope=0){const g=createEnergyRush({seed:17,scope}),input=createAssistField();let time=0;g.start(0,'assist');const step=(ms=100,position)=>{time+=ms;input.update(time,position);g.frame(time,{input});return g.snapshot;};for(let i=0;i<32;i++)step();return {g,input,step,get time(){return time;}};}
 test('countdown finishes before ninety active seconds and replay clears earned state',()=>{
@@ -66,9 +67,9 @@ test('ninety active seconds end the round even at a valid 200ms rendering cadenc
 });
 test('fresh masks cannot turn repeated pose timestamps into an earned reach bonus',()=>{
  const g=createEnergyRush({seed:8});let t=0;
- const input={snapshot:null,fresh:()=>true,contact:()=>false,sweep:()=>false};
- const frame=(reach=0,poseTime)=>{t+=100;input.snapshot={valid:true,timestamp:t,center:{x:.5,y:.5},occupancy:.15,bounds:{minX:.35,maxX:.65,minY:.2,maxY:.8},aspect:4/3};g.frame(t,{input,body:{valid:true,reach,timestamp:poseTime??t}});};
- g.start(0,'body');for(let i=0;i<13;i++)frame();for(let i=0;i<6;i++)frame(1);g.finishCalibration();for(let i=0;i<190;i++)frame();assert.equal(g.snapshot.challenge?.kind,'reach');const frozen=t;for(let i=0;i<4;i++)frame(1,frozen);
+ const input=createSilhouetteGrid();
+ const frame=(reach=0,poseTime,raised=false)=>{t+=100;const values=new Float32Array(64*48);for(let y=6;y<43;y++)for(let x=24;x<40;x++)values[y*64+x]=1;if(raised)for(let y=3;y<6;y++)for(let x=26;x<30;x++)values[y*64+x]=1;input.update({values,width:64,height:48,sourceWidth:640,sourceHeight:480,timestamp:t},t);g.frame(t,{input,body:{valid:true,reach,timestamp:poseTime??t}});};
+ g.start(0,'body');for(let i=0;i<13;i++)frame();for(let i=0;i<6;i++)frame(1,undefined,true);for(let i=0;i<4;i++)frame();assert.equal(g.finishCalibration(),true);for(let i=0;i<190;i++)frame();assert.equal(g.snapshot.challenge?.kind,'reach');const frozen=t;for(let i=0;i<4;i++)frame(1,frozen);
  assert.equal(g.snapshot.challenges,0);assert.equal(g.snapshot.score,0);
  for(let i=0;i<6;i++)frame(1);assert.equal(g.snapshot.challenges,1);assert.equal(g.snapshot.score,250);
 });

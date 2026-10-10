@@ -19,17 +19,19 @@ export function sampleCoarseSilhouette(mask,width=32,height=24){
 export function createSilhouetteGrid(){
   let cells=new Uint8Array(GRID_WIDTH*GRID_HEIGHT),previous=new Uint8Array(cells.length);
   const entered=new Uint8Array(cells.length);
-  let last=-Infinity,valid=false,center=null,bounds=null,occupancy=0,aspect=4/3,continuous=false;
+  const confirmed=new Uint8Array(cells.length),confirmations=new Uint8Array(cells.length),candidateSince=new Float64Array(cells.length);
+  let last=-Infinity,valid=false,center=null,bounds=null,occupancy=0,aspect=4/3,continuous=false,originTimestamp=-Infinity;
   const api={
-    get snapshot(){return {valid,timestamp:last,cells,entered,center,bounds,occupancy,aspect,continuous};},
+    get snapshot(){return {valid,timestamp:last,cells:confirmed,rawCells:cells,entered,center,bounds,occupancy,aspect,continuous};},
     fresh(now){return valid&&Number.isFinite(now)&&now>=last&&now-last<=MASK_MAX_AGE;},
-    invalidate(){valid=false;continuous=false;entered.fill(0);},
+    invalidate(){valid=false;continuous=false;entered.fill(0);confirmed.fill(0);confirmations.fill(0);},
     reset(){api.invalidate();last=-Infinity;cells.fill(0);previous.fill(0);},
     update(mask,now){
       const t=mask?.timestamp;
       if(!Number.isFinite(t)||t>now||now-t>MASK_MAX_AGE||t<last||!Number.isInteger(mask?.width)||!Number.isInteger(mask?.height)||mask.width<1||mask.height<1||mask.width>4096||mask.height>4096||mask.values?.length!==mask.width*mask.height){api.invalidate();return false;}
       if(t===last){entered.fill(0);return false;}
       continuous=valid&&t-last<=MASK_MAX_AGE;
+      if(!continuous)originTimestamp=t;
       [previous,cells]=[cells,previous];cells.fill(0);entered.fill(0);
       let total=0,sx=0,sy=0,minX=1,minY=1,maxX=0,maxY=0;
       for(let y=0;y<GRID_HEIGHT;y++)for(let x=0;x<GRID_WIDTH;x++){
@@ -42,7 +44,11 @@ export function createSilhouetteGrid(){
           if(confidence>=.6)foreground++;
         }
         const dx=GRID_WIDTH-1-x,i=y*GRID_WIDTH+dx;
-        if(foreground>=2){cells[i]=1;entered[i]=continuous&&!previous[i]?1:0;total++;sx+=(dx+.5)/GRID_WIDTH;sy+=(y+.5)/GRID_HEIGHT;minX=Math.min(minX,dx/GRID_WIDTH);maxX=Math.max(maxX,(dx+1)/GRID_WIDTH);minY=Math.min(minY,y/GRID_HEIGHT);maxY=Math.max(maxY,(y+1)/GRID_HEIGHT);}
+        if(foreground>=2){
+          cells[i]=1;total++;sx+=(dx+.5)/GRID_WIDTH;sy+=(y+.5)/GRID_HEIGHT;minX=Math.min(minX,dx/GRID_WIDTH);maxX=Math.max(maxX,(dx+1)/GRID_WIDTH);minY=Math.min(minY,y/GRID_HEIGHT);maxY=Math.max(maxY,(y+1)/GRID_HEIGHT);
+          if(!continuous||!previous[i]){confirmations[i]=1;candidateSince[i]=t;}else confirmations[i]=Math.min(3,confirmations[i]+1);
+          if(confirmations[i]>=3&&t-candidateSince[i]>=100){entered[i]=confirmed[i]||candidateSince[i]===originTimestamp?0:1;confirmed[i]=1;}
+        }else{confirmed[i]=0;confirmations[i]=0;}
       }
       last=t;valid=total>=4;occupancy=total/cells.length;
       center=valid?{x:sx/total,y:sy/total}:null;bounds=valid?{minX,minY,maxX,maxY}:null;
@@ -52,7 +58,7 @@ export function createSilhouetteGrid(){
     contact(x,y,r,entry=false){return api.sweep({x,y},{x,y},r,entry);},
     sweep(a,b,r,entry=false){
       if(!valid||![a?.x,a?.y,b?.x,b?.y,r].every(Number.isFinite)||r<0)return false;
-      const data=entry?entered:cells,ry=r*aspect;
+      const data=entry?entered:confirmed,ry=r*aspect;
       const minX=clamp(Math.floor((Math.min(a.x,b.x)-r)*GRID_WIDTH),0,GRID_WIDTH-1),maxX=clamp(Math.floor((Math.max(a.x,b.x)+r)*GRID_WIDTH),0,GRID_WIDTH-1);
       const minY=clamp(Math.floor((Math.min(a.y,b.y)-ry)*GRID_HEIGHT),0,GRID_HEIGHT-1),maxY=clamp(Math.floor((Math.max(a.y,b.y)+ry)*GRID_HEIGHT),0,GRID_HEIGHT-1);
       const vx=b.x-a.x,vy=(b.y-a.y)/aspect,len=vx*vx+vy*vy;

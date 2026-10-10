@@ -12,6 +12,9 @@ async function syntheticCamera(page) {
       terminate(){if(this.counted){window.liveWorkers--;this.counted=false;}return super.terminate();}
     };
     const original=HTMLCanvasElement.prototype.getContext,seen=new WeakSet();
+    // Keep a detached canvas reachable until its asynchronous context-loss event.
+    // Otherwise GC can remove its listener before our numeric allocation ledger clears.
+    window.trackedGLCanvases=new Set();
     HTMLCanvasElement.prototype.getContext=function(type,...args){
       const ctx=original.call(this,type,...args);
       if(ctx&&type.includes('webgl')&&!seen.has(ctx)){
@@ -23,13 +26,14 @@ async function syntheticCamera(page) {
         this.addEventListener('webglcontextlost',()=>{
           // Context loss releases driver allocations, including Three's internal defaults.
           for(const objects of allocations){window.glResources-=objects.size;if(grid)window.gridResources-=objects.size;objects.clear();}
+          window.trackedGLCanvases.delete(this);
           if(launch)window.launchContexts--;if(grid)window.gridContexts--;
         },{once:true});
         for(const kind of ['Texture','Framebuffer','Program','Shader','Buffer']){
           const objects=new Set(),create=ctx['create'+kind].bind(ctx),remove=ctx['delete'+kind].bind(ctx);
           allocations.push(objects);
-          ctx['create'+kind]=(...params)=>{const resource=create(...params);if(resource){objects.add(resource);window.glResources++;if(grid)window.gridResources++;}return resource;};
-          ctx['delete'+kind]=resource=>{if(objects.delete(resource)){window.glResources--;if(grid)window.gridResources--;}remove(resource);};
+          ctx['create'+kind]=(...params)=>{const resource=create(...params);if(resource){window.trackedGLCanvases.add(this);objects.add(resource);window.glResources++;if(grid)window.gridResources++;}return resource;};
+          ctx['delete'+kind]=resource=>{if(objects.delete(resource)){window.glResources--;if(grid)window.gridResources--;if(allocations.every(values=>values.size===0))window.trackedGLCanvases.delete(this);}remove(resource);};
         }
       }
       return ctx;
@@ -76,6 +80,8 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
     await expect.poll(()=>page.evaluate(()=>window.launchContexts)).toBe(0);
     await expect.poll(()=>page.evaluate(()=>window.gridContexts)).toBe(0);
     await expect.poll(()=>page.evaluate(()=>window.gridResources)).toBe(0);
+    await expect.poll(()=>page.evaluate(()=>window.trackedGLCanvases.size)).toBe(1);
+    expect(await page.evaluate(()=>[...window.trackedGLCanvases].every(canvas=>canvas.isConnected&&!!canvas.closest('.glow-artwork')))).toBe(true);
   }
   await page.getByRole('button',{name:'SLASH',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Raise your hand');

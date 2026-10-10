@@ -7,7 +7,10 @@ test('ENERGY RUSH body and assisted bests are versioned independently of other g
  const data=new Map(),b=createPersonalBests(()=>({getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v)}));
  b.record('ENERGY_RUSH_BODY',{score:1200,count:9},true);b.record('ENERGY_RUSH_ASSIST',{score:4000,count:20},true);
  assert.equal(b.read('ENERGY_RUSH_BODY').score,1200);assert.equal(b.read('ENERGY_RUSH_ASSIST').score,4000);assert.equal(b.read('FLOW').score,0);
- assert.ok(data.has('lumen.arcade.bests.energy-rush.v1.body'));b.record('ENERGY_RUSH_BODY',{score:99999,count:90},false);assert.equal(b.read('ENERGY_RUSH_BODY').score,1200);
+ assert.ok(data.has('lumen.arcade.bests.energy-rush.v2.body'));b.record('ENERGY_RUSH_BODY',{score:99999,count:90},false);assert.equal(b.read('ENERGY_RUSH_BODY').score,1200);
+});
+test('pre-remediation noisy scores remain preserved but do not become corrected-rule bests',()=>{
+ const data=new Map([['lumen.arcade.bests.energy-rush.v1.body',JSON.stringify({version:1,metrics:{score:4200,count:19}})]]),b=createPersonalBests(()=>({getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v)}));assert.equal(b.read('ENERGY_RUSH_BODY').score,0);b.record('ENERGY_RUSH_BODY',{score:100,count:1},true);assert.equal(b.read('ENERGY_RUSH_BODY').score,100);assert.equal(JSON.parse(data.get('lumen.arcade.bests.energy-rush.v1.body')).metrics.score,4200);assert.equal(JSON.parse(data.get('lumen.arcade.bests.energy-rush.v2.body')).rulesVersion,2);
 });
 test('game events are abstract bounded ECHOES marks and never activate CORE',()=>{
  const session=createEchoSession(),events=createEnergyEvents(session);session.beyond.chaos.tick('GLOW',performance.now(),true);events.reset('body');

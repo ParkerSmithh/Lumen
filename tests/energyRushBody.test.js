@@ -21,5 +21,5 @@ test('stale silhouette cannot score even while the renderer could still fade its
 });
 test('small-range body play receives reachable orbs and earns a collection through fresh silhouette entry',()=>{
  const r=bodyGame();for(let i=0;i<20;i++)r.frame();const s=r.g.snapshot,orb=s.orbs.find(o=>s.elapsed-o.born>.5);assert.ok(orb,'a demonstrated six-percent movement range must have a reachable orb');
- r.frame(orb.x<.5?.44:.56);assert.ok(r.g.snapshot.score>=100);
+ for(let i=0;i<5;i++)r.frame(orb.x<.5?.44:.56);assert.ok(r.g.snapshot.score>=100);
 });

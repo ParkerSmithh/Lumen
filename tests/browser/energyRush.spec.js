@@ -29,3 +29,15 @@ test('short-screen HUD metrics do not overlap intensity controls',async({page})=
  await page.setViewportSize({width:390,height:480});await page.goto('/');await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await page.getByRole('button',{name:'Keyboard / touch',exact:true}).click();await page.getByRole('button',{name:'START',exact:true}).click();await expect(page.getByRole('button',{name:'PAUSE',exact:true})).toBeVisible({timeout:10000});
  const metrics=await page.locator('.energy-metrics').boundingBox(),intensity=await page.getByRole('group',{name:'Visual intensity'}).boundingBox();expect(metrics.y).toBeGreaterThanOrEqual(intensity.y+intensity.height);
 });
+test('real touch-pad crossing collects a target once at normal frame cadence',async({page})=>{
+ await page.goto('/?debugEnergy');await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await page.getByRole('button',{name:'Keyboard / touch',exact:true}).click();await page.getByRole('button',{name:'START',exact:true}).click();await expect(page.getByRole('button',{name:'PAUSE',exact:true})).toBeVisible({timeout:10000});
+ await expect.poll(()=>page.evaluate(()=>{const s=window.__lumenEnergy.snapshot();return s.orbs.some(o=>s.elapsed-o.born>=.5);}),{timeout:10000}).toBe(true);
+ const orb=await page.evaluate(()=>{const s=window.__lumenEnergy.snapshot();return s.orbs.find(o=>s.elapsed-o.born>=.5);}),pad=await page.locator('.energy-touch-pad').boundingBox();
+ await page.mouse.move(pad.x+2,pad.y+pad.height*.5);await page.mouse.down();await page.waitForTimeout(80);await page.mouse.move(pad.x+(orb.x-.06)/.88*pad.width,pad.y+(orb.y-.1)/.8*pad.height,{steps:20});await page.mouse.up();
+ await expect.poll(()=>page.evaluate(()=>window.__lumenEnergy.snapshot().collections)).toBe(1);await page.waitForTimeout(200);expect(await page.evaluate(()=>window.__lumenEnergy.snapshot().collections)).toBe(1);
+});
+test('completed corrected-rule round records v2 bests and replays cleanly',async({page})=>{
+ await page.addInitScript(()=>{const native=requestAnimationFrame.bind(window);let time=performance.now(),last=null;performance.now=()=>time;window.requestAnimationFrame=fn=>native(t=>{if(t!==last){last=t;time+=100;}fn(time);});});
+ await page.goto('/?debugEnergy');await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await page.getByRole('button',{name:'Keyboard / touch',exact:true}).click();await page.getByRole('button',{name:'START',exact:true}).click();await expect(page.getByRole('button',{name:'REPLAY',exact:true})).toBeVisible({timeout:20000});
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('lumen.arcade.bests.energy-rush.v2.assist')).rulesVersion)).toBe(2);await page.getByRole('button',{name:'REPLAY',exact:true}).click();expect(await page.evaluate(()=>window.__lumenEnergy.snapshot().score)).toBe(0);expect(await page.evaluate(()=>window.__lumenEnergy.snapshot().shields)).toBe(3);
+});
