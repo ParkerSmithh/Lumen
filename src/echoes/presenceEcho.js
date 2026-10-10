@@ -1,14 +1,7 @@
+import {sampleCoarseSilhouette} from '../tracking/silhouetteGrid.js';
 const W=32,H=24;
 let serial=0;
-function coarse(mask){
- if(!mask?.values||!mask.width||!mask.height)return null;
- const cells=new Uint8Array(W*H);let sx=0,sy=0,total=0;
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  const mx=Math.min(mask.width-1,Math.floor((x+.5)*mask.width/W)),my=Math.min(mask.height-1,Math.floor((y+.5)*mask.height/H));
-  const value=mask.values[my*mask.width+mx]>.35?255:0;const dx=W-1-x;cells[y*W+dx]=value;if(value){sx+=(dx+.5)/W;sy+=(y+.5)/H;total++;}
- }
- return {cells,center:total?{x:sx/total,y:sy/total}:null};
-}
+const coarse=mask=>sampleCoarseSilhouette(mask,W,H);
 export function createPresenceEcho({emit,onPresence,drawBeyond}){
  let previous=null,lastTime=-Infinity,lastTimestamp=null,echoes=[],scratch;
  const expire=time=>{echoes=echoes.filter(e=>time-e.time<800);};
@@ -24,7 +17,7 @@ export function createPresenceEcho({emit,onPresence,drawBeyond}){
     const center={x:Math.round(next.center.x*16)/16,y:Math.round(next.center.y*16)/16};
     emit?.({id:'presence:'+serial++,mode:'GLOW',kind:'presence',color,points:[center],intensity,duration:.8},epoch);
    }
-  }try{onPresence?.({valid:!!next.center,moving,center:next.center,color,timestamp:mask.timestamp},time);}catch{}previous=next;
+  }try{onPresence?.({valid:!!next.center,moving,center:next.center,color,occupancy:next.occupancy,timestamp:mask.timestamp},time);}catch{}previous=next;
  },draw(ctx,w,h,time,mask,reducedMotion=false){
   expire(time);ctx.clearRect(0,0,w,h);if(!echoes.length&&!drawBeyond)return;
   scratch??=document.createElement('canvas');scratch.width=W;scratch.height=H;const s=scratch.getContext('2d');

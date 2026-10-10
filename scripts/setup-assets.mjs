@@ -12,3 +12,8 @@ const handResponse=await fetch('https://storage.googleapis.com/mediapipe-models/
 if(!handResponse.ok)throw new Error(`Hand model download failed (${handResponse.status}). Retry npm run setup:assets.`);
 await writeFile(new URL('public/models/hand_landmarker.task',root),new Uint8Array(await handResponse.arrayBuffer()));
 console.log('Local hand tracking model ready.');
+// Versioned MediaPipe lite pose model; loaded only by the optional pose worker.
+const poseResponse = await fetch('https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task');
+if (!poseResponse.ok) throw new Error(`Pose model download failed (${poseResponse.status}). Retry npm run setup:assets.`);
+await writeFile(new URL('public/models/pose_landmarker_lite.task', root), new Uint8Array(await poseResponse.arrayBuffer()));
+console.log('Local optional pose tracking model ready.');

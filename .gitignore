@@ -9,3 +9,6 @@ public/models/
 .agents/
 .codex/
 .aws/
+docs/bodyshift-*.json
+docs/energy-rush-performance.json
+docs/energy-rush-soak.json

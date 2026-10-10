@@ -1,5 +1,5 @@
-const MODES = ['FLOW', 'SLASH', 'SLASH_CHAOS', 'LAUNCH'];
-const storageKey = mode => mode === 'SLASH_CHAOS' ? 'lumen.arcade.bests.chaos.v1.SLASH' : `lumen.arcade.bests.v1.${mode}`;
+const MODES = ['FLOW', 'SLASH', 'SLASH_CHAOS', 'LAUNCH', 'ENERGY_RUSH_BODY', 'ENERGY_RUSH_ASSIST'];
+const storageKey = mode => mode.startsWith('ENERGY_RUSH_') ? `lumen.arcade.bests.energy-rush.v1.${mode==='ENERGY_RUSH_BODY'?'body':'assist'}` : mode === 'SLASH_CHAOS' ? 'lumen.arcade.bests.chaos.v1.SLASH' : `lumen.arcade.bests.v1.${mode}`;
 const empty = () => ({ score: 0, count: 0, accuracy: null });
 const validInt = value => Number.isSafeInteger(value) && value >= 0;
 const sanitize = (value = {}) => ({

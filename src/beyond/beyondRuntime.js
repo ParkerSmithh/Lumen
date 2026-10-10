@@ -1,10 +1,14 @@
+import {fitContain} from '../tracking/utils.js';
+import {createBodySignals} from '../tracking/bodySignals.js';
 import {createChaosRuntime} from './chaosRuntime.js';
 import {colors} from '../colors.js';
 const modes=['GLOW','FLOW','SLASH','LAUNCH'],palette=new Set(colors.map(([,hex])=>hex));
 const validPoint=p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1;
 const point=p=>({x:p.x,y:p.y});
-export function createBeyondRuntime({enabled=true,now=()=>performance.now(),chaosEnabled=true}={}){
+export function createBeyondRuntime({enabled=true,now=()=>performance.now(),chaosEnabled=true,bodyshiftEnabled=true}={}){
  const chaos=createChaosRuntime({enabled:enabled&&chaosEnabled,now});
+ const bodyModes=Object.fromEntries(modes.map(m=>[m,createBodySignals({now})])),bodySnapshots={};
+ const bodyshift={enabled:bodyshiftEnabled,tick(mode,time,active){if(bodyModes[mode])bodySnapshots[mode]=bodyModes[mode].tick(time,!!active&&bodyshiftEnabled);},sample(mode,input,time,color,anchors=[]){if(!bodyshiftEnabled||!bodyModes[mode])return;const summary=bodyModes[mode].sample(input,time);bodySnapshots[mode]=summary;if(summary.valid)chaos.body(mode,summary,color,time,anchors);else chaos.clearBody(mode);return summary;},hand(mode,hand,time,color,center=hand?.palm){if(center&&hand?.sourceWidth){const w=globalThis.innerWidth||1,h=globalThis.innerHeight||1,r=fitContain(hand.sourceWidth,hand.sourceHeight,w,h);center={x:(r.x+center.x*r.width)/w,y:(r.y+center.y*r.height)/h};}return bodyshift.sample(mode,{source:'hand',valid:!!(hand?.handDetected&&!hand.reset&&!hand.motionRejected&&time-hand.timestamp<=250),center,occupancy:1,timestamp:hand?.timestamp,sequence:hand?.sequence},time,color);},snapshot(mode){return bodySnapshots[mode]||{ready:false,valid:false,reason:'calibrating',overdrive:{active:false,progress:0}};},wave(mode,point,color,time=now()){if(!bodyshiftEnabled||!bodyModes[mode])return false;const summary=bodyModes[mode].wave(time);if(!summary.shockwave)return false;return chaos.body(mode,{...summary,valid:true,center:summary.center||point},color,time);},leave(mode){bodyModes[mode]?.suspend();chaos.clearBody(mode);delete bodySnapshots[mode];},reset(){for(const mode of modes)bodyModes[mode].reset();for(const mode of modes)delete bodySnapshots[mode];}};
  let bits=Object.fromEntries(modes.map(m=>[m,false])),version=0,suspended=false,atmosphere=[],resonance=[],pulseMark=null,fluidPulse=null,presenceBase=null,chainMarked=false;
  const seen=new Set(),listeners=new Set(),cooldowns=new Map(),pulseTimes=new Map();
  const notify=()=>{version++;for(const fn of listeners){try{fn();}catch{}}};
@@ -13,12 +17,12 @@ export function createBeyondRuntime({enabled=true,now=()=>performance.now(),chao
  const prune=t=>{atmosphere=atmosphere.filter(m=>t-m.born<1800);resonance=resonance.filter(m=>t-m.born<3000);if(pulseMark&&t-pulseMark.born>=3000)pulseMark=null;};
  const addResonance=(mode,p,color,t)=>{if(t-(cooldowns.get(mode)??-Infinity)<(mode==='GLOW'?20000:15000))return;cooldowns.set(mode,t);chaos.activity(mode,{type:'resonance',point:p,color,intensity:.8},t);resonance.push({mode,point:point(p),color,born:t});if(resonance.length>2)resonance.shift();};
  const clearTransient=()=>{atmosphere=[];resonance=[];pulseMark=fluidPulse=presenceBase=null;};
- const api={chaos,
+ const api={chaos,bodyshift,
   get stateEnabled(){return enabled;},setEnabled(value){enabled=!!value;if(!enabled)clearTransient();},
   snapshot(){const activated={...bits},count=Object.values(bits).filter(Boolean).length;return {activated,count,complete:count===4,version};},
   subscribe(fn){if(typeof fn==='function')listeners.add(fn);return()=>listeners.delete(fn);},
-  reset(){chaos.reset();bits=Object.fromEntries(modes.map(m=>[m,false]));seen.clear();cooldowns.clear();pulseTimes.clear();chainMarked=false;clearTransient();notify();},
-  suspend(open){chaos.setSuspended(open);suspended=!!open;clearTransient();},
+  reset(){bodyshift.reset();chaos.reset();bits=Object.fromEntries(modes.map(m=>[m,false]));seen.clear();cooldowns.clear();pulseTimes.clear();chainMarked=false;clearTransient();notify();},
+  suspend(open){for(const mode of modes)bodyshift.leave(mode);chaos.setSuspended(open);suspended=!!open;clearTransient();},
   combo(value){chaos.combo(value);if(value===0)chainMarked=false;},
   accept(record,details={},time=now()){
    if(!available(time)||!record||!modes.includes(record.mode)||!palette.has(record.color)||typeof record.id!=='string'||!record.id.length||record.id.length>128||!Array.isArray(record.points)||!record.points.length||!record.points.every(validPoint))return false;

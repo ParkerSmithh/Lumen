@@ -63,7 +63,7 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
       if(event.pointerType==='touch')event.preventDefault();
     };
     const down=event=>{if(echoSession?.gate.suspended)return;const state=game.tick(performance.now());if(!settings.current.mouseMode||state.phase!=='playing'||state.paused||event.target.closest?.('button,nav,header,footer,.slash-game-overlay'))return;event.preventDefault();pressed=true;detector.reset();move(event);};
-    const visibility=()=>{last=performance.now();if(document.hidden){echoSession?.beyond.chaos.leave('SLASH');reset();publish(game.pause(last,'visibility'));}};
+    const visibility=()=>{last=performance.now();if(document.hidden){echoSession?.beyond.chaos.leave('SLASH');echoSession?.beyond.bodyshift.leave('SLASH');reset();publish(game.pause(last,'visibility'));}};
     window.addEventListener('pointerdown',down);window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',reset);window.addEventListener('pointercancel',reset);window.addEventListener('blur',reset);document.addEventListener('visibilitychange',visibility);
     const draw=time=>{
       if(echoSession?.gate.suspended){last=time;raf=requestAnimationFrame(draw);return;}
@@ -74,9 +74,9 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
       if(available!==lastCameraAvailability){lastCameraAvailability=available;setUsableCamera(available);}
       let state=game.tick(performance.now());
       if(!canPlay()&&(state.phase==='playing'||state.phase==='countdown')){state=game.pause(time,'camera');reset();}
-      echoSession?.beyond.combo(arcade.snapshot(state.elapsed).combo);scene.setColor(settings.current.color);const storm=fracture.update(arcade.snapshot(state.elapsed).combo,state.elapsed).active;const difficulty=chaosSlashDifficulty(state.progress,storm);scene.setStorm(storm);const chaos=echoSession?.beyond.chaos;chaos?.tick('SLASH',time,state.phase==='playing'&&!state.paused&&!document.hidden);scene.setChaosProfile(chaos?.profile('SLASH',matchMedia('(prefers-reduced-motion: reduce)').matches));scene.setSurge(chaos?.snapshot('SLASH').surge);scene.setCombo?.(arcade.snapshot(state.elapsed).combo);scene.setOverload?.(difficulty.overload);scene.update(dt,{...state,...difficulty});publish(state);
+      echoSession?.beyond.combo(arcade.snapshot(state.elapsed).combo);scene.setColor(settings.current.color);const storm=fracture.update(arcade.snapshot(state.elapsed).combo,state.elapsed).active;const difficulty=chaosSlashDifficulty(state.progress,storm);scene.setStorm(storm);const chaos=echoSession?.beyond.chaos;echoSession?.beyond.bodyshift.tick('SLASH',time,state.phase==='playing'&&!state.paused&&!document.hidden);chaos?.tick('SLASH',time,state.phase==='playing'&&!state.paused&&!document.hidden);scene.setChaosProfile(chaos?.profile('SLASH',matchMedia('(prefers-reduced-motion: reduce)').matches));scene.setSurge(chaos?.snapshot('SLASH').surge);scene.setCombo?.(arcade.snapshot(state.elapsed).combo);scene.setOverload?.(difficulty.overload);scene.update(dt,{...state,...difficulty});publish(state);
       if(state.phase!=='playing'||state.paused){reset();scene.draw();echoSession?.draw(ctx,width,height,time,"SLASH",matchMedia("(prefers-reduced-motion: reduce)").matches);raf=requestAnimationFrame(draw);return;}
-      const hand=handRef.current;
+      const hand=handRef.current;echoSession?.beyond.bodyshift.tick('SLASH',time,state.phase==='playing'&&!state.paused&&!document.hidden);if(!mode)echoSession?.beyond.bodyshift.hand('SLASH',hand,time,settings.current.color);
       let sample;
       if(mode)sample=mouse;
       else{

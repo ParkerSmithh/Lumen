@@ -1,7 +1,7 @@
 import {colors} from '../colors.js';
 import {simplifyEchoPoints} from './echoGeometry.js';
 const palette=new Set(colors.map(([,hex])=>hex));
-const kinds={GLOW:new Set(['presence']),FLOW:new Set(['creation']),SLASH:new Set(['destruction']),LAUNCH:new Set(['force','throw','hit'])};
+const kinds={GLOW:new Set(['presence','energy-orb','energy-challenge','energy-milestone']),FLOW:new Set(['creation']),SLASH:new Set(['destruction']),LAUNCH:new Set(['force','throw','hit'])};
 const bounded=(n,fallback,min,max)=>Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback;
 export function createEchoStore(){
  let epoch=0,records=[];const seen=new Set(),listeners=new Set();

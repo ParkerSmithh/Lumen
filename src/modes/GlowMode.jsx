@@ -1,6 +1,11 @@
+import {freshBodyPose} from '../tracking/bodySignals.js';
 import { useEffect, useRef } from 'react';
 import { createGlowRenderer } from '../effects/glowRenderer';
 import { createPresenceEcho } from '../echoes/presenceEcho.js';
+import {useEnergyRush} from '../game/useEnergyRush.js';
+import {EnergyRushHUD} from '../game/EnergyRushHUD.jsx';
+import {drawEnergyRush} from '../effects/energyRushRenderer.js';
+import {fitContain} from '../tracking/utils.js';
 
 function previewMask() {
   const c = document.createElement('canvas'); c.width = 320; c.height = 400;
@@ -14,16 +19,19 @@ function previewMask() {
   const pixels = ctx.getImageData(0,0,320,400).data;
   return { width: 320, height: 400, sourceWidth: 640, sourceHeight: 800, values: Float32Array.from({ length: 320*400 }, (_,i) => pixels[i*4+3]/255), timestamp: Infinity };
 }
-export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, echoSession }) {
-  const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady }); settings.current = { color, preview, cameraReady };
+export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus }) {
+  const game=useEnergyRush({enabled:energyRush,cameraReady,preview,videoRef,echoSession,onExit:onExitEnergy,color});
+  const gameRef=useRef(game);gameRef.current=game;
+  const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady,energyRush }); settings.current = { color, preview, cameraReady,energyRush };
   useEffect(() => {
     const host = hostRef.current;
     let canvas, renderer, raf, previousMask, opacity = 0,bodyCenter={x:.5,y:.5};
     const illustrated = previewMask();
     const echoCanvas=document.createElement('canvas');echoCanvas.setAttribute('aria-hidden','true');echoCanvas.style.pointerEvents='none';
     const echoContext=echoCanvas.getContext('2d');
-    const unregister=echoSession?.registerMode('GLOW',()=>({playing:settings.current.preview||!!(settings.current.cameraReady&&maskRef.current&&performance.now()-maskRef.current.timestamp<500),paused:false,blocked:false,point:bodyCenter,color:settings.current.color,autoAllowed:false}));
-    const presence=createPresenceEcho({onPresence:(input,time)=>{if(input.center)bodyCenter=input.center;echoSession?.beyond.presence(input,time);},drawBeyond:(ctx,w,h,time,reduced)=>echoSession?.beyond.draw(ctx,w,h,time,'GLOW',reduced),emit:(event,epoch)=>{try{echoSession?.emit(event,epoch);}catch{/* Echoes are optional. */}}});
+    const arenaCanvas=document.createElement('canvas');arenaCanvas.setAttribute('aria-hidden','true');arenaCanvas.style.pointerEvents='none';const arenaContext=arenaCanvas.getContext('2d');
+    const unregister=echoSession?.registerMode('GLOW',()=>({playing:settings.current.energyRush?gameRef.current.engine.snapshot.phase==='PLAYING':settings.current.preview||!!(settings.current.cameraReady&&maskRef.current&&performance.now()-maskRef.current.timestamp<500),paused:settings.current.energyRush&&gameRef.current.engine.snapshot.phase==='PAUSED',blocked:false,point:bodyCenter,color:settings.current.color,autoAllowed:false}));
+    const presence=createPresenceEcho({onPresence:(input,time)=>{echoSession?.beyond.bodyshift.sample('GLOW',{...input,pose:freshBodyPose(poseRef?.current,time)},time,input.color,(freshBodyPose(poseRef?.current,time)?poseRef.current.landmarks?.filter((p,i)=>[15,16].includes(i)&&p.visibility>=.7).map(p=>({x:1-p.x,y:p.y})):[])||[]);if(input.center)bodyCenter=input.center;if(!settings.current.energyRush||gameRef.current.engine.snapshot.phase==='PLAYING'&&gameRef.current.engine.snapshot.inputMode==='body')echoSession?.beyond.presence(input,time);},drawBeyond:(ctx,w,h,time,reduced)=>echoSession?.beyond.draw(ctx,w,h,time,'GLOW',reduced),emit:(event,epoch)=>{if(settings.current.energyRush)return;try{echoSession?.emit(event,epoch);}catch{/* Echoes are optional. */}}});
     let echoEpoch=echoSession?.store.epoch;
     const unsubscribe=echoSession?.store.subscribe(()=>{if(echoEpoch!==echoSession.store.epoch){echoEpoch=echoSession.store.epoch;presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);}});
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -35,6 +43,7 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, echoS
       renderer.resize(Math.round(host.clientWidth * scale), Math.round(host.clientHeight * scale));
       const echoScale=Math.min(1,640/host.clientWidth,480/host.clientHeight);
       echoCanvas.width=Math.max(1,Math.round(host.clientWidth*echoScale));echoCanvas.height=Math.max(1,Math.round(host.clientHeight*echoScale));presence.clear();
+      arenaCanvas.width=echoCanvas.width;arenaCanvas.height=echoCanvas.height;
     };
     const lost = event => { event.preventDefault(); renderer.dispose(); mount(true); };
     const mount = fallback => {
@@ -42,31 +51,45 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, echoS
       canvas = document.createElement('canvas'); canvas.setAttribute('aria-hidden','true'); host.append(canvas);
       if (fallback) canvas.getContext('2d');
       try { renderer = createGlowRenderer(canvas); } catch { canvas.remove(); canvas = document.createElement('canvas'); canvas.getContext('2d'); host.append(canvas); renderer = createGlowRenderer(canvas); }
-      canvas.addEventListener('webglcontextlost', lost); host.append(echoCanvas); resize();
+      canvas.addEventListener('webglcontextlost', lost); host.append(echoCanvas,arenaCanvas); resize();
     };
     mount(false);
     const observer = new ResizeObserver(resize); observer.observe(host.parentElement);
     let aspect=0;
     const draw = time => {
-      if(echoSession?.gate.suspended){presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);raf=requestAnimationFrame(draw);return;}
+      if(echoSession?.gate.suspended){if(settings.current.energyRush)gameRef.current.frame(time,null,null);presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);raf=requestAnimationFrame(draw);return;}
       const video=videoRef?.current;
       if(video?.videoWidth&&aspect!==video.videoWidth/video.videoHeight){aspect=video.videoWidth/video.videoHeight;resize();}
       const live = maskRef.current;
       const fresh = live && time - live.timestamp < 500;
-      echoSession?.beyond.chaos.tick('GLOW',time,!!(fresh&&settings.current.cameraReady&&!settings.current.preview&&!document.hidden));
+      const gamePhase=gameRef.current.engine.snapshot.phase;
+      if(!settings.current.energyRush)echoSession?.beyond.chaos.tick('GLOW',time,!!((settings.current.preview||fresh&&settings.current.cameraReady)&&!document.hidden));
+      echoSession?.beyond.bodyshift.tick('GLOW',time,!!((settings.current.preview||fresh&&settings.current.cameraReady)&&!document.hidden&&(!settings.current.energyRush||['CALIBRATING','COUNTDOWN','PLAYING'].includes(gamePhase))));
       const mask = settings.current.preview ? illustrated : fresh ? live : null;
       if (mask) previousMask = mask;
       opacity += ((mask ? 1 : 0) - opacity) * .12;
-      renderer.draw({ energy:reduced.matches?1:echoSession?.beyond.chaos.snapshot('GLOW').surge?1.9:({CALM:.85,WILD:1.35,MAX:1.6}[echoSession?.beyond.chaos.preferenceIntensity()]||1),video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
+      const drive=echoSession?.beyond.bodyshift.snapshot('GLOW').overdrive?.active,fever=settings.current.energyRush&&gameRef.current.engine.snapshot.fever;renderer.draw({bodyAura:echoSession?.beyond.bodyshift.enabled?(reduced.matches?.35:({CALM:.4,WILD:1,MAX:1.35}[echoSession.beyond.chaos.preferenceIntensity()]||1)):0,energy:reduced.matches?1:drive||fever?1.9:echoSession?.beyond.chaos.snapshot('GLOW').surge?1.9:({CALM:.85,WILD:1.35,MAX:1.6}[echoSession?.beyond.chaos.preferenceIntensity()]||1),video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
       if(echoContext&&echoSession){
         if(fresh&&settings.current.cameraReady&&!settings.current.preview){presence.sample(live,{time,color:settings.current.color,epoch:echoSession.store.epoch});presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,live,reduced.matches);}
-        else{echoSession.beyond.presence({valid:false},time);presence.clear();if(settings.current.preview)presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,illustrated,reduced.matches);else echoContext.clearRect(0,0,echoCanvas.width,echoCanvas.height);}
+        else{if(!settings.current.preview)echoSession.beyond.bodyshift.sample('GLOW',{valid:false},time,settings.current.color);echoSession.beyond.presence({valid:false},time);presence.clear();if(settings.current.preview)presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,illustrated,reduced.matches);else echoContext.clearRect(0,0,echoCanvas.width,echoCanvas.height);}
       }
+      if(settings.current.energyRush){
+        const body=echoSession?.beyond.bodyshift.snapshot('GLOW');
+        const scene=gameRef.current.frame(time,settings.current.preview?null:live,{...body,timestamp:body?.poseTimestamp});
+        const rect=fitContain(video?.videoWidth||live?.sourceWidth||640,video?.videoHeight||live?.sourceHeight||480,arenaCanvas.width,arenaCanvas.height);
+        drawEnergyRush(arenaContext,arenaCanvas.width,arenaCanvas.height,scene,{color:settings.current.color,reduced:reduced.matches,intensity:echoSession?.beyond.chaos.preferenceIntensity(),budget:echoSession?.beyond.chaos.budget('GLOW',reduced.matches),rect});
+      }else arenaContext?.clearRect(0,0,arenaCanvas.width,arenaCanvas.height);
       raf = requestAnimationFrame(draw);
     };
-    const visibility=()=>{if(document.hidden)echoSession?.beyond.chaos.leave('GLOW');};document.addEventListener('visibilitychange',visibility);
+    const visibility=()=>{if(document.hidden){echoSession?.beyond.chaos.leave('GLOW');echoSession?.beyond.bodyshift.leave('GLOW');}};document.addEventListener('visibilitychange',visibility);
     raf = requestAnimationFrame(draw);
-    return () => { document.removeEventListener('visibilitychange',visibility);cancelAnimationFrame(raf); unregister?.();unsubscribe?.(); presence.dispose(); echoCanvas.remove(); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
+    return () => { document.removeEventListener('visibilitychange',visibility);cancelAnimationFrame(raf); unregister?.();unsubscribe?.(); presence.dispose(); echoCanvas.remove();arenaCanvas.remove(); observer.disconnect(); canvas.removeEventListener('webglcontextlost', lost); renderer.dispose(); canvas.remove(); };
   }, [maskRef, videoRef]);
-  return <div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>;
+  useEffect(()=>{
+    if(!energyRush)return;
+    const update=()=>{const host=hostRef.current;if(!host)return;const r=host.getBoundingClientRect();if(!r.width||!r.height)return;const regions=[...document.querySelectorAll('[data-energy-exclude],.lumen-chrome button,.lumen-chrome input')].filter(e=>e.getClientRects().length).map(e=>{const b=e.getBoundingClientRect();return {minX:(b.left-r.left)/r.width,maxX:(b.right-r.left)/r.width,minY:(b.top-r.top)/r.height,maxY:(b.bottom-r.top)/r.height};});gameRef.current.setExcluded(regions);};
+    update();const timer=setInterval(update,250);window.addEventListener('resize',update);return()=>{clearInterval(timer);window.removeEventListener('resize',update);};
+  },[energyRush]);
+  useEffect(()=>{if(!import.meta.env.DEV||!new URLSearchParams(location.search).has('debugEnergy'))return;window.__lumenEnergy={snapshot:()=>gameRef.current.engine.snapshot};return()=>{delete window.__lumenEnergy;};},[]);
+  return <><div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>{energyRush&&<EnergyRushHUD game={game} cameraReady={cameraReady} preview={preview} onCamera={onCamera} poseEnabled={poseEnabled} onPoseToggle={onPoseToggle} poseStatus={poseStatus}/>}</>;
 }

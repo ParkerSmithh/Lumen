@@ -66,7 +66,7 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
     const update=time=>{
       if(echoSession?.gate.suspended){raf=requestAnimationFrame(update);return;}
       if(!mouseMode){
-        const hand=handRef.current;
+        const hand=handRef.current;echoSession?.beyond.bodyshift.hand('FLOW',hand,time,colorRef.current);
         if(!hand?.handDetected||time-hand.timestamp>250)pointerRef.current=null;
         else{
           const point=predictHandPoint(hand,time)||hand.indexFinger;

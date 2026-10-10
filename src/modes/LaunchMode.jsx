@@ -53,7 +53,7 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,came
       retainCreation();
       if(mouseMode){if(dragging&&pointerRef.current)pointerRef.current.timestamp=time; if(pointerRef.current?.releaseAfterCreation&&!pendingCreation)pointerRef.current=null;}
       else{
-        const hand=handRef.current;
+        const hand=handRef.current;echoSession?.beyond.bodyshift.hand('LAUNCH',hand,time,colorRef.current);
         const pointer=!document.hidden&&hand&&time-hand.timestamp<250?mapLaunchPointer(hand,host.clientWidth,host.clientHeight,time):null;
         if(!pointer){reset();}
         else if(lastHandSequence!==pointer.sequence){
