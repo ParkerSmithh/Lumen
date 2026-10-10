@@ -4,12 +4,13 @@ const challengeLabels={left:'MOVE LEFT',right:'MOVE RIGHT',expand:'EXPAND YOUR E
 export function EnergyRushHUD({game,cameraReady,preview,onCamera,poseEnabled,onPoseToggle,poseStatus,instructions}){
  const s=game.display,action=useRef(null),pad=useRef(null),lastPhase=useRef(s.phase);
  const [announcement,setAnnouncement]=useState(''),previous=useRef({shields:3,fever:false});
- useEffect(()=>{if(s.shields<previous.current.shields)setAnnouncement(`Shield used. ${s.shields} shields remaining.`);else if(s.fever&&!previous.current.fever)setAnnouncement('ENERGY FEVER. Eight active seconds of extra light.');previous.current={shields:s.shields,fever:s.fever};},[s.shields,s.fever]);
+ useEffect(()=>{if(s.shields<previous.current.shields)setAnnouncement(`Shield used. ${s.shields} shields remaining.`);else if(s.fever&&!previous.current.fever)setAnnouncement('ENERGY FEVER. Eight active seconds of extra light.');else if(!s.fever&&previous.current.fever)setAnnouncement('ENERGY FEVER complete. Keep collecting the light.');previous.current={shields:s.shields,fever:s.fever};},[s.shields,s.fever]);
+ useEffect(()=>{if(!announcement)return;const timer=setTimeout(()=>setAnnouncement(''),2400);return()=>clearTimeout(timer);},[announcement]);
  useEffect(()=>{if(lastPhase.current!==s.phase&&['PAUSED','RESULTS'].includes(s.phase))action.current?.focus({preventScroll:true});lastPhase.current=s.phase;},[s.phase]);
  const assisted=game.inputMode==='assist',ready=s.phase==='READY'||s.phase==='RESULTS';
  const touch=e=>{const r=pad.current.getBoundingClientRect();game.move(.06+(e.clientX-r.left)/r.width*.88,.1+(e.clientY-r.top)/r.height*.8);};
  return <><div className="energy-ui" data-energy-phase={s.phase}>
-  {instructions?.dialog}<button className="game-how-to" onClick={instructions?.show}>HOW TO PLAY</button><span className="sr-only" role="status">{announcement}</span>
+  {instructions?.dialog}<button className="game-how-to" onClick={instructions?.show}>HOW TO PLAY</button><span className="sr-only" role="status">{announcement}</span>{announcement&&s.phase==='PLAYING'&&<div className="energy-event" aria-hidden="true">{announcement}</div>}
   <div className="energy-top" data-energy-exclude>
    <div className="energy-name">ENERGY RUSH <span>{assisted?'KEYBOARD / TOUCH':'BODY PLAY'}</span></div>
    {!ready&&<div className="energy-metrics" aria-label="ENERGY RUSH session">

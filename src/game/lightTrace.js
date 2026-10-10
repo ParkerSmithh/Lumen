@@ -9,7 +9,7 @@ export function shapePath(index,rect,w,h){
 function createOrderedTraceEvaluator(path,w,h){
  const tolerance=Math.max(18,Math.min(38,Math.min(w,h)*.045));let cursor=0,last=null,sequence=null,complete=false,totalDistance=0,errorDistance=0,travel=0;
  const distance=(a,b)=>Math.hypot((a.x-b.x)*w,(a.y-b.y)*h);const length=path.slice(1).reduce((n,p,i)=>n+distance(p,path[i]),0);
- return {get progress(){return cursor/(path.length-1);},sample(p){let newCompletion=false;
+ return {get path(){return path;},get progress(){return cursor/(path.length-1);},sample(p){let newCompletion=false;
  if(complete)return {complete,accuracy:100*Math.max(0,1-errorDistance/(totalDistance*tolerance||1)),newCompletion};
  if(!p?.active||!Number.isFinite(p.x+p.y+p.timestamp)){last=null;return {complete:false};}
  if(p.sequence===sequence)return {complete:false};sequence=p.sequence;
@@ -32,7 +32,7 @@ export function createTraceEvaluator(path,w,h){
  const closed=path.length>3&&distance(path[0],path.at(-1))<1;
  const tolerance=Math.max(18,Math.min(38,Math.min(w,h)*.045));
  let candidates=closed?null:[createOrderedTraceEvaluator(path,w,h),createOrderedTraceEvaluator([...path].reverse(),w,h)],winner=null,anchorPoint=null;
- return {get progress(){return winner?winner.progress:candidates?Math.max(...candidates.map(c=>c.progress)):0;},sample(point){
+ return {get displayPath(){return winner?.path||(candidates?candidates[candidates[0].progress>=candidates[1].progress?0:1].path:path);},get progress(){return winner?winner.progress:candidates?Math.max(...candidates.map(c=>c.progress)):0;},sample(point){
   if(winner)return winner.sample(point);
   const reposition=closed&&candidates&&anchorPoint&&Math.max(...candidates.map(c=>c.progress))<.02&&point?.active&&distance(point,anchorPoint)>tolerance*2;
   if(!candidates||reposition){

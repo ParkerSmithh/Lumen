@@ -31,6 +31,6 @@ export function GameInstructionDemo({gameId}) {
    <path className="demo-dodge" d="M267 148Q225 173 184 147m0 0 3 10m-3-10 11-2"/>
    <path className="demo-muted" d="M114 174H331"/>
   </>}
-  {demo.captions.map((text,i)=><text key={text} x={demo.captions.length===2?135+i*190:90+i*140} y="198">{text}</text>)}
+  {demo.captions.map((text,i)=><text key={text} x={demo.captions.length===2?135+i*190:demo.captions.length===4?55+i*115:90+i*140} y="198">{text}</text>)}
  </svg>;
 }

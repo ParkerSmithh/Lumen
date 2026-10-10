@@ -29,7 +29,15 @@ No physical device acceptance is implied by automated fixtures.
 
 ## Work
 
-- P0: pending.
-- P1: pending.
+- P0: implemented in `1591609`; 303 unit tests and 27 focused browser tests passed.
+  New red tests reproduced blur suspension, resize messaging, missing camera
+  timeout, and brief-loss possession/history failures. A concurrent browser
+  invocation hit an occupied test-server port; serialized subsequent runs.
+- P1: persistent input status with a 700ms search-message grace, directional
+  trace progress, four-stage LAUNCH demo captions, SLASH fast-swipe guidance,
+  and visible shield/FEVER feedback. 306 unit tests and 6 new browser tests passed.
+  Existing ENERGY RUSH tests (8) and physical-landmark FLOW tracing fixture (1)
+  passed in the focused run; an arrow encoding issue and a test-only React module
+  import mismatch were corrected without changing assertions.
 - P2: pending.
 - Full validation and final review: pending.

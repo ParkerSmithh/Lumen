@@ -20,8 +20,9 @@ function previewMask() {
   const pixels = ctx.getImageData(0,0,320,400).data;
   return { width: 320, height: 400, sourceWidth: 640, sourceHeight: 800, values: Float32Array.from({ length: 320*400 }, (_,i) => pixels[i*4+3]/255), timestamp: Infinity };
 }
-export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus,instructionCamera }) {
+export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus,instructionCamera,onChooseInput }) {
   const game=useEnergyRush({enabled:energyRush,cameraReady,preview,videoRef,echoSession,onExit:onExitEnergy,color});
+  useEffect(()=>{if(energyRush)onChooseInput?.(game.inputMode);},[energyRush,game.inputMode]);
   const instructions=useGameInstructions('ENERGY_RUSH',{echoSession,color,instructionCamera,assisted:game.inputMode==='assist',ready:game.inputMode==='assist'||cameraReady&&!preview&&game.grid.fresh(performance.now()),readiness:game.inputMode==='assist'?'Keyboard / touch ready':cameraReady&&!preview?'Waiting for fresh body tracking':'Enable camera or choose keyboard / touch',onCamera,onChooseInput:mode=>game.chooseInput(mode),start:game.start,back:game.exit,running:!['READY','RESULTS'].includes(game.display.phase)});
   useEffect(()=>{if(energyRush&&instructions.first)instructions.show();},[energyRush]);
   const gameRef=useRef(game);gameRef.current=game;
