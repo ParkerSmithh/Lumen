@@ -92,7 +92,7 @@ try {
       await page.mouse.move(1366 * .3, 768 * .535); await page.mouse.down();
       for (let x = 1366 * .32; x < 1366 * .72; x += 1366 * .025) { await page.mouse.move(x, 768 * .535); await page.waitForTimeout(16); }
       await page.mouse.up();
-      await expect(page.getByRole('status')).toContainText('Cut registered');
+      await expect(page.getByRole('status',{name:'Artwork guidance'})).toContainText('Cut registered');
     } else {
       if(mode==='LAUNCH')await page.mouse.click(420,360);
       await page.mouse.move(420, 360); await page.waitForTimeout(70); await page.mouse.move(600, 380, { steps: 12 });

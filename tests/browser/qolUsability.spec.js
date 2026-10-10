@@ -51,3 +51,10 @@ test('ENERGY RUSH announces shield loss and both FEVER transitions',async({page}
  await page.evaluate(()=>window.hudUpdate({fever:true}));await expect(page.locator('.energy-event')).toContainText('Eight active seconds');
  await page.evaluate(()=>window.hudUpdate({fever:false}));await expect(page.locator('.energy-event')).toContainText('FEVER complete');await page.evaluate(()=>window.hudCleanup());
 });
+test('ENERGY RUSH confirms body calibration and does not claim calibration for assisted play',async({page})=>{
+ await page.goto('/');await page.evaluate(async()=>{
+  const React=await import('/node_modules/.vite/deps/react.js'),DOM=await import('/node_modules/.vite/deps/react-dom_client.js'),{EnergyRushHUD}=await import('/src/game/EnergyRushHUD.jsx');
+  const host=document.createElement('div');document.body.append(host);const root=(DOM.createRoot||DOM.default.createRoot)(host);window.rangeHUD=mode=>root.render((React.createElement||React.default.createElement)(EnergyRushHUD,{game:{display:{phase:'COUNTDOWN',countdown:3,score:0,shields:3,multiplier:1,remaining:90},inputMode:mode,exit(){},recalibrate(){}},instructions:{show(){}}}));window.rangeHUD('body');window.rangeCleanup=()=>{root.unmount();host.remove();};
+ });
+ await expect(page.getByText('Range ready. Collect the light. Avoid the danger.',{exact:true})).toBeVisible();await page.evaluate(()=>window.rangeHUD('assist'));await expect(page.getByText('Range ready. Collect the light. Avoid the danger.',{exact:true})).toHaveCount(0);await page.evaluate(()=>window.rangeCleanup());
+});
