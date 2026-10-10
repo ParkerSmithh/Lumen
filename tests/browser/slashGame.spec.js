@@ -48,7 +48,7 @@ test('keyboard starts countdown, multi-hit score ends exactly, replay and leavin
     expect(overlay.x).toBeGreaterThanOrEqual(0);expect(overlay.y).toBeGreaterThanOrEqual(0);
     expect(overlay.x+overlay.width).toBeLessThanOrEqual(viewport.width);
     expect(overlay.y+overlay.height).toBeLessThanOrEqual(viewport.height);
-    await expect(page.getByRole('status')).toHaveCSS('opacity','0');
+    await expect(page.getByRole('status',{name:'Artwork guidance'})).toHaveCSS('opacity','0');
   }
   await page.setViewportSize({width:1366,height:768});
   await expect(page.getByRole('button',{name:'PLAY',exact:true})).toBeVisible();

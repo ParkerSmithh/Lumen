@@ -127,7 +127,7 @@ test('compare actual mode frame cost with CHAOS off WILD and MAX', async ({ brow
         if (mode === 'GLOW') {
           await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
           await expect(page.getByRole('button', { name: 'Stop camera' })).toBeVisible();
-          await expect(page.getByRole('status')).toContainText('Become light.', { timeout: 15000 });
+          await expect(page.getByRole('status',{name:'Artwork guidance'})).toContainText('Become light.', { timeout: 15000 });
         } else {
           await page.getByRole('button', { name: 'Mouse / touch fallback', exact: true }).click();
           await startGame(page);

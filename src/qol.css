@@ -21,8 +21,6 @@ nav button{min-width:52px;justify-content:center}
 .pulse-control{top:322px}
 footer{pointer-events:none}
 footer button,footer a{pointer-events:auto}
-main:has(.slash-game-overlay) .live-caption:not(.has-error){opacity:0;pointer-events:none}
-main:has(.slash-hud) .interaction-guide{opacity:0}
 button:disabled{opacity:.5}
 @media(max-width:800px) and (min-height:601px){
  nav{top:108px}
@@ -50,13 +48,14 @@ button:disabled{opacity:.5}
  .camera-controls{position:static;grid-column:2;grid-row:2;gap:4px}
  .tracking-status{top:-26px;max-width:200px}
  .game-how-to{bottom:172px}
- .game-pause{bottom:224px}
- .shape-skip{bottom:234px}
- .launch-grab-status{bottom:280px}
- .slash-swipe-hint{bottom:234px}
+ .game-pause,.shape-skip{bottom:300px}
+ .launch-grab-status{bottom:360px;left:20px;transform:none;text-align:left;max-width:calc(100% - 170px)}
+ .slash-swipe-hint{bottom:300px;left:20px;transform:none;max-width:calc(100% - 140px);white-space:normal;text-align:center}
  .energy-bottom{bottom:172px}
  .energy-ui .energy-panel{bottom:240px}
  .interaction-guide{bottom:230px}
+ main:has(.glow-field):not(:has(.energy-ui)) .glow-field{bottom:250px}
+ main:has(.glow-field):not(:has(.energy-ui)) .interaction-guide{bottom:178px}
 }
 @media(max-height:600px){
  nav{top:14px}

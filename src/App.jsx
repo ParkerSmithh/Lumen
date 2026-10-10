@@ -81,7 +81,7 @@ function LumenApp() {
     setEnergyRush(false);setPoseEnabled(false);setMode(next); setPreview(false); setMouseMode(false); setModeError(''); setReloadNeeded(false); setSlashHit(false); setSlashOverlay(true); setGuideInteraction(null);
   };
   const entry = mode === 'GLOW' && !active && !preview && !energyRush;
-  const caption = <div className={entry ? 'entry-caption' : `live-caption ${quiet && !error ? 'quiet' : ''}${error ? ' has-error' : ''}`} role="status" aria-live="polite">
+  const caption = <div className={entry ? 'entry-caption' : `live-caption ${quiet && !error ? 'quiet' : ''}${error ? ' has-error' : ''}`} role="status" aria-label="Artwork guidance" aria-live="polite">
     {message && <><span className={`signal ${detected ? 'detected' : ''}`} />{message}</>}
     {!mouseMode && tracker.status === 'error' && <button className="preview-link" onClick={mode === 'GLOW' ? retryTracking : hands.retry}>{mode === 'GLOW' ? 'Retry body tracking' : 'Retry hand tracking'}</button>}
     {modeError && <button className="preview-link" onClick={reloadNeeded ? () => location.reload() : retryArtwork}>{reloadNeeded ? 'Reload artwork' : 'Try this mode again'}</button>}

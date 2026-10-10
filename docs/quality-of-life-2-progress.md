@@ -58,4 +58,12 @@ No physical device acceptance is implied by automated fixtures.
   308 passed, zero failed. Earlier failed runs exposed actual defects, test
   import/encoding issues, and held-clock fixture admission issues; assertions
   and gameplay thresholds were preserved.
+- Complete-suite first run: 147 passed, 20 failed. Seventeen failures were
+  ambiguous unnamed status locators after adding the input-status indicator;
+  the original caption is now named Artwork guidance and its assertions are
+  scoped explicitly. Two real guide-opacity/placement regressions were fixed.
+  The remaining legacy FLOW rotation test now asserts frozen time and explicitly
+  resumes before expecting expiry, matching the approved behavior.
+- Legacy affected integration/layout checks: 29 passed. FLOW's rotation notice
+  also persists when rotation occurs during an existing pause; focused test passed.
 - Full validation and final review: pending.

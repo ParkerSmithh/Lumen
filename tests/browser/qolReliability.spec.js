@@ -21,6 +21,7 @@ test('FLOW viewport change pauses with an explanation and preserves round score'
  await page.setViewportSize({width:768,height:1024});await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeVisible();
  await expect(page.getByText(/screen changed/i)).toBeVisible();await expect(page.getByLabel('Score',{exact:true})).toHaveText(score);
  await page.getByRole('button',{name:'RESUME',exact:true}).click();await expect(page.getByLabel('Time remaining')).toBeVisible();
+ await page.getByRole('button',{name:'PAUSE',exact:true}).click();await page.setViewportSize({width:1366,height:768});await expect(page.getByText(/screen changed/i)).toBeVisible();await expect(page.getByLabel('Score',{exact:true})).toHaveText(score);
 });
 test('a stalled camera request ends loading and a late stream is released',async({page})=>{
  await page.addInitScript(()=>{

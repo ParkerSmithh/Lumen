@@ -20,7 +20,7 @@ test('GLOW shell, colors and responsive preview', async ({ page }) => {
 test('camera permission errors remain understandable', async ({ page }) => {
   await page.addInitScript(() => { navigator.mediaDevices.getUserMedia = async () => { throw new DOMException('Denied', 'NotAllowedError'); }; });
   await page.goto('/'); await page.getByRole('button', { name: 'ENABLE CAMERA' }).click();
-  await expect(page.getByRole('status')).toContainText('permission');
+  await expect(page.getByRole('status',{name:'Artwork guidance'})).toContainText('permission');
   await expect(page.getByRole('button', { name: 'RETRY CAMERA' })).toBeVisible();
 });
 test('late permission after Stop releases stream', async ({ page }) => {
