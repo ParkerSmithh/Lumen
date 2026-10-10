@@ -1,0 +1,145 @@
+{
+    "date":  "2026-10-10",
+    "environment":  "Windows local workstation; Node v24.21.0; Playwright Chromium; synthetic input and CPU-only solver benchmarks; standalone after run",
+    "before":  {
+                   "arcade":  {
+                                  "slashOverload":  {
+                                                        "medianMs":  0.09999990463256836,
+                                                        "p95Ms":  0.20000004768371582
+                                                    },
+                                  "maxObjects":  8,
+                                  "maxParticles":  192,
+                                  "moving150":  {
+                                                    "medianMs":  0.004000000953674317,
+                                                    "p95Ms":  0.006000001430511475
+                                                },
+                                  "figureEight":  {
+                                                      "medianMs":  0.0009999990463256836,
+                                                      "p95Ms":  0.0020000004768371583
+                                                  }
+                              },
+                   "solver":  {
+                                  "environment":  "Chromium, original Ballpit solver at 60 Hz; CPU only, no rendering or real tracking; 30 warmup and 600 measured updates per population",
+                                  "results":  [
+                                                  {
+                                                      "active":  50,
+                                                      "samples":  600,
+                                                      "cpuMs":  {
+                                                                    "median":  0,
+                                                                    "p95":  0.10000014305114746
+                                                                },
+                                                      "finite":  true,
+                                                      "maxSpeed":  0.033390283337184634
+                                                  },
+                                                  {
+                                                      "active":  100,
+                                                      "samples":  600,
+                                                      "cpuMs":  {
+                                                                    "median":  0,
+                                                                    "p95":  0.10000014305114746
+                                                                },
+                                                      "finite":  true,
+                                                      "maxSpeed":  0.03167040633677249
+                                                  },
+                                                  {
+                                                      "active":  150,
+                                                      "samples":  600,
+                                                      "cpuMs":  {
+                                                                    "median":  0.09999990463256836,
+                                                                    "p95":  0.20000004768371582
+                                                                },
+                                                      "finite":  true,
+                                                      "maxSpeed":  0.02941706969384368
+                                                  },
+                                                  {
+                                                      "active":  200,
+                                                      "samples":  600,
+                                                      "cpuMs":  {
+                                                                    "median":  0.19999980926513672,
+                                                                    "p95":  0.20000004768371582
+                                                                },
+                                                      "finite":  true,
+                                                      "maxSpeed":  0.031076918921619914
+                                                  }
+                                              ]
+                              },
+                   "inference":  {
+                                     "windowMs":  500,
+                                     "activeFrames":  13,
+                                     "assistedFrames":  14,
+                                     "cameraLive":  true,
+                                     "environment":  "Chromium; synthetic canvas camera and worker dispatch counter; no physical inference benchmark"
+                                 }
+               },
+    "after":  {
+                  "arcade":  {
+                                 "slashOverload":  {
+                                                       "medianMs":  0.09999990463256836,
+                                                       "p95Ms":  0.20000004768371582
+                                                   },
+                                 "maxObjects":  8,
+                                 "maxParticles":  192,
+                                 "moving150":  {
+                                                   "medianMs":  0.005,
+                                                   "p95Ms":  0.007999999523162842
+                                               },
+                                 "figureEight":  {
+                                                     "medianMs":  0.0009999990463256836,
+                                                     "p95Ms":  0.0029999995231628418
+                                                 }
+                             },
+                  "solver":  {
+                                 "environment":  "Chromium, original Ballpit solver at 60 Hz; CPU only, no rendering or real tracking; 30 warmup and 600 measured updates per population",
+                                 "results":  [
+                                                 {
+                                                     "active":  50,
+                                                     "samples":  600,
+                                                     "cpuMs":  {
+                                                                   "median":  0,
+                                                                   "p95":  0.10000014305114746
+                                                               },
+                                                     "finite":  true,
+                                                     "maxSpeed":  0.02902553914300965
+                                                 },
+                                                 {
+                                                     "active":  100,
+                                                     "samples":  600,
+                                                     "cpuMs":  {
+                                                                   "median":  0,
+                                                                   "p95":  0.10000014305114746
+                                                               },
+                                                     "finite":  true,
+                                                     "maxSpeed":  0.03167303480904091
+                                                 },
+                                                 {
+                                                     "active":  150,
+                                                     "samples":  600,
+                                                     "cpuMs":  {
+                                                                   "median":  0.09999990463256836,
+                                                                   "p95":  0.20000004768371582
+                                                               },
+                                                     "finite":  true,
+                                                     "maxSpeed":  0.029070515034592757
+                                                 },
+                                                 {
+                                                     "active":  200,
+                                                     "samples":  600,
+                                                     "cpuMs":  {
+                                                                   "median":  0.20000004768371582,
+                                                                   "p95":  0.2999999523162842
+                                                               },
+                                                     "finite":  true,
+                                                     "maxSpeed":  0.029880057391070535
+                                                 }
+                                             ]
+                             },
+                  "inference":  {
+                                    "windowMs":  500,
+                                    "activeFrames":  13,
+                                    "assistedFrames":  0,
+                                    "cameraLive":  true,
+                                    "environment":  "Chromium; synthetic canvas camera and worker dispatch counter; no physical inference benchmark"
+                                }
+              },
+    "limitations":  "No real-device rendering FPS, thermal, battery or physical model inference measurements. Submillisecond CPU timing is noisy; no solver speedup claimed."
+}

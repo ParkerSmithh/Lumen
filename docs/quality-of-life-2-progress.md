@@ -66,4 +66,14 @@ No physical device acceptance is implied by automated fixtures.
   resumes before expecting expiry, matching the approved behavior.
 - Legacy affected integration/layout checks: 29 passed. FLOW's rotation notice
   also persists when rotation occurs during an existing pause; focused test passed.
-- Full validation and final review: pending.
+- Final calibration confirmation regression: failed before implementation and
+  passed after; body countdown confirms the range without claiming calibration
+  for assisted play.
+- Final validation on application commit b35131f8131db647c917952d802659e61c64e0f7:
+  308 unit tests and 168 browser tests passed, zero failures; build passed.
+  Production verification passed with offline fonts, 12 assets and zero console
+  errors, using the existing preview without stopping it. Standalone matched
+  performance checks: 3 passed. Measurements and limitations are recorded in
+  quality-of-life-2-report.md and quality-of-life-2-performance.json.
+- Review findings addressed with regressions. Release remains HOLD; all 38
+  physical checks remain NOT RUN. No merge, push or deployment performed.
