@@ -1,3 +1,4 @@
+import {selectGrabCandidate} from '../tracking/grabSelection';
 import {createChaosTrails} from '../beyond/chaosTrails.js';
 import {createForceEcho} from '../echoes/forceEcho';
 import {isBankBounce} from '../game/launchArcade';
@@ -718,6 +719,34 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   e.style.userSelect = 'none';
   e.style.webkitUserSelect = 'none';
 
+  const projected=Array.from({length:t.count||201},()=>({})),candidateProjection=new a(),edgeProjection=new a(),viewPosition=new a();
+  let candidate=null,holdDepth=0,uiRects=[],nextUIRead=0,grabPoint={x:.5,y:.5};
+  const overUI=(x,y)=>uiRects.some(b=>x>=b.left&&x<=b.right&&y>=b.top&&y<=b.bottom);
+  function updateCandidate(raw,now){
+    if(!raw?.active||grabController.count){candidate=null;return;}
+    const viewport=i.size,canvasBounds=e.getBoundingClientRect();
+    if(now>=nextUIRead){nextUIRead=now+500;uiRects=Array.from(document.querySelectorAll('button,nav,header,footer,.camera-invitation')).map(node=>node.getBoundingClientRect()).filter(b=>b.width&&b.height).map(b=>({left:b.left-canvasBounds.left,right:b.right-canvasBounds.left,top:b.top-canvasBounds.top,bottom:b.bottom-canvasBounds.top}));}
+    const px=raw.x*viewport.width,py=raw.y*viewport.height;grabPoint={x:raw.x,y:raw.y};
+    if(overUI(px,py)){candidate=null;return;}
+    i.camera.updateMatrixWorld();
+    projected.length=s.config.activeCount-1;
+    for(let index=1;index<s.config.activeCount;index++){
+      const item=projected[index-1]??(projected[index-1]={}),offset=index*3;
+      candidateProjection.fromArray(s.physics.positionData,offset);viewPosition.copy(candidateProjection).applyMatrix4(i.camera.matrixWorldInverse);
+      edgeProjection.copy(candidateProjection);edgeProjection.x+=s.physics.sizeData[index];candidateProjection.project(i.camera);edgeProjection.project(i.camera);
+      const x=(candidateProjection.x+1)*viewport.width/2,y=(1-candidateProjection.y)*viewport.height/2,radius=Math.abs(edgeProjection.x-candidateProjection.x)*viewport.width/2;
+      Object.assign(item,{index,x,y,radius,baseRadius:radius*(1+1.6/s.physics.sizeData[index]),depth:-viewPosition.z,visible:candidateProjection.z>=-1&&candidateProjection.z<=1&&x>=0&&x<=viewport.width&&y>=0&&y<=viewport.height&&!overUI(x,y)});
+    }
+    candidate=selectGrabCandidate(projected,{x:px,y:py},{previousIndex:candidate?.index,maxRadius:Math.min(240,Math.min(viewport.width,viewport.height)*.3)});
+  }
+  function acquire(point,time){
+    if(!candidate)return false;
+    const index=candidate.index;holdDepth=s.physics.positionData[index*3+2];
+    o.constant=-o.normal.z*holdDepth;if(!n.ray.intersectPlane(o,point))return false;
+    grabController.begin(point,s.physics,time,{index,attach:true});
+    for(const slot of grabController.indices){forceEcho.grabbed(slot);inputRef.current.gameRef?.current?.grabbed?.(slot);}
+    candidate=null;return !!grabController.count;
+  }
   const consumed = {};
   const bouncedEchoSlots=new Set(),wallRippleSlots=new Map();
   const forceEcho=createForceEcho(inputRef.current.gameRef?.current?.echoSession);
@@ -736,28 +765,32 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   function applyInput() {
     const raw = inputRef.current.pointerRef?.current;
     const result = consumeLaunchInput(consumed, raw, performance.now());
-    if (!consumed.active || document.hidden) { grabController.release(s.physics);lastGrabSequence=null;s.config.controlSphere0 = false; return; }
+    if (!consumed.active || document.hidden || raw?.grab?.lost) { candidate=null;grabController.release(s.physics);lastGrabSequence=null;s.config.controlSphere0 = false; return; }
+    updateCandidate(raw,performance.now());
     const creation=raw.creation&&!raw.creation.consumed?raw.creation:null;
     if(creation&&performance.now()-creation.timestamp>250){creation.consumed=true;return;}
     if(!result&&!creation)return;
     const point=creation||result;
     ndc.set(point.x*2-1,1-point.y*2);
     n.setFromCamera(ndc, i.camera);
-    i.camera.getWorldDirection(o.normal);
+    i.camera.getWorldDirection(o.normal);o.constant=grabController.count?-o.normal.z*holdDepth:0;
     if (!n.ray.intersectPlane(o, r) || !Number.isFinite(r.x + r.y + r.z)) { grabController.release(s.physics);consumed.active = false; s.config.controlSphere0 = false; return; }
     s.physics.center.copy(r);
     if(raw.grab?.active){
       if(raw.sequence!==lastGrabSequence){
-        if(raw.grab.begin){grabController.begin(r,s.physics,raw.timestamp);for(const slot of grabController.indices){forceEcho.grabbed(slot);inputRef.current.gameRef?.current?.grabbed?.(slot);}}else grabController.move(r,raw.timestamp);
+        if(!grabController.count&&(raw.grab.begin||raw.grab.canAcquire)&&raw.grab.fresh!==false)acquire(r,raw.timestamp);
+        else if(raw.grab.fresh!==false)grabController.move(r,raw.timestamp);
         lastGrabSequence=raw.sequence;
       }
       r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;
       if(grabController.count)inputRef.current.onInteraction?.();return;
     }
-    if(grabController.count&&!raw.mouseGrab){grabController.move(r,raw.timestamp);grabController.release(s.physics,!!raw.grab?.released);lastGrabSequence=null;r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
+    if(grabController.count&&!raw.mouseGrab){if(raw.grab?.fresh!==false)grabController.move(r,raw.timestamp);grabController.release(s.physics,!!raw.grab?.released);lastGrabSequence=null;r.toArray(s.physics.positionData,0);lastWorld.copy(r);s.config.controlSphere0=false;return;}
     if(raw.mouseGrab){
-      if(raw.mouseGrab.begin){grabController.begin(r,s.physics,raw.timestamp);for(const slot of grabController.indices){forceEcho.grabbed(slot);inputRef.current.gameRef?.current?.grabbed?.(slot);}raw.mouseGrab.begin=false;}else if(raw.mouseGrab.released){grabController.move(r,raw.timestamp);grabController.release(s.physics,true);}else grabController.move(r,raw.timestamp);
-      const captured=grabController.count;if(raw.mouseGrab.released&&captured)grabController.release(s.physics,true);
+      if(raw.mouseGrab.begin){acquire(r,raw.timestamp);raw.mouseGrab.begin=false;}
+      else if(raw.mouseGrab.released){grabController.move(r,raw.timestamp);grabController.release(s.physics,true);}
+      else grabController.move(r,raw.timestamp);
+      const captured=grabController.count;
       if(captured||(raw.mouseGrab.released&&!creation)){if(creation)creation.consumed=true;lastWorld.copy(r);s.config.controlSphere0=false;return;}
     }
     if(creation){creation.consumed=true;spawn(r,creation.color,creation.strength);inputRef.current.onInteraction?.();}
@@ -789,8 +822,9 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   }
   function spawn(point,color,strength=.5){
     if(!s.config.interactiveCreation)return false;
-    grabController.release(s.physics);
+    candidate=null;
     const max=Math.min(s.capacity-1,s.config.maxActive||150),slot=1+(created++%max),offset=slot*3;
+    if(grabController.has(slot))grabController.release(s.physics);
     const radius=s.physics.sizeData[slot];
     const p=new a(Math.max(-s.config.maxX+radius,Math.min(s.config.maxX-radius,point.x)),Math.max(-s.config.maxY+radius,Math.min(s.config.maxY-radius,point.y)),Math.max(-s.config.maxZ+radius,Math.min(s.config.maxZ-radius,point.z)));
     // Modest depth separation avoids exact coincidence for repeated pushes.
@@ -825,7 +859,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     if(game.session!==lastSession){lastSession=game.session;bouncedEchoSlots.clear();wallRippleSlots.clear();forceEcho.reset();chaosTrails.reset();wallSparkTimes.clear();targets.reset();simulationTime=0;nextPlacement=0;lastTargetId=null;burst=0;burstMesh.visible=false;created=0;grabController.release(s.physics);s.config.activeCount=1;s.count=1;s.physics.positionData.fill(0);s.physics.velocityData.fill(0);consumed.active=false;accumulated=0;}
     const state=game.state();const playing=state.phase==='playing'&&!state.paused;
     game.echoSession?.beyond.chaos.tick('LAUNCH',performance.now(),playing&&!document.hidden);
-    if(!playing){chaosTrails.interrupt();targetMesh.visible=false;burstMesh.visible=false;grabController.release(s.physics);consumed.active=false;s.config.controlSphere0=false;return false;}
+    if(!playing){candidate=null;chaosTrails.interrupt();targetMesh.visible=false;burstMesh.visible=false;grabController.release(s.physics);consumed.active=false;s.config.controlSphere0=false;return false;}
     burst=Math.max(0,burst-Math.max(0,dt)*3);burstMesh.visible=burst>0;burstMesh.material.opacity=burst*.6;burstMesh.material.color.set(game.color());burstMesh.scale.setScalar(burstRadius*(1+(1-burst)*.4));
     if(!targets.target&&state.elapsed>=nextPlacement){targets.spawn(s.physics,state.progress,game.reach?.(),state.elapsed,simulationTime);nextPlacement=state.elapsed+.25;}
     if(!targets.target){targetMesh.visible=false;return true;}
@@ -838,7 +872,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   i.onBeforeRender = e => {
     if (c) { accumulated = 0; return; }
     if(!gameStep(e.delta)){accumulated=0;return;}
-    applyInput();inputRef.current.gameRef?.current?.publishInteraction?.({held:grabController.count});
+    applyInput();inputRef.current.gameRef?.current?.publishInteraction?.({held:grabController.count,status:grabController.count?'GRABBED · OPEN HAND TO THROW':candidate?'BALL IN RANGE':consumed.active?'HAND READY':'RAISE YOUR HAND',candidate:candidate?{x:candidate.x/i.size.width,y:candidate.y/i.size.height,radius:candidate.radius/i.size.width}:null,point:grabPoint});
     // The supplied solver uses per-step velocities/friction. Keep that solver at 60 Hz.
     accumulated = Math.min(accumulated + Math.max(0, e.delta), .05);
     while (accumulated + 1e-8 >= 1 / 60) {

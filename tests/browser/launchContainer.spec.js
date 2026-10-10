@@ -29,9 +29,9 @@ test('gravity-enabled Ballpit bounces at all six walls and retains collisions af
       const g = p.grabController;
       const captured = g.begin({ x: 0, y: 0, z: 0 }, p, 0);
       for (let i = 1; i <= 4; i++) { g.move({ x: i * .1, y: i * .05, z: 0 }, i * 25); g.step(p, 1 / 60); }
-      const heldOffset = p.positionData[6] - p.positionData[3];
+      const neighborPosition = p.positionData[6];
       g.release(p, true);
-      const throwSpeeds = [1, 2].map(i => Math.hypot(...p.velocityData.slice(i * 3, i * 3 + 3)));
+      const throwSpeeds = [1].map(i => Math.hypot(...p.velocityData.slice(i * 3, i * 3 + 3)));
       const before = p.positionData[3]; step(); const throwMoves = p.positionData[3] > before;
       for (let i = 0; i < 3; i++) pit.spawn({ x: -1 + i, y: 1, z: 0 }, '#ffd84a', 1);
       const rapidSpeeds = [3, 4, 5].map(i => Math.hypot(...p.velocityData.slice(i * 3, i * 3 + 3)));
@@ -42,15 +42,15 @@ test('gravity-enabled Ballpit bounces at all six walls and retains collisions af
       const thrownBounce = p.velocityData[3] < 0;
       p.positionData.set([0, 0, 0, -.08, 0, 0, .08, 0, 0]); p.velocityData.fill(0); p.velocityData[3] = .04; p.velocityData[6] = -.04; step();
       const thrownCollision = p.velocityData[3] < 0 && p.velocityData[6] > 0;
-      return { walls, collision, captured, heldOffset, throwSpeeds, throwMoves, rapidSpeeds, rapidMoves, thrownBounce, thrownCollision };
+      return { walls, collision, captured, neighborPosition, throwSpeeds, throwMoves, rapidSpeeds, rapidMoves, thrownBounce, thrownCollision };
     } finally { pit.dispose(); host.remove(); }
   });
   for (const wall of result.walls) {
     expect(wall.velocity * wall.sign, `${wall.name} ${wall.sign} reflection`).toBeLessThan(0);
     expect(Math.abs(wall.position)).toBeLessThanOrEqual(wall.limit + 1e-6);
   }
-  expect(result.collision).toBe(true); expect(result.captured).toBe(2);
-  expect(result.heldOffset).toBeCloseTo(.4, 5);
+  expect(result.collision).toBe(true); expect(result.captured).toBe(1);
+  expect(result.neighborPosition).toBeCloseTo(.2, 5);
   for (const speed of result.throwSpeeds) { expect(speed).toBeGreaterThan(.08); expect(speed).toBeLessThanOrEqual(.150001); }
   expect(result.throwMoves).toBe(true);
   for (const speed of result.rapidSpeeds) expect(speed).toBeGreaterThan(.1);

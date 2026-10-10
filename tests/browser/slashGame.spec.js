@@ -1,3 +1,4 @@
+import {startGame} from './startGame.js';
 import { test, expect } from '@playwright/test';
 
 async function setup(page, camera = false) {
@@ -50,9 +51,9 @@ test('keyboard starts countdown, multi-hit score ends exactly, replay and leavin
     await expect(page.getByRole('status')).toHaveCSS('opacity','0');
   }
   await page.setViewportSize({width:1366,height:768});
-  await expect(page.getByRole('button',{name:'START',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'PLAY',exact:true})).toBeVisible();
   await expect(page.getByLabel('Interaction guide')).toContainText('SWIPE / DRAG');
-  await page.getByRole('button',{name:'START',exact:true}).focus();await page.keyboard.press('Enter');
+  await page.getByRole('button',{name:'PLAY',exact:true}).focus();await page.keyboard.press('Enter');if(await page.getByRole('dialog').isVisible())await startGame(page);
   await expect(page.getByLabel('Starting in')).toHaveText('3');
   await advance(page,1);await expect(page.getByLabel('Starting in')).toHaveText('2');
   await advance(page,1);await expect(page.getByLabel('Starting in')).toHaveText('1');
@@ -83,12 +84,12 @@ test('keyboard starts countdown, multi-hit score ends exactly, replay and leavin
   await page.getByRole('button',{name:'FLOW',exact:true}).click();
   expect(await page.evaluate(()=>!!window.__lumenSlash)).toBe(false);
   await page.getByRole('button',{name:'SLASH',exact:true}).click();
-  await expect(page.getByRole('button',{name:'START',exact:true})).toBeVisible();
-  await expect(page.getByRole('button',{name:'START',exact:true})).toBeDisabled();
+  await expect(page.getByRole('button',{name:'PLAY',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'PLAY',exact:true})).toBeDisabled();await page.getByRole('button',{name:'HOW TO PLAY',exact:true}).click();await expect(page.getByRole('button',{name:'START GAME',exact:true})).toBeDisabled();
 });
 
 test('hidden countdown and active game freeze until explicit keyboard resume',async({page})=>{
-  await setup(page);await page.getByRole('button',{name:'START',exact:true}).click();
+  await setup(page);await startGame(page);
   await page.evaluate(()=>window.setHidden(true));await advance(page,50);
   await page.evaluate(()=>window.setHidden(false));
   await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeVisible();
@@ -106,7 +107,7 @@ test('hidden countdown and active game freeze until explicit keyboard resume',as
 });
 
 test('camera interruption freezes play, restart requires resume without a false hit',async({page})=>{
-  await setup(page,true);await page.getByRole('button',{name:'START',exact:true}).click();
+  await setup(page,true);await startGame(page);
   await advance(page,5);await page.getByRole('button',{name:'Stop camera',exact:true}).click();
   await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeDisabled();
   const before=await page.getByLabel('Time remaining').innerText();await advance(page,90);
@@ -118,7 +119,7 @@ test('camera interruption freezes play, restart requires resume without a false 
 });
 
 test('paused video freezes play even while webcam status is ready',async({page})=>{
-  await setup(page,true);await page.getByRole('button',{name:'START',exact:true}).click();
+  await setup(page,true);await startGame(page);
   await advance(page,5);
   await page.locator('video').evaluate(video=>video.pause());
   await expect(page.getByRole('button',{name:'RESUME',exact:true})).toBeVisible();

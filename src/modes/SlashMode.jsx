@@ -1,3 +1,4 @@
+import {useGameInstructions} from '../game/useGameInstructions';
 import {createPulseDetector,buildPulseHandInput} from '../tracking/pulseDetector';
 import {createSlashArcade,chaosSlashDifficulty,createFractureStorm} from '../game/slashArcade';
 import {personalBests} from '../game/personalBests';
@@ -11,12 +12,13 @@ import { createSlashGame } from '../game/slashGame';
 import { SlashHUD } from '../game/SlashHUD';
 const GridScan=lazy(()=>import('../effects/GridScan').catch(()=>({default:()=>null})));
 
-export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,onFailure,onSessionStart,onStateChange,echoSession}) {
+export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,onFailure,onSessionStart,onStateChange,echoSession,onCamera,onChooseInput,instructionCamera}) {
   const [arcade]=useState(createSlashArcade);
   const [game]=useState(createSlashGame),[display,setDisplay]=useState(()=>game.tick(performance.now()));
   const actions=useRef(null);
   const [usableCamera,setUsableCamera]=useState(false);
   const canvasRef=useRef(null),settings=useRef({mouseMode,color,cameraReady,onSlash,onFailure,onSessionStart,onStateChange});settings.current={mouseMode,color,cameraReady,onSlash,onFailure,onSessionStart,onStateChange};
+  const instructions=useGameInstructions('SLASH',{echoSession,color,instructionCamera,assisted:mouseMode,ready:mouseMode||(cameraReady&&usableCamera),readiness:mouseMode?'Mouse / touch ready':cameraReady&&usableCamera?'Camera ready':'Enable camera or choose mouse / touch',onCamera,onChooseInput,start:()=>actions.current?.start(),running:['playing','countdown'].includes(display.phase)||display.paused});
   useEffect(()=>{
     const canvas=canvasRef.current,ctx=canvas.getContext('2d');
     if(!ctx){settings.current.onFailure('SLASH needs Canvas rendering. Try another browser.');return;}
@@ -66,12 +68,13 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
     const visibility=()=>{last=performance.now();if(document.hidden){echoSession?.beyond.chaos.leave('SLASH');echoSession?.beyond.bodyshift.leave('SLASH');reset();publish(game.pause(last,'visibility'));}};
     window.addEventListener('pointerdown',down);window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',reset);window.addEventListener('pointercancel',reset);window.addEventListener('blur',reset);document.addEventListener('visibilitychange',visibility);
     const draw=time=>{
+      // Readiness must keep updating while the tutorial suspends gameplay.
+      const available=cameraUsable();
+      if(available!==lastCameraAvailability){lastCameraAvailability=available;setUsableCamera(available);}
       if(echoSession?.gate.suspended){last=time;raf=requestAnimationFrame(draw);return;}
       if(mode!==settings.current.mouseMode){mode=settings.current.mouseMode;reset();}
       const dt=(time-last)/1000;last=time;
       if(document.hidden){reset();raf=requestAnimationFrame(draw);return;}
-      const available=cameraUsable();
-      if(available!==lastCameraAvailability){lastCameraAvailability=available;setUsableCamera(available);}
       let state=game.tick(performance.now());
       if(!canPlay()&&(state.phase==='playing'||state.phase==='countdown')){state=game.pause(time,'camera');reset();}
       echoSession?.beyond.combo(arcade.snapshot(state.elapsed).combo);scene.setColor(settings.current.color);const storm=fracture.update(arcade.snapshot(state.elapsed).combo,state.elapsed).active;const difficulty=chaosSlashDifficulty(state.progress,storm);scene.setStorm(storm);const chaos=echoSession?.beyond.chaos;echoSession?.beyond.bodyshift.tick('SLASH',time,state.phase==='playing'&&!state.paused&&!document.hidden);chaos?.tick('SLASH',time,state.phase==='playing'&&!state.paused&&!document.hidden);scene.setChaosProfile(chaos?.profile('SLASH',matchMedia('(prefers-reduced-motion: reduce)').matches));scene.setSurge(chaos?.snapshot('SLASH').surge);scene.setCombo?.(arcade.snapshot(state.elapsed).combo);scene.setOverload?.(difficulty.overload);scene.update(dt,{...state,...difficulty});publish(state);
@@ -114,5 +117,5 @@ export function SlashMode({handRef,videoRef,color,mouseMode,cameraReady,onSlash,
     raf=requestAnimationFrame(draw);
     return()=>{echoSession?.beyond.chaos?.leave('SLASH');unregister?.();offEpoch?.();offGallery?.();cancelAnimationFrame(raf);observer.disconnect();window.removeEventListener('pointerdown',down);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',reset);window.removeEventListener('pointercancel',reset);window.removeEventListener('blur',reset);document.removeEventListener('visibilitychange',visibility);reset();game.reset();actions.current=null;if(import.meta.env.DEV)delete window.__lumenSlash;frameCanvas.width=frameCanvas.height=0;scene.dispose();canvas.width=canvas.height=0;};
   },[handRef,videoRef,game,arcade]);
-  return <><div className="slash-grid-background"><Suspense fallback={null}><GridScan sensitivity={.55} lineThickness={1} linesColor="#2F293A" gridScale={.1} scanColor="#FF9FFC" scanOpacity={.4} enablePost bloomIntensity={.6} chromaticAberration={.002} noiseIntensity={.01} lineJitter={.1} scanGlow={.5} scanSoftness={2} enableWebcam={false} showPreview={false} echoSession={echoSession} paused={display.paused}/></Suspense></div><canvas ref={canvasRef} className={`artwork slash-artwork ${mouseMode?'':'hand-input'}`} aria-hidden="true"/><SlashHUD game={display} canPlay={mouseMode||(cameraReady&&usableCamera)} onStart={()=>actions.current?.start()} onResume={()=>actions.current?.resume()}/></>;
+  return <><div className="slash-grid-background"><Suspense fallback={null}><GridScan sensitivity={.55} lineThickness={1} linesColor="#2F293A" gridScale={.1} scanColor="#FF9FFC" scanOpacity={.4} enablePost bloomIntensity={.6} chromaticAberration={.002} noiseIntensity={.01} lineJitter={.1} scanGlow={.5} scanSoftness={2} enableWebcam={false} showPreview={false} echoSession={echoSession} paused={display.paused}/></Suspense></div><canvas ref={canvasRef} className={`artwork slash-artwork ${mouseMode?'':'hand-input'}`} aria-hidden="true"/><SlashHUD game={display} canPlay={mouseMode||(cameraReady&&usableCamera)} instructions={instructions} onStart={instructions.start} onResume={()=>actions.current?.resume()}/></>;
 }

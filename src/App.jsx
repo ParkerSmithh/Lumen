@@ -1,3 +1,5 @@
+import './game/gameInstructions.css';
+import {GameInstructionProvider} from './game/useGameInstructions';
 import { lazy, Suspense, useMemo, useState, useEffect } from 'react';
 import { useWebcam } from './hooks/useWebcam';
 import { useBodyTracking } from './hooks/useBodyTracking';
@@ -21,7 +23,8 @@ const EchoGallery=lazy(()=>import('./echoes/EchoGallery'));
 const modes = ['GLOW', 'FLOW', 'SLASH', 'LAUNCH'];
 const concepts = ['PRESENCE', 'CREATION', 'DESTRUCTION', 'FORCE'];
 
-export default function App() {
+export default function App(){return <GameInstructionProvider><LumenApp/></GameInstructionProvider>;}
+function LumenApp() {
   const [mode, setMode] = useState('GLOW');const [poseEnabled,setPoseEnabled]=useState(false);const [energyRush,setEnergyRush]=useState(false);
   const camera = useWebcam();
   const [echoSession]=useState(()=>createEchoSession({bodyshiftEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("bodyOff")),chaosEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("chaosOff")),beyondEnabled:!(import.meta.env.DEV&&new URLSearchParams(location.search).has("beyondOff"))}));
@@ -87,11 +90,11 @@ export default function App() {
     <video ref={camera.videoRef} className={`camera-input${camera.status === 'ready' && !gallery && mode !== 'GLOW' ? ' camera-preview' : ''}`} muted playsInline aria-label="Live webcam preview" aria-hidden={gallery || camera.status !== 'ready' || mode === 'GLOW'} />
     <div className="mode-stage" inert={gallery} aria-hidden={gallery} style={gallery?{visibility:"hidden"}:undefined} key={`${mode}:${renderAttempt}`}>
       <ModeBoundary onFailure={boundaryFailed}>
-        {mode === 'GLOW' ? <GlowMode energyRush={energyRush} onExitEnergy={()=>setEnergyRush(false)} onCamera={enter} poseEnabled={poseEnabled} onPoseToggle={setPoseEnabled} poseStatus={tracking.poseStatus} poseRef={tracking.poseRef} echoSession={echoSession} maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
-          : mode === 'FLOW' ? <FlowMode echoSession={echoSession} cameraReady={camera.status === 'ready'} videoRef={camera.videoRef} trackingError={hands.status === 'error'} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
-          : mode === 'SLASH' ? <SlashMode echoSession={echoSession} videoRef={camera.videoRef} handRef={hands.handRef} cameraReady={camera.status === 'ready'} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onStateChange={state => setSlashOverlay(state.phase !== 'playing' || state.paused)} onSessionStart={() => { setSlashHit(false); setSlashSession(value => value + 1); setGuideInteraction(null); }} onSlash={hit => { if (hit) setSlashHit(true); interacted(); }} />
+        {mode === 'GLOW' ? <GlowMode instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} energyRush={energyRush} onExitEnergy={()=>setEnergyRush(false)} onCamera={enter} poseEnabled={poseEnabled} onPoseToggle={setPoseEnabled} poseStatus={tracking.poseStatus} poseRef={tracking.poseRef} echoSession={echoSession} onChooseInput={value=>setMouseMode(value==='assist')} maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
+          : mode === 'FLOW' ? <FlowMode echoSession={echoSession} instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} onCamera={enter} onChooseInput={value=>setMouseMode(value==='assist')} cameraReady={camera.status === 'ready'} videoRef={camera.videoRef} trackingError={hands.status === 'error'} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
+          : mode === 'SLASH' ? <SlashMode echoSession={echoSession} instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} onCamera={enter} onChooseInput={value=>setMouseMode(value==='assist')} videoRef={camera.videoRef} handRef={hands.handRef} cameraReady={camera.status === 'ready'} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onStateChange={state => setSlashOverlay(state.phase !== 'playing' || state.paused)} onSessionStart={() => { setSlashHit(false); setSlashSession(value => value + 1); setGuideInteraction(null); }} onSlash={hit => { if (hit) setSlashHit(true); interacted(); }} />
           : <Suspense fallback={<div className="mode-loading" aria-live="polite">Preparing matter…</div>}>
-            <LaunchMode echoSession={echoSession} cameraReady={camera.status === 'ready'} videoRef={camera.videoRef} trackingError={hands.status === 'error'} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
+            <LaunchMode echoSession={echoSession} instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} onCamera={enter} onChooseInput={value=>setMouseMode(value==='assist')} cameraReady={camera.status === 'ready'} videoRef={camera.videoRef} trackingError={hands.status === 'error'} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
           </Suspense>}
       </ModeBoundary>
     </div>

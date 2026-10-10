@@ -1,3 +1,4 @@
+import {startGame} from '../tests/browser/startGame.js';
 import { shapePath } from '../src/game/lightTrace.js';
 import { installFrameClock } from '../tests/browser/frameClock.js';
 import { browserOptions } from './browser-options.mjs';
@@ -78,7 +79,7 @@ try {
     for(const label of ({FLOW:['POINT + MOVE'],SLASH:['SWIPE TO SLASH'],LAUNCH:['POINT + RAPID PUSH','CLOSE HAND','MOVE + RELEASE']})[mode])await expect(page.getByLabel('Interaction guide')).toContainText(label);
     await page.getByRole('button', { name: 'Mouse / touch fallback' }).click();
     if (['FLOW','SLASH','LAUNCH'].includes(mode)) {
-      await page.getByRole('button', { name: 'START', exact: true }).click();
+      await startGame(page);
       await expect(page.getByLabel('Time remaining')).toBeVisible({ timeout: 30000 });
     }
     const canvas = mode === 'FLOW' ? '#fluid' : mode === 'SLASH' ? '.slash-artwork' : '.launch-artwork canvas';
@@ -129,9 +130,9 @@ try {
   await gamePage.goto(target + '?debugSlash&debugEchoes');
   if (await gamePage.evaluate(() => !!window.__lumenSlash||!!window.__lumenEchoes)) throw new Error('SLASH diagnostics escaped into production.');
   await gamePage.getByRole('button', { name: 'SLASH', exact: true }).click();
-  await expect(gamePage.getByRole('button', { name: 'START', exact: true })).toBeDisabled();
+  await gamePage.getByRole('button',{name:'PLAY',exact:true}).click();await expect(gamePage.getByRole('button',{name:'START GAME',exact:true})).toBeDisabled();await gamePage.getByRole('button',{name:'BACK',exact:true}).click();
   await gamePage.getByRole('button', { name: 'Mouse / touch fallback' }).click();
-  await gamePage.getByRole('button', { name: 'START', exact: true }).focus(); await gamePage.keyboard.press('Enter');
+  await gamePage.getByRole('button', { name: 'PLAY', exact: true }).focus(); await gamePage.keyboard.press('Enter');await expect(gamePage.getByRole('dialog')).toBeVisible();await gamePage.getByRole('button',{name:'START GAME',exact:true}).click();
   await expect(gamePage.getByLabel('Starting in')).toHaveText('3');
   await advance(1); await expect(gamePage.getByLabel('Starting in')).toHaveText('2');
   await advance(1); await expect(gamePage.getByLabel('Starting in')).toHaveText('1');
@@ -142,12 +143,12 @@ try {
   await expect(gamePage.getByLabel('Starting in')).toHaveText('3');
   await gamePage.getByRole('button', { name: 'FLOW', exact: true }).click();
   await gamePage.getByRole('button', { name: 'SLASH', exact: true }).click();
-  await expect(gamePage.getByRole('button', { name: 'START', exact: true })).toBeVisible();
+  await expect(gamePage.getByRole('button', { name: 'PLAY', exact: true })).toBeVisible();
   for(const [mode,duration] of [['FLOW',90],['LAUNCH',120]]){
     await gamePage.getByRole('button',{name:mode,exact:true}).click();
-    await expect(gamePage.getByRole('button',{name:'START',exact:true})).toBeDisabled();
+    await gamePage.getByRole('button',{name:'PLAY',exact:true}).click();await expect(gamePage.getByRole('button',{name:'START GAME',exact:true})).toBeDisabled();await gamePage.getByRole('button',{name:'BACK',exact:true}).click();
     await gamePage.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();
-    await gamePage.getByRole('button',{name:'START',exact:true}).click();await advance(3);
+    await startGame(gamePage);await advance(3);
     await expect(gamePage.getByLabel('Time remaining')).toHaveText(duration===90?'1:30':'2:00');
     await expect(gamePage.getByLabel('Score',{exact:true})).toHaveText('0');
     if(mode==='FLOW'){

@@ -1,15 +1,15 @@
 import {useEffect,useRef,useState} from 'react';
 import './energyRush.css';
 const challengeLabels={left:'MOVE LEFT',right:'MOVE RIGHT',expand:'EXPAND YOUR ENERGY FIELD',reach:'REACH HIGH'};
-export function EnergyRushHUD({game,cameraReady,preview,onCamera,poseEnabled,onPoseToggle,poseStatus}){
+export function EnergyRushHUD({game,cameraReady,preview,onCamera,poseEnabled,onPoseToggle,poseStatus,instructions}){
  const s=game.display,action=useRef(null),pad=useRef(null),lastPhase=useRef(s.phase);
  const [announcement,setAnnouncement]=useState(''),previous=useRef({shields:3,fever:false});
  useEffect(()=>{if(s.shields<previous.current.shields)setAnnouncement(`Shield used. ${s.shields} shields remaining.`);else if(s.fever&&!previous.current.fever)setAnnouncement('ENERGY FEVER. Eight active seconds of extra light.');previous.current={shields:s.shields,fever:s.fever};},[s.shields,s.fever]);
  useEffect(()=>{if(lastPhase.current!==s.phase&&['PAUSED','RESULTS'].includes(s.phase))action.current?.focus({preventScroll:true});lastPhase.current=s.phase;},[s.phase]);
  const assisted=game.inputMode==='assist',ready=s.phase==='READY'||s.phase==='RESULTS';
  const touch=e=>{const r=pad.current.getBoundingClientRect();game.move(.06+(e.clientX-r.left)/r.width*.88,.1+(e.clientY-r.top)/r.height*.8);};
- return <div className="energy-ui" data-energy-phase={s.phase}>
-  <span className="sr-only" role="status">{announcement}</span>
+ return <><div className="energy-ui" data-energy-phase={s.phase}>
+  {instructions?.dialog}<button className="game-how-to" onClick={instructions?.show}>HOW TO PLAY</button><span className="sr-only" role="status">{announcement}</span>
   <div className="energy-top" data-energy-exclude>
    <div className="energy-name">ENERGY RUSH <span>{assisted?'KEYBOARD / TOUCH':'BODY PLAY'}</span></div>
    {!ready&&<div className="energy-metrics" aria-label="ENERGY RUSH session">
@@ -38,5 +38,5 @@ export function EnergyRushHUD({game,cameraReady,preview,onCamera,poseEnabled,onP
     {s.challenge&&['expand','reach'].includes(s.challenge.kind)&&<button onPointerDown={()=>game.action(s.challenge.kind,true)} onPointerUp={()=>game.action(s.challenge.kind,false)} onPointerCancel={()=>game.action(s.challenge.kind,false)} onPointerLeave={()=>game.action(s.challenge.kind,false)} onKeyDown={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();game.action(s.challenge.kind,true);}}} onKeyUp={()=>game.action(s.challenge.kind,false)}>HOLD TO {s.challenge.kind==='reach'?'REACH':'EXPAND'}</button>}
    </div>}
   </div>
- </div>;
+ </div></>;
 }

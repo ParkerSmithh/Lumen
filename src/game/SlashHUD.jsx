@@ -4,13 +4,13 @@ import { useEffect, useRef } from 'react';
 
 const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
-export function SlashHUD({ game, canPlay, onStart, onResume }) {
+export function SlashHUD({ game, canPlay, onStart, onResume,instructions }) {
   const action = useRef(null);
   useEffect(() => {
     if (game.phase === 'results' || game.paused) action.current?.focus({ preventScroll: true });
   }, [game.phase, game.paused]);
   const running = game.phase === 'playing';
-  return <><div className="arcade-state">{game.phase==='playing'&&game.storm&&<span>FRACTURE STORM</span>}{game.phase==='playing'&&game.overload&&!game.storm&&<span>OVERLOAD</span>}</div><GameFeedback label={game.feedbackLabel|| (game.combo>0?'COMBO '+game.combo:null)} active={game.phase==='playing'&&!game.paused}/>
+  return <>{instructions?.dialog}{instructions?.supported&&<button className="game-how-to" onClick={instructions.show}>HOW TO PLAY</button>}<div className="arcade-state">{game.phase==='playing'&&game.storm&&<span>FRACTURE STORM</span>}{game.phase==='playing'&&game.overload&&!game.storm&&<span>OVERLOAD</span>}</div><GameFeedback label={game.feedbackLabel|| (game.combo>0?'COMBO '+game.combo:null)} active={game.phase==='playing'&&!game.paused}/>
     {running && <div className={`slash-hud${game.seconds <= 10 ? ' final-seconds' : ''}`} aria-label="SLASH session">
       <div className="hud-metrics"><div><span>SCORE</span><strong aria-label="Score">{game.score||0}</strong></div><div><span>SLASHED</span><strong aria-label="Objects slashed">{game.count}</strong></div></div>
       <time aria-label="Time remaining">{formatTime(game.seconds)}</time>
@@ -21,7 +21,7 @@ export function SlashHUD({ game, canPlay, onStart, onResume }) {
         <button ref={action} className="enter" disabled={!canPlay} onClick={onResume}>RESUME</button>
       </> : game.phase === 'ready' ? <>
         <h2>SLASH</h2><p>Two minutes. Cut through digital matter.</p>
-        <button className="enter" disabled={!canPlay} onClick={onStart}>START</button>
+        <button className="enter" disabled={!canPlay&&!instructions?.first} onClick={onStart}>PLAY</button>
         {!canPlay && <p className="slash-input-hint">Start your camera or use mouse / touch below.</p>}
       </> : game.phase === 'countdown' ? <div className="slash-countdown" aria-label="Starting in" aria-live="polite" aria-atomic="true">{game.countdown}</div> : <>
         <time className="sr-only" aria-label="Time remaining">0:00</time><h2 aria-label="Final result">{game.count} SLASHED</h2>

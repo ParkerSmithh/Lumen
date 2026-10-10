@@ -8,13 +8,13 @@ import {shapePath,createTraceEvaluator} from '../game/lightTrace';
 import SplashCursor from '../effects/SplashCursor';
 import { predictHandPoint } from '../tracking/handPointer';
 import { fitContain } from '../tracking/utils';
-export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError,echoSession}) {
+export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,cameraReady,videoRef,trackingError,echoSession,onCamera,onChooseInput,instructionCamera}) {
   const hostRef=useRef(null),pointerRef=useRef(null),lightRef=useRef(null),colorRef=useRef(color);colorRef.current=color;
   const traceProgressRef=useRef(null),lastDrawMotion=useRef(-Infinity);
   const guideRef=useRef(null),scores=useRef([]),targetRef=useRef(null);const [accuracy,setAccuracy]=useState(null);
   const echoPath=useRef(createEchoPath()),echoToken=useRef(echoSession?.store.epoch),echoSerial=useRef(0),echoScope=useRef(echoSession?.allocateScope());
   const [arcade]=useState(createFlowArcade),effectRef=useRef(null),feedbackRef=useRef(null),shapeSerial=useRef(0);
-  const round=useRound({echoSession,duration:90,mode:'FLOW',metrics:state=>({...arcade.snapshot(),accuracy:scores.current.length?scores.current.reduce((a,b)=>a+b,0)/scores.current.length:null,feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.expiresAt?feedbackRef.current.id:null}),mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{echoPath.current.sample(null);pointerRef.current=null;if(effectRef.current)effectRef.current.paused=true;targetRef.current?.evaluator.sample(null);if(full){echoPath.current.clear();targetRef.current=null;scores.current=[];setAccuracy(null);arcade.reset();shapeSerial.current=0;effectRef.current=null;feedbackRef.current=null;}}});
+  const round=useRound({echoSession,color,onCamera,onChooseInput,instructionCamera,duration:90,mode:'FLOW',metrics:state=>({...arcade.snapshot(),accuracy:scores.current.length?scores.current.reduce((a,b)=>a+b,0)/scores.current.length:null,feedbackId:feedbackRef.current&&state.elapsed<feedbackRef.current.expiresAt?feedbackRef.current.id:null}),mouseMode,cameraReady,videoRef,trackingError,onReset:full=>{echoPath.current.sample(null);pointerRef.current=null;if(effectRef.current)effectRef.current.paused=true;targetRef.current?.evaluator.sample(null);if(full){echoPath.current.clear();targetRef.current=null;scores.current=[];setAccuracy(null);arcade.reset();shapeSerial.current=0;effectRef.current=null;feedbackRef.current=null;}}});
   useEffect(()=>echoSession?.store.subscribe(()=>{if(echoToken.current!==echoSession.store.epoch){echoToken.current=echoSession.store.epoch;echoPath.current.clear();}}),[echoSession]);
   useEffect(()=>echoSession?.registerMode('FLOW',()=>{const state=round.clock.tick(performance.now());return {playing:state.phase==='playing',paused:state.paused,blocked:performance.now()-lastDrawMotion.current<600,point:pointerRef.current||{x:.5,y:.5},color:colorRef.current,autoAllowed:false};}),[echoSession,round.clock]);
   const interactionRef=useRef(onInteraction);interactionRef.current=onInteraction;

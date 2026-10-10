@@ -1,3 +1,4 @@
+import {startGame} from './startGame.js';
 import {test,expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 
@@ -13,7 +14,7 @@ test('mounted FREE GLOW and ENERGY RUSH share real segmentation cadence under CA
   });
   await page.goto('/?debugEnergy');await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();await page.getByRole('button',{name:intensity,exact:true}).click();
   await expect.poll(()=>page.evaluate(()=>window.energyTiming.masks.length),{timeout:15000}).toBeGreaterThan(10);
-  if(mode==='RUSH'){await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await page.getByRole('button',{name:'Keyboard / touch',exact:true}).click();await page.getByRole('button',{name:'START',exact:true}).click();await expect(page.getByRole('button',{name:'PAUSE',exact:true})).toBeVisible({timeout:10000});}
+  if(mode==='RUSH'){await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await page.getByRole('button',{name:'Keyboard / touch',exact:true}).click();await startGame(page);await expect(page.getByRole('button',{name:'PAUSE',exact:true})).toBeVisible({timeout:10000});}
   const row=await page.evaluate(async({mode,intensity})=>{
    window.energyTiming.masks=[];window.energyTiming.buckets.clear();const begin=performance.now();while(window.energyTiming.masks.length<40&&performance.now()-begin<10000)await new Promise(r=>setTimeout(r,100));
    const masks=window.energyTiming.masks,stats=a=>{a.sort((x,y)=>x-y);return {samples:a.length,medianMs:a[Math.floor(a.length/2)],p95Ms:a[Math.min(a.length-1,Math.floor(a.length*.95))]};};

@@ -17,8 +17,10 @@ test('generated hand movement reaches the bright FLOW emitter without a false re
  await page.evaluate(()=>window.setPose(.35,1));
  await expect.poll(()=>page.evaluate(()=>window.__lumenTracking.handRef.current.indexFinger.x)).toBeGreaterThan(.68);
  const readEmitter=()=>page.evaluate(()=>{const h=window.__lumenTracking.handRef.current,c=document.querySelector('.flow-light'),rectWidth=innerHeight*4/3,x=(innerWidth-rectWidth)/2+h.indexFinger.x*rectWidth,y=h.indexFinger.y*innerHeight,ratio=c.width/innerWidth;const pixel=[...c.getContext('2d').getImageData(Math.round((x+8)*ratio),Math.round(y*ratio),1,1).data];return {pixel,report:window.__lumenTracking.metrics.report()};});
- await expect.poll(async()=> (await readEmitter()).pixel[3]).toBeGreaterThan(20);
- const result=await readEmitter();expect(result.pixel[3]).toBeGreaterThan(20);expect(result.pixel[2]).toBeGreaterThan(result.pixel[0]);expect(result.report.resets.jump||0).toBe(0);await page.screenshot({path:'.test-artifacts/tuning-flow-motion.png'});
+ let result;
+ await expect.poll(async()=>{result=await readEmitter();return result.pixel[3];}).toBeGreaterThan(20);
+ // Assert the successful frame; the live emitter may have moved on the next frame.
+ expect(result.pixel[3]).toBeGreaterThan(20);expect(result.pixel[2]).toBeGreaterThan(result.pixel[0]);expect(result.report.resets.jump||0).toBe(0);await page.screenshot({path:'.test-artifacts/tuning-flow-motion.png'});
 });
 
 test('generated camera push creates once, holds, retracts and creates again',async({page})=>{

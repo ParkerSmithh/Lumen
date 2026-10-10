@@ -12,21 +12,42 @@ export function grabFeatures(hand){
  const center={x:1-[0,5,9,17].reduce((sum,i)=>sum+p[i].x,0)/4,y:[0,5,9,17].reduce((sum,i)=>sum+p[i].y,0)/4};
  return {closed:ratios[0]<.95&&curled>=3,open:ratios[0]>1.12&&ratios.filter(r=>r>1.12).length>=3,center,ratios};
 }
-// Two valid poses confirm closure/release. Acquisition in a fist must open first.
+export function launchGrabFeatures(hand){
+ const f=grabFeatures(hand);return f&&{...f,closed:!launchPointFeatures(hand)?.pointing&&f.ratios.filter(r=>r<1.02).length>=3,open:f.ratios.filter(r=>r>1.12).length>=3};
+}
+// Confirmation uses fresh observations, never repeated render frames or missing poses.
 export function createGrabDetector(){
- let active=false,ready=false,lastSequence=null,lastTime=-Infinity,closeSamples=0,openSamples=0,lastCenter=null;
- const reset=()=>{active=false;ready=false;lastSequence=null;lastTime=-Infinity;closeSamples=openSamples=0;lastCenter=null;};
+ let active=false,ready=false,lastSequence=null,lastTime=-Infinity,lastCenter=null,closeSince=null,openSince=null,closeSamples=0,openSamples=0,intentUntil=-Infinity;
+ const reset=()=>{active=false;ready=false;lastSequence=null;lastTime=-Infinity;lastCenter=null;closeSince=openSince=null;closeSamples=openSamples=0;intentUntil=-Infinity;};
+ const output=(now,extra={})=>({active,begin:false,released:false,lost:false,center:lastCenter,fresh:false,canAcquire:active&&now<=intentUntil,grabIntentUntil:intentUntil,blocksCreation:active,...extra});
+ const lose=now=>{const lost=active;reset();return output(now,{lost});};
  return {reset,update(input,now){
-  const invalid=!input?.active||!input.features?.center||!Number.isFinite(input.features.center.x+input.features.center.y)||!Number.isFinite(input.timestamp)||now-input.timestamp>250||input.timestamp>now+10||input.motionRejected&&now-lastTime>250;
-  if(invalid){const lost=active;reset();return {active:false,begin:false,released:false,lost};}
-  if(input.sequence===lastSequence)return {active,begin:false,released:false,center:lastCenter};
-  if(input.motionRejected){lastSequence=input.sequence;return {active,begin:false,released:false,center:lastCenter,blocksCreation:true};}
-  const f=input.features,dt=input.timestamp-lastTime,jump=lastCenter&&Math.hypot(f.center.x-lastCenter.x,f.center.y-lastCenter.y)>.35;
-  if(!Number.isFinite(f.center.x+f.center.y)||dt<=0||dt>250||jump||input.reset&&!['jump','jump-confirmed','spike'].includes(input.resetReason)){const lost=active;reset();lastSequence=input.sequence;lastTime=input.timestamp;lastCenter=f.center;ready=f.open;return {active:false,begin:false,released:false,lost,center:f.center,blocksCreation:f.closed||f.open};}
-  lastSequence=input.sequence;lastTime=input.timestamp;lastCenter=f.center;
+  if(!Number.isFinite(now))return lose(now);
+  const age=now-lastTime;
+  const hardInvalid=input&&(input.timestamp>now+10||Number.isFinite(input.timestamp)&&now-input.timestamp>250);
+  if(hardInvalid)return lose(now);
+  const f=input?.features;
+  if(input?.active&&!input.motionRejected&&input.sequence===lastSequence&&f?.center){if(age>120)return lose(now);return output(now,{blocksCreation:active||f.closed||f.open});}
+  if(!input?.active||!f?.center||!Number.isFinite(f.center.x+f.center.y)||!Number.isFinite(input.timestamp)||input.motionRejected||input.sequence===lastSequence){
+   closeSince=openSince=null;closeSamples=openSamples=0;
+   if(age>120)return lose(now);
+   return output(now,{canAcquire:false,blocksCreation:active||!!input?.motionRejected});
+  }
+  const dt=input.timestamp-lastTime,jump=lastCenter&&Math.hypot(f.center.x-lastCenter.x,f.center.y-lastCenter.y)>.35;
+  if(dt<=0||dt>250||active&&dt>120||jump||input.reset&&!['jump','jump-confirmed','spike'].includes(input.resetReason)){
+   const lost=active;reset();lastSequence=input.sequence;lastTime=input.timestamp;lastCenter=f.center;ready=f.open;
+   return output(now,{lost,fresh:true,blocksCreation:f.closed||f.open});
+  }
+  lastSequence=input.sequence;lastTime=input.timestamp;lastCenter={...f.center};
   let begin=false,released=false;
-  if(!active){if(f.open)ready=true;closeSamples=ready&&f.closed?closeSamples+1:0;if(closeSamples>=2){active=true;begin=true;closeSamples=0;}}
-  else{openSamples=f.open?openSamples+1:0;if(openSamples>=2){active=false;released=true;ready=true;openSamples=0;}}
-  return {active,begin,released,lost:false,center:f.center,blocksCreation:active||f.closed||f.open||released};
+  if(!active){
+   if(f.open)ready=true;
+   if(ready&&f.closed){closeSince??=input.timestamp;closeSamples++;}else{closeSince=null;closeSamples=0;}
+   if(closeSamples>=2&&input.timestamp-closeSince>=60){active=true;begin=true;intentUntil=now+150;closeSince=null;closeSamples=0;}
+  }else{
+   if(f.open){openSince??=input.timestamp;openSamples++;}else{openSince=null;openSamples=0;}
+   if(openSamples>=2&&input.timestamp-openSince>=60){active=false;released=true;ready=true;openSince=null;openSamples=0;intentUntil=-Infinity;}
+  }
+  return output(now,{begin,released,fresh:true,blocksCreation:active||f.closed||f.open||released});
  }};
 }

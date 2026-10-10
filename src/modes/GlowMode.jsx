@@ -1,3 +1,4 @@
+import {useGameInstructions} from '../game/useGameInstructions';
 import {freshBodyPose} from '../tracking/bodySignals.js';
 import { useEffect, useRef } from 'react';
 import { createGlowRenderer } from '../effects/glowRenderer';
@@ -19,8 +20,10 @@ function previewMask() {
   const pixels = ctx.getImageData(0,0,320,400).data;
   return { width: 320, height: 400, sourceWidth: 640, sourceHeight: 800, values: Float32Array.from({ length: 320*400 }, (_,i) => pixels[i*4+3]/255), timestamp: Infinity };
 }
-export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus }) {
+export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus,instructionCamera }) {
   const game=useEnergyRush({enabled:energyRush,cameraReady,preview,videoRef,echoSession,onExit:onExitEnergy,color});
+  const instructions=useGameInstructions('ENERGY_RUSH',{echoSession,color,instructionCamera,assisted:game.inputMode==='assist',ready:game.inputMode==='assist'||cameraReady&&!preview&&game.grid.fresh(performance.now()),readiness:game.inputMode==='assist'?'Keyboard / touch ready':cameraReady&&!preview?'Waiting for fresh body tracking':'Enable camera or choose keyboard / touch',onCamera,onChooseInput:mode=>game.chooseInput(mode),start:game.start,back:game.exit,running:!['READY','RESULTS'].includes(game.display.phase)});
+  useEffect(()=>{if(energyRush&&instructions.first)instructions.show();},[energyRush]);
   const gameRef=useRef(game);gameRef.current=game;
   const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady,energyRush }); settings.current = { color, preview, cameraReady,energyRush };
   useEffect(() => {
@@ -57,7 +60,7 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, poseR
     const observer = new ResizeObserver(resize); observer.observe(host.parentElement);
     let aspect=0;
     const draw = time => {
-      if(echoSession?.gate.suspended){if(settings.current.energyRush)gameRef.current.frame(time,null,null);presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);raf=requestAnimationFrame(draw);return;}
+      if(echoSession?.gate.suspended){if(settings.current.energyRush)gameRef.current.frame(time,maskRef.current,poseRef?.current);presence.clear();echoContext?.clearRect(0,0,echoCanvas.width,echoCanvas.height);raf=requestAnimationFrame(draw);return;}
       const video=videoRef?.current;
       if(video?.videoWidth&&aspect!==video.videoWidth/video.videoHeight){aspect=video.videoWidth/video.videoHeight;resize();}
       const live = maskRef.current;
@@ -91,5 +94,5 @@ export function GlowMode({ maskRef, videoRef, cameraReady, color, preview, poseR
     update();const timer=setInterval(update,250);window.addEventListener('resize',update);return()=>{clearInterval(timer);window.removeEventListener('resize',update);};
   },[energyRush]);
   useEffect(()=>{if(!import.meta.env.DEV||!new URLSearchParams(location.search).has('debugEnergy'))return;window.__lumenEnergy={snapshot:()=>gameRef.current.engine.snapshot};return()=>{delete window.__lumenEnergy;};},[]);
-  return <><div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>{energyRush&&<EnergyRushHUD game={game} cameraReady={cameraReady} preview={preview} onCamera={onCamera} poseEnabled={poseEnabled} onPoseToggle={onPoseToggle} poseStatus={poseStatus}/>}</>;
+  return <><div className="glow-field"><div className="artwork glow-artwork" ref={hostRef} /></div>{energyRush&&<EnergyRushHUD instructions={instructions} game={{...game,start:instructions.start}} cameraReady={cameraReady} preview={preview} onCamera={onCamera} poseEnabled={poseEnabled} onPoseToggle={onPoseToggle} poseStatus={poseStatus}/>}</>;
 }

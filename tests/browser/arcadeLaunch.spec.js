@@ -1,3 +1,4 @@
+import {startGame} from './startGame.js';
 import {test,expect} from '@playwright/test';
 for(const reset of [false,true])test('actual boundary reflection earns one bank bonus'+(reset?' after count reset':''),async({page})=>{
  await page.goto('/');const result=await page.evaluate(async reset=>{
@@ -13,7 +14,7 @@ for(const reset of [false,true])test('actual boundary reflection earns one bank 
 });
 test('moving and bonus targets, scores, replay and local records run through the mode',async({page})=>{
  await page.addInitScript(()=>{Math.random=()=>.5;let offset=0;const now=performance.now.bind(performance),raf=requestAnimationFrame.bind(window);performance.now=()=>now()+offset;window.requestAnimationFrame=f=>raf(t=>f(t+offset));window.advanceArcade=s=>offset+=s*1000;});
- await page.goto('/?debugKinetic');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await page.getByRole('button',{name:'START',exact:true}).click();await page.evaluate(()=>window.advanceArcade(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
+ await page.goto('/?debugKinetic');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.advanceArcade(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
  await page.mouse.click(683,384);await expect(page.getByLabel('Score',{exact:true})).toHaveText('100');await expect(page.getByLabel('TARGETS HIT',{exact:true})).toHaveText('1');
  await page.evaluate(()=>window.advanceArcade(50));
  await page.evaluate(()=>{const pit=window.__lumenKinetic.instance;pit.spheres.physics.positionData.fill(0);pit.spheres.physics.config.activeCount=1;});

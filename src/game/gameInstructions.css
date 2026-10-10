@@ -1,0 +1,122 @@
+.game-instructions-layer {
+ position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:24px;
+ background:#050407b8;backdrop-filter:blur(12px);color:#f5effb;isolation:isolate;
+ animation:instruction-enter 240ms cubic-bezier(.16,1,.3,1) both;
+}
+.game-instructions {
+ width:min(820px,100%);max-height:calc(100dvh - 48px);display:flex;flex-direction:column;
+ background:#0d0914f5;border:1px solid color-mix(in srgb,var(--light) 48%,transparent);
+ border-radius:12px;overflow:hidden;box-shadow:0 18px 70px #0008;
+}
+.game-instructions-scroll {padding:28px 36px 12px;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--light) #17101f}
+.game-instructions h2 {font-family:Manrope,sans-serif;font-size:clamp(30px,5vw,48px);font-weight:400;letter-spacing:-.025em;line-height:1.08;margin:0;text-align:center;color:var(--light);text-wrap:balance}
+.game-instructions h2:focus-visible {outline:2px solid var(--light);outline-offset:6px;border-radius:4px}
+.game-instructions-subtitle {text-align:center;font-size:12px;letter-spacing:.14em;margin:12px 0 0;color:#e0d1ec}
+.game-instructions-demo {display:block;width:min(460px,100%);height:170px;margin:10px auto 12px;color:var(--light);fill:none;stroke:currentColor;stroke-width:1.5;overflow:visible}
+.game-instructions-demo text {fill:#ddcfe9;stroke:none;font:10px 'DM Sans',sans-serif;letter-spacing:.7px;text-anchor:middle}
+.demo-muted {opacity:.3}
+.demo-target {opacity:.75}
+.demo-ball,.demo-energy-orb,.demo-trace-finger circle {fill:currentColor;stroke:none;filter:drop-shadow(0 0 5px currentColor)}
+.demo-particles circle {fill:currentColor;stroke:none;opacity:.3;animation:instruction-particle 4s ease-in-out infinite}
+.demo-selection {stroke-dasharray:3 5;animation:instruction-selection 5s ease-in-out infinite}
+.demo-throw-path {stroke-dasharray:4 6;opacity:.55}
+.demo-open-hand {animation:instruction-hand-open 5s ease-in-out infinite}
+.demo-closed-hand {opacity:0;animation:instruction-hand-closed 5s ease-in-out infinite}
+.demo-hand-approach {animation:instruction-approach 5s ease-in-out infinite}
+.demo-hand-carry {animation:instruction-carry 5s ease-in-out infinite}
+.demo-ball {animation:instruction-throw 5s ease-in-out infinite}
+.demo-outline {opacity:.3;stroke-width:2}
+.demo-trace {stroke-width:3;stroke-dasharray:400;stroke-dashoffset:400;filter:drop-shadow(0 0 4px currentColor);animation:instruction-trace 5s ease-in-out infinite}
+.demo-trace-finger {offset-rotate:0deg;animation:instruction-finger 5s ease-in-out infinite}
+.demo-slash {stroke-width:10;opacity:.2;stroke-linecap:round;stroke-dasharray:240;animation:instruction-slash 3s ease-out infinite}
+.demo-slash-core {stroke-width:2;stroke-linecap:round;animation:instruction-slash 3s ease-out infinite}
+.demo-crystal {fill:color-mix(in srgb,currentColor 12%,transparent);filter:drop-shadow(0 0 5px currentColor);animation:instruction-cut 3s ease-out infinite}
+.demo-fragments path {fill:currentColor;opacity:0;animation:instruction-fragments 3s ease-out infinite}
+.demo-swipe-hand {animation:instruction-swipe 3s ease-out infinite}
+.demo-body {fill:color-mix(in srgb,currentColor 12%,transparent);filter:drop-shadow(0 0 7px currentColor);animation:instruction-sway 6s ease-in-out infinite}
+.demo-energy-orb {animation:instruction-orb 6s ease-in-out infinite}
+.demo-collect-ring {transform-origin:167px 108px;opacity:0;animation:instruction-collect 6s ease-out infinite}
+.demo-danger {color:#ff738a;animation:instruction-danger 6s ease-in-out infinite}
+.demo-dodge {opacity:.65;stroke-dasharray:4 5}
+.game-instructions-steps {list-style:none;margin:0;padding:0;counter-reset:instruction;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.game-instructions-steps li {counter-increment:instruction;position:relative;padding-top:26px}
+.game-instructions-steps li::before {content:counter(instruction);position:absolute;top:0;color:var(--light);font-size:13px;font-variant-numeric:tabular-nums}
+.game-instructions-steps h3 {font-size:14px;font-weight:600;margin:0 0 8px;line-height:1.35}
+.game-instructions-steps p {font-size:14px;line-height:1.5;color:#d9c9e5;margin:0;text-wrap:pretty}
+.game-instructions-note {font-size:12px;line-height:1.5;color:#cdbddd;text-align:center;margin:16px auto 0;max-width:76ch}
+.game-instructions button {min-height:44px;padding:10px 16px;font-size:12px;letter-spacing:.04em;border:1px solid #af97c366;border-radius:4px;color:#eee2f7;background:#161020;cursor:pointer;transition:background 150ms,border-color 150ms}
+.game-instructions button:hover:not(:disabled) {background:#2a1c3b;border-color:var(--light)}
+.game-instructions button:focus-visible {outline:2px solid var(--light);outline-offset:3px}
+.game-instructions button:disabled {opacity:.45;cursor:default}
+.game-instructions ::selection {background:var(--light);color:#100817}
+.game-instructions-input {display:flex;justify-content:center;gap:8px;margin:18px 0 0;flex-wrap:wrap}
+.game-instructions-input button[aria-pressed=true] {border-color:var(--light);background:#2b1a3b}
+.game-instructions-readiness {font-size:12px;line-height:1.5;color:#dccce8;text-align:center;margin:14px 0 0;min-height:18px}
+.game-instructions-readiness button {margin:10px auto 0;display:block}
+.game-instructions-actions {display:flex;justify-content:space-between;gap:12px;padding:16px 36px 24px;flex-shrink:0}
+.game-instructions .game-instructions-start {background:var(--light);color:#100817;border-color:transparent;min-width:160px;font-weight:600;box-shadow:0 4px 20px color-mix(in srgb,var(--light) 23%,transparent)}
+.game-instructions .game-instructions-start:hover:not(:disabled) {background:color-mix(in srgb,var(--light) 80%,white)}
+.game-instructions-layer[data-state=closing] {animation:instruction-exit 180ms ease-in both;pointer-events:none}
+@keyframes instruction-enter {from {opacity:0;transform:translateY(8px)}to {opacity:1;transform:translateY(0)}}
+@keyframes instruction-exit {to {opacity:0;transform:translateY(6px)}}
+@keyframes instruction-particle {50% {opacity:.7;transform:translateY(-6px)}}
+@keyframes instruction-hand-open {0%,18%,64%,100% {opacity:1}25%,60% {opacity:0}}
+@keyframes instruction-hand-closed {0%,18%,64%,100% {opacity:0}25%,60% {opacity:1}}
+@keyframes instruction-approach {0%,100% {transform:translateX(-52px)}18%,30% {transform:translate(0,0)}50%,82% {transform:translate(17px,-12px)}}
+@keyframes instruction-carry {0%,30%,100% {transform:translate(0,0)}50%,82% {transform:translate(17px,-12px)}}
+@keyframes instruction-selection {0% {opacity:.2}18%,24% {opacity:1}32%,85% {opacity:0}100% {opacity:.2}}
+@keyframes instruction-throw {0%,30%,100% {transform:translate(0,0);opacity:1}50% {transform:translate(17px,-12px);opacity:1}64% {transform:translate(95px,-55px);opacity:1}78%,84% {transform:translate(170px,-38px);opacity:1}90% {transform:translate(170px,-38px);opacity:0}95% {transform:translate(0,0);opacity:0}}
+@keyframes instruction-trace {0% {stroke-dashoffset:400}80%,100% {stroke-dashoffset:0}}
+@keyframes instruction-finger {0% {offset-distance:0%}80%,100% {offset-distance:100%}}
+@keyframes instruction-slash {0%,35% {stroke-dashoffset:240;opacity:0}45% {stroke-dashoffset:0;opacity:.8}70%,100% {stroke-dashoffset:0;opacity:0}}
+@keyframes instruction-cut {0%,43%,100% {opacity:1}50%,90% {opacity:0}}
+@keyframes instruction-fragments {0%,44%,100% {opacity:0;transform:translate(0,0)}48% {opacity:1}70%,90% {opacity:0;transform:translate(var(--fragment-x),var(--fragment-y))}}
+@keyframes instruction-swipe {0%,35%,100% {opacity:0;transform:translate(0,0)}36% {opacity:1;transform:translate(0,0)}46%,60% {opacity:1;transform:translate(172px,-112px)}70% {opacity:0;transform:translate(172px,-112px)}}
+@keyframes instruction-sway {0%,100% {transform:translateX(0)}25%,35% {transform:translateX(-18px)}60% {transform:translateX(20px)}78%,90% {transform:translateX(-26px)}}
+@keyframes instruction-orb {0%,20%,100% {opacity:1;transform:scale(1)}28%,88% {opacity:0}}
+@keyframes instruction-collect {0%,24%,65%,100% {opacity:0;transform:scale(1)}28% {opacity:.9;transform:scale(1)}48% {opacity:0;transform:scale(2)}}
+@keyframes instruction-danger {0%,45%,100% {opacity:.25}60%,80% {opacity:1}}
+@media(max-width:560px) {
+ .game-instructions-layer {padding:12px}.game-instructions {max-height:calc(100dvh - 24px)}
+ .game-instructions-scroll {padding:20px 20px 12px}.game-instructions-demo {height:115px;margin:8px auto 12px}
+ .game-instructions-steps {grid-template-columns:1fr;gap:12px}.game-instructions-steps li {padding:0 0 0 25px}
+ .game-instructions-steps li::before {top:1px;left:0}.game-instructions-steps h3 {margin-bottom:4px}
+ .game-instructions-steps p {font-size:13px}.game-instructions-actions {padding:14px 20px 18px}
+ .game-instructions-input {margin-top:14px}.game-instructions-readiness {margin-top:12px}
+ .game-instructions-note {margin-top:12px}.game-instructions .game-instructions-start {min-width:150px}
+}
+@media(max-height:580px) {
+ .game-instructions-layer {padding:12px}.game-instructions {max-height:calc(100dvh - 24px)}
+ .game-instructions-scroll {padding-top:18px}.game-instructions-demo {height:105px;margin:4px auto 8px}
+ .game-instructions h2 {font-size:30px}.game-instructions-actions {padding-top:10px;padding-bottom:14px}
+}
+@media(prefers-reduced-motion:reduce) {
+ .game-instructions-layer,.game-instructions-demo * {animation:none!important}
+ .game-instructions button {transition:none}.demo-trace {stroke-dashoffset:0}
+ .demo-slash {opacity:.2;stroke-dashoffset:0}.demo-slash-core {opacity:.8}
+ .demo-open-hand {opacity:1}.demo-closed-hand {opacity:0}.demo-ball {transform:none}
+ .demo-selection {opacity:.8}.demo-fragments path {opacity:.6;transform:translate(var(--fragment-x),var(--fragment-y))}
+ .demo-trace-finger {offset-distance:65%}.demo-swipe-hand {transform:translate(172px,-112px)}
+ .demo-energy-orb,.demo-danger {opacity:1}
+}
+@media(min-width:740px) and (max-height:500px) {
+ .game-instructions-scroll {display:grid;grid-template-columns:min(32vw,280px) minmax(0,1fr);gap:8px 20px;padding:14px 20px 8px}
+ .game-instructions h2 {grid-column:1;grid-row:1;font-size:28px;align-self:end}
+ .game-instructions-subtitle {grid-column:1;grid-row:2;margin:0;font-size:10px}
+ .game-instructions-demo {grid-column:1;grid-row:3;width:100%;height:95px;margin:0}
+ .game-instructions-steps {grid-column:2;grid-row:1/4;grid-template-columns:1fr;gap:8px}
+ .game-instructions-steps li {padding:0 0 0 22px}.game-instructions-steps li::before {left:0;top:0}
+ .game-instructions-steps h3 {font-size:13px;margin-bottom:3px}.game-instructions-steps p {font-size:13px;line-height:1.4}
+ .game-instructions-note {grid-column:1/-1;margin:0;font-size:11px;line-height:1.4;text-align:left;max-width:none}
+ .game-instructions-input {grid-column:1;margin:0;gap:6px;flex-wrap:nowrap;align-self:center}
+ .game-instructions-input button {font-size:11px;padding:8px 10px;flex:1}
+ .game-instructions-readiness {grid-column:2;margin:0;display:flex;align-items:center;gap:10px;text-align:left;font-size:11px}
+ .game-instructions-readiness button {flex-shrink:0;display:inline-block;margin:0;font-size:11px;padding:8px 10px}
+ .game-instructions-actions {padding:8px 20px 14px}
+}
+.game-how-to {position:absolute;right:32px;bottom:104px;z-index:22;min-height:44px;padding:10px 14px;border:1px solid #ad93c866;border-radius:5px;background:#100a1ddb;color:#eee0ff;font-size:11px;letter-spacing:.06em}
+.game-how-to:focus-visible {outline:2px solid var(--light);outline-offset:3px}
+.launch-grab-status {position:absolute;bottom:114px;left:50%;transform:translateX(-50%);z-index:19;color:var(--light);font-size:12px;letter-spacing:.08em;pointer-events:none;text-align:center;background:#100a1dba;padding:8px 12px;border-radius:5px;max-width:calc(100% - 280px)}
+.launch-grab-status span {display:block;font-size:9px;color:#d7c7e5;margin-top:5px;letter-spacing:.02em}
+@media(max-width:600px) {.game-how-to {right:16px;bottom:128px}.launch-grab-status {bottom:184px;max-width:calc(100% - 40px);width:max-content;font-size:11px}}
+@media(max-height:500px) {.game-how-to {bottom:82px;right:16px}.launch-grab-status {bottom:84px;max-width:calc(100% - 270px)}}

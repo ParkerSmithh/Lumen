@@ -1,3 +1,4 @@
+import {startGame} from './startGame.js';
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import { browserOptions } from '../../scripts/browser-options.mjs';
@@ -134,7 +135,7 @@ test('matched BODYSHIFT off on with CHAOS WILD MAX', async ({ browser }) => {
           await expect(page.getByRole('status')).toContainText('Become light.', { timeout: 15000 });
         } else {
           await page.getByRole('button', { name: 'Mouse / touch fallback', exact: true }).click();
-          await page.getByRole('button', { name: 'START', exact: true }).click();
+          await startGame(page);
           await page.evaluate(async () => { window.__beyondBench.advance(3100); await window.__beyondBench.next(); await window.__beyondBench.next(); });
           if (mode === 'SLASH') {
             await page.evaluate(async () => { window.__beyondBench.advance(100000); await window.__beyondBench.next(); });
