@@ -6,9 +6,11 @@ export function useWebcam() {
   const streamRef = useRef(null);
   const generation = useRef(0);
   const connecting = useRef(false);
+  const watchdog = useRef(null);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const release = useCallback(() => {
+    clearTimeout(watchdog.current);watchdog.current=null;
     generation.current++;
     connecting.current = false;
     streamRef.current?.getTracks().forEach(track => { track.onended = null; track.stop(); });
@@ -22,6 +24,10 @@ export function useWebcam() {
     connecting.current = true;
     const token = generation.current;
     setStatus('loading'); setError('');
+    watchdog.current=setTimeout(()=>{
+      if(token!==generation.current)return;
+      release();setError('Camera connection is taking longer than expected. Retry camera, or choose alternate controls.');setStatus('error');
+    },15000);
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw { name: 'SecurityError' };
       const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user', frameRate: { ideal: 30 } }, audio: false });
@@ -32,7 +38,7 @@ export function useWebcam() {
       if (!video) { release(); return; }
       video.srcObject = stream;
       await video.play();
-      if (token === generation.current) { connecting.current = false; setStatus('ready'); }
+      if (token === generation.current) { clearTimeout(watchdog.current);watchdog.current=null;connecting.current = false; setStatus('ready'); }
     } catch (err) {
       if (token !== generation.current) return;
       release(); setError(cameraErrorMessage(err)); setStatus('error');

@@ -20,7 +20,7 @@ export function LaunchMode({handRef,color,mouseMode,onFailure,onInteraction,came
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
   useEffect(()=>{
     let raf,sequence=0,pendingCreation=null,lastHandSequence=null,lastEpoch=round.epoch.current,dragging=false,grabPacket=null,palmAnchor=null;const keyboardKeys=new Set();let keyboardHeld=false,keyboardPoint={x:.5,y:.6},lastKeyboardTime=null;
-    const push=createPushDetector(),grab=createGrabDetector(),host=hostRef.current;pointerRef.current=null;
+    const push=createPushDetector(),grab=createGrabDetector({lossGraceMs:350}),host=hostRef.current;pointerRef.current=null;
     const reset=()=>{forcePathsRef.current=[];pointerRef.current=null;pendingCreation=null;lastHandSequence=null;dragging=false;grabPacket=null;push.reset();grab.reset();palmAnchor=null;keyboardKeys.clear();keyboardHeld=false;};
     const retainCreation=()=>{if(pendingCreation?.consumed)pendingCreation=null;return pendingCreation;};
     const mouse=event=>{

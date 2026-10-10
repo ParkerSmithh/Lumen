@@ -15,7 +15,7 @@ export function useEnergyRush({enabled,cameraReady,preview,videoRef,echoSession,
  const publish=useCallback(()=>{const s=engine.snapshot;setDisplay({...s,bests:best.current?.bests??personalBests.read(s.phase==='READY'?(settings.current.inputMode==='assist'?'ENERGY_RUSH_ASSIST':'ENERGY_RUSH_BODY'):bestMode()),newBest:best.current?.newBest??false});},[engine]);
  useEffect(()=>{if(!enabled){engine.exit();grid.reset();assist.reset();lastMask.current=null;keys.current.clear();echoSession?.beyond.chaos.setEnergyRush(false);publish();}return()=>{keys.current.clear();};},[enabled]);
  useEffect(()=>{
-  const suspend=reason=>{if(!settings.current.enabled)return;keys.current.clear();engine.pause(reason,performance.now());publish();};
+  const suspend=reason=>{if(!settings.current.enabled)return;keys.current.clear();actions.current={};assist.reset();engine.pause(reason,performance.now());publish();};
   const visibility=()=>{if(document.hidden)suspend('visibility');};
   const unsubscribe=echoSession?.gate.subscribe(open=>{if(open)suspend('echoes');});
   const editable=e=>e.ctrlKey||e.metaKey||e.altKey||e.target.closest?.('input,textarea,select,[contenteditable=true]');
@@ -24,7 +24,7 @@ export function useEnergyRush({enabled,cameraReady,preview,videoRef,echoSession,
    if(settings.current.inputMode!=='assist'||engine.snapshot.phase!=='PLAYING')return;
    if(energyKeyDirection(e.code)){e.preventDefault();keys.current.add(e.code);}
   };
-  const up=e=>keys.current.delete(e.code),blur=()=>{keys.current.clear();};
+  const up=e=>keys.current.delete(e.code),blur=()=>suspend('focus');
   document.addEventListener('visibilitychange',visibility);document.addEventListener('keydown',down);document.addEventListener('keyup',up);window.addEventListener('blur',blur);
   return()=>{unsubscribe?.();document.removeEventListener('visibilitychange',visibility);document.removeEventListener('keydown',down);document.removeEventListener('keyup',up);window.removeEventListener('blur',blur);echoSession?.beyond.chaos.setEnergyRush(false);engine.exit();grid.reset();assist.reset();};
  },[engine,echoSession]);
@@ -53,8 +53,8 @@ export function useEnergyRush({enabled,cameraReady,preview,videoRef,echoSession,
   setColor(color){settings.current.color=color;},
   setExcluded(rectangles){excluded.current=rectangles.slice(0,24);},
   start(){const now=performance.now();if(!enabled||document.hidden||echoSession?.gate.suspended||inputMode==='body'&&(!cameraReady||preview||!grid.fresh(now)))return;point.current={x:.5,y:.5};actions.current={};keys.current.clear();assist.reset();best.current=null;events.reset();echoSession?.beyond.chaos.replay('GLOW');engine.start(now,inputMode);publish();},
-  pause(){engine.pause('user',performance.now());keys.current.clear();publish();},
-  resume(){if(document.hidden||echoSession?.gate.suspended)return;engine.resume(performance.now());publish();},
+  pause(){actions.current={};assist.reset();engine.pause('user',performance.now());keys.current.clear();publish();},
+  resume(){if(document.hidden||echoSession?.gate.suspended)return;keys.current.clear();actions.current={};assist.reset();lastFrame.current=null;engine.resume(performance.now());publish();},
   recalibrate(){keys.current.clear();echoSession?.beyond.bodyshift.leave('GLOW');engine.recalibrate(performance.now());publish();},
   finishCalibration(){engine.finishCalibration();publish();},
   chooseInput(mode){engine.exit();assist.reset();grid.reset();lastMask.current=null;keys.current.clear();best.current=null;setInputMode(mode);},

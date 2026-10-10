@@ -116,6 +116,9 @@
 }
 .game-how-to {position:absolute;right:32px;bottom:104px;z-index:22;min-height:44px;padding:10px 14px;border:1px solid #ad93c866;border-radius:5px;background:#100a1ddb;color:#eee0ff;font-size:11px;letter-spacing:.06em}
 .game-how-to:focus-visible {outline:2px solid var(--light);outline-offset:3px}
+.game-pause {position:absolute;right:32px;bottom:156px;z-index:22;min-height:44px;min-width:76px;padding:10px 14px;background:#100a1ddb;color:#eee0ff;border:1px solid #ad93c866;border-radius:5px;font-size:11px;letter-spacing:.06em}
+@media(max-width:600px) {.game-pause {right:16px;bottom:180px}}
+@media(max-height:500px) {.game-pause {right:16px;bottom:134px}}
 .launch-grab-status {position:absolute;bottom:114px;left:50%;transform:translateX(-50%);z-index:19;color:var(--light);font-size:12px;letter-spacing:.08em;pointer-events:none;text-align:center;background:#100a1dba;padding:8px 12px;border-radius:5px;max-width:calc(100% - 280px)}
 .launch-grab-status span {display:block;font-size:9px;color:#d7c7e5;margin-top:5px;letter-spacing:.02em}
 @media(max-width:600px) {.game-how-to {right:16px;bottom:128px}.launch-grab-status {bottom:184px;max-width:calc(100% - 40px);width:max-content;font-size:11px}}

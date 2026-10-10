@@ -25,7 +25,8 @@ export function FlowMode({handRef,color,mouseMode,onFailure,onInteraction,camera
     const trace=[];let lastSequence=null,lastEpoch=round.epoch.current;
     const guide=guideRef.current,gctx=guide.getContext('2d');
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const resize=()=>{const ratio=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(host.clientWidth*ratio);canvas.height=Math.round(host.clientHeight*ratio);ctx?.setTransform(ratio,0,0,ratio,0,0);trace.length=0;guide.width=canvas.width;guide.height=canvas.height;gctx?.setTransform(ratio,0,0,ratio,0,0);targetRef.current=null;echoPath.current.clear();};
+    let measuredWidth=0,measuredHeight=0;
+    const resize=()=>{const changed=measuredWidth>0&&(measuredWidth!==host.clientWidth||measuredHeight!==host.clientHeight);if(changed){round.pause('resize');}measuredWidth=host.clientWidth;measuredHeight=host.clientHeight;const ratio=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(host.clientWidth*ratio);canvas.height=Math.round(host.clientHeight*ratio);ctx?.setTransform(ratio,0,0,ratio,0,0);trace.length=0;guide.width=canvas.width;guide.height=canvas.height;gctx?.setTransform(ratio,0,0,ratio,0,0);targetRef.current=null;echoPath.current.clear();};
     resize();const observer=new ResizeObserver(resize);observer.observe(host);
     const drawLight=time=>{
       if(!ctx)return;

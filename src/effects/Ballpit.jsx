@@ -764,6 +764,8 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
   document.addEventListener('visibilitychange', visibility);
   function applyInput() {
     const raw = inputRef.current.pointerRef?.current;
+    // A short landmark interruption freezes ownership, never extrapolates a throw.
+    if(raw?.grab?.active&&raw.grab.interrupted&&!document.hidden){candidate=null;grabController.freeze();consumed.active=false;s.config.controlSphere0=false;return;}
     const result = consumeLaunchInput(consumed, raw, performance.now());
     if (!consumed.active || document.hidden || raw?.grab?.lost) { candidate=null;grabController.release(s.physics);lastGrabSequence=null;s.config.controlSphere0 = false; return; }
     updateCandidate(raw,performance.now());
@@ -778,6 +780,7 @@ export function createBallpit(e, t = {}, inputRef = { current: {} }) {
     s.physics.center.copy(r);
     if(raw.grab?.active){
       if(raw.sequence!==lastGrabSequence){
+        if(raw.grab.rebased)grabController.rebase(r,raw.timestamp);
         if(!grabController.count&&(raw.grab.begin||raw.grab.canAcquire)&&raw.grab.fresh!==false)acquire(r,raw.timestamp);
         else if(raw.grab.fresh!==false)grabController.move(r,raw.timestamp);
         lastGrabSequence=raw.sequence;

@@ -16,10 +16,11 @@ export function launchGrabFeatures(hand){
  const f=grabFeatures(hand);return f&&{...f,closed:!launchPointFeatures(hand)?.pointing&&f.ratios.filter(r=>r<1.02).length>=3,open:f.ratios.filter(r=>r>1.12).length>=3};
 }
 // Confirmation uses fresh observations, never repeated render frames or missing poses.
-export function createGrabDetector(){
- let active=false,ready=false,lastSequence=null,lastTime=-Infinity,lastCenter=null,closeSince=null,openSince=null,closeSamples=0,openSamples=0,intentUntil=-Infinity;
- const reset=()=>{active=false;ready=false;lastSequence=null;lastTime=-Infinity;lastCenter=null;closeSince=openSince=null;closeSamples=openSamples=0;intentUntil=-Infinity;};
- const output=(now,extra={})=>({active,begin:false,released:false,lost:false,center:lastCenter,fresh:false,canAcquire:active&&now<=intentUntil,grabIntentUntil:intentUntil,blocksCreation:active,...extra});
+export function createGrabDetector({lossGraceMs=120}={}){
+ const grace=Math.max(120,Math.min(350,lossGraceMs));
+ let interrupted=false,active=false,ready=false,lastSequence=null,lastTime=-Infinity,lastCenter=null,closeSince=null,openSince=null,closeSamples=0,openSamples=0,intentUntil=-Infinity;
+ const reset=()=>{interrupted=false;active=false;ready=false;lastSequence=null;lastTime=-Infinity;lastCenter=null;closeSince=openSince=null;closeSamples=openSamples=0;intentUntil=-Infinity;};
+ const output=(now,extra={})=>({active,begin:false,released:false,lost:false,interrupted,center:lastCenter,fresh:false,canAcquire:active&&now<=intentUntil,grabIntentUntil:intentUntil,blocksCreation:active,...extra});
  const lose=now=>{const lost=active;reset();return output(now,{lost});};
  return {reset,update(input,now){
   if(!Number.isFinite(now))return lose(now);
@@ -27,18 +28,20 @@ export function createGrabDetector(){
   const hardInvalid=input&&(input.timestamp>now+10||Number.isFinite(input.timestamp)&&now-input.timestamp>250);
   if(hardInvalid)return lose(now);
   const f=input?.features;
-  if(input?.active&&!input.motionRejected&&input.sequence===lastSequence&&f?.center){if(age>120)return lose(now);return output(now,{blocksCreation:active||f.closed||f.open});}
+  if(input?.active&&!input.motionRejected&&input.sequence===lastSequence&&f?.center){if(age>grace)return lose(now);if(age>120)interrupted=true;return output(now,{canAcquire:false,blocksCreation:active||f.closed||f.open});}
   if(!input?.active||!f?.center||!Number.isFinite(f.center.x+f.center.y)||!Number.isFinite(input.timestamp)||input.motionRejected||input.sequence===lastSequence){
-   closeSince=openSince=null;closeSamples=openSamples=0;
-   if(age>120)return lose(now);
+   interrupted=true;closeSince=openSince=null;closeSamples=openSamples=0;
+   if(age>grace)return lose(now);
    return output(now,{canAcquire:false,blocksCreation:active||!!input?.motionRejected});
   }
   const dt=input.timestamp-lastTime,jump=lastCenter&&Math.hypot(f.center.x-lastCenter.x,f.center.y-lastCenter.y)>.35;
-  if(dt<=0||dt>250||active&&dt>120||jump||input.reset&&!['jump','jump-confirmed','spike'].includes(input.resetReason)){
+  const reacquired=active&&(interrupted||dt>120)&&dt>0&&dt<=grace&&!jump&&(!input.reset||['acquired','gap'].includes(input.resetReason));
+  if(reacquired){interrupted=false;lastSequence=input.sequence;lastTime=input.timestamp;lastCenter={...f.center};closeSince=null;closeSamples=0;openSince=f.open?input.timestamp:null;openSamples=f.open?1:0;intentUntil=-Infinity;return output(now,{fresh:true,rebased:true,canAcquire:false});}
+  if(dt<=0||dt>250||active&&dt>grace||jump||input.reset&&!['jump','jump-confirmed','spike'].includes(input.resetReason)){
    const lost=active;reset();lastSequence=input.sequence;lastTime=input.timestamp;lastCenter=f.center;ready=f.open;
    return output(now,{lost,fresh:true,blocksCreation:f.closed||f.open});
   }
-  lastSequence=input.sequence;lastTime=input.timestamp;lastCenter={...f.center};
+  interrupted=false;lastSequence=input.sequence;lastTime=input.timestamp;lastCenter={...f.center};
   let begin=false,released=false;
   if(!active){
    if(f.open)ready=true;

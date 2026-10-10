@@ -30,6 +30,8 @@ export function createGrabController({radius=1.6,maxGrabbed=1,followResponse=36,
   if(released.length)try{onRelease?.(released,throwing,speed);}catch{/* Echo observers cannot change physics. */}
  }
  return {get count(){return held.size;},get indices(){return [...held.keys()];},has(i){return held.has(i);},release,
+ freeze(){target=null;velocity={x:0,y:0,z:0};history.length=0;lastTime=0;},
+ rebase(point,time){if(!finite(point)||!held.size)return;target={...point};velocity={x:0,y:0,z:0};history.length=0;history.push({...point,time});lastTime=time;},
  begin(point,physics,time=0,selection){release(physics);if(!finite(point))return 0;const candidates=[];for(let i=1;i<physics.config.activeCount;i++){const o=i*3,dx=physics.positionData[o]-point.x,dy=physics.positionData[o+1]-point.y,dz=physics.positionData[o+2]-point.z;const d=Math.hypot(dx,dy,dz*.35);if(selection ? Number.isInteger(selection.index)&&i===selection.index : d<=radius+physics.sizeData[i])candidates.push({i,d,offset:{x:dx,y:dy,z:dz}});}candidates.sort((a,b)=>a.d-b.d);for(const c of candidates.slice(0,maxGrabbed))held.set(c.i,selection?.attach?{x:0,y:0,z:0}:c.offset);target={...point};lastTime=time;history.push({...point,time});return held.size;},
  move(point,time){
   if(!finite(point)||!held.size||!Number.isFinite(time)||time<=lastTime)return;
