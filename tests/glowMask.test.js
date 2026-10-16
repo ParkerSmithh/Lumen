@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createVisualMask} from '../src/effects/glowMask.js';
+import {createVisualMask,writeVisualRim} from '../src/effects/glowMask.js';
 import {resolveGlowProfile} from '../src/effects/glowProfiles.js';
 import {createSilhouetteGrid} from '../src/tracking/silhouetteGrid.js';
 test('visual mask is bounded, sanitized and never mutates gameplay values',()=>{
@@ -31,4 +31,8 @@ test('confidence extremes, empty masks and reused buffers remain finite',()=>{
  const v=createVisualMask();assert.equal(v.update(null),null);assert.equal(v.update({width:2,height:2,values:[]}),null);
  const data=new Float32Array([-1,Infinity,.5,2]),m={width:2,height:2,values:data,timestamp:1};const first=v.update(m,0),storage=first.data;
  assert.deepEqual([storage[3],storage[7],storage[11],storage[15]],[0,0,128,255]);m.timestamp=2;data.fill(0);assert.equal(v.update(m,66).data,storage);assert.equal(storage[15],0);
+});
+test('fractional confidence plateaus have no phantom interior rim',()=>{
+ const v=createVisualMask(),mask=v.update({width:5,height:5,values:new Float32Array(25).fill(.5)},0),out=new Uint8ClampedArray(100);writeVisualRim(mask,out,[255,0,0]);assert.equal(out[(2*5+2)*4+3],0);assert.ok(out[3]>0);
+ const hard=v.update({width:5,height:5,values:Float32Array.from({length:25},(_,i)=>i%5<2?1:0)},66);writeVisualRim(hard,out,[0,0,255]);assert.equal(out[(2*5+1)*4+3],255);assert.equal(out[(2*5+1)*4+2],255);assert.equal(out[(2*5+4)*4+3],0);
 });

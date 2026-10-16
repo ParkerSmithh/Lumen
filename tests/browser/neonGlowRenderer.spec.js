@@ -15,6 +15,11 @@ test('recommended intensity controls persist and coexist with instructions',asyn
  await page.goto('/');await page.getByRole('button',{name:'Preview light'}).click();const controls=page.getByRole('group',{name:'Glow intensity'});await expect(controls.getByRole('button',{name:/NEON/})).toHaveAttribute('aria-pressed','true');
  await controls.getByRole('button',{name:'SUPERNOVA',exact:true}).click();await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'GLOW',exact:true}).click();await page.getByRole('button',{name:'Preview light'}).click();await expect(page.getByRole('button',{name:'SUPERNOVA',exact:true})).toHaveAttribute('aria-pressed','true');
 });
+for(const [width,height] of [[390,844],[375,667],[390,736],[844,390],[667,375]])test(`glow intensity stays clear of play and palette at ${width}x${height}`,async({page})=>{
+ await page.setViewportSize({width,height});await page.goto('/');await page.getByRole('button',{name:'Preview light'}).click();
+ const a=await page.locator('.glow-intensity').boundingBox(),b=await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).boundingBox(),palette=await page.locator('.color-picker').boundingBox();
+ const overlaps=(a,b)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;expect(overlaps(a,b)).toBe(false);expect(overlaps(a,palette)).toBe(false);await page.screenshot({path:`.test-artifacts/neon-controls-${width}x${height}.png`});
+});
 for(const fallback of [false,true])test(`difficult masks, preview loss and reduced motion (${fallback?'Canvas':'WebGL'})`,async({page})=>{
  await page.goto('/');const result=await page.evaluate(async fallback=>{
   const {createGlowRenderer}=await import('/src/effects/glowRenderer.js'),{neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const c=document.createElement('canvas');if(fallback)c.getContext('2d');const r=createGlowRenderer(c);r.resize(320,240);const read=document.createElement('canvas');read.width=320;read.height=240;const ctx=read.getContext('2d');
@@ -36,4 +41,7 @@ test('mounted context loss recovers through Canvas without another renderer loop
  await page.goto('/');await page.getByRole('button',{name:'Preview light'}).click();const before=await page.locator('.glow-artwork canvas').count();
  const supported=await page.evaluate(()=>{const c=document.querySelector('.glow-artwork canvas'),gl=c.getContext('webgl'),ext=gl?.getExtension('WEBGL_lose_context');if(!ext)return false;ext.loseContext();return true;});
  test.skip(!supported,'Context loss extension unavailable');await expect.poll(()=>page.evaluate(()=>!!document.querySelector('.glow-artwork canvas').getContext('2d'))).toBe(true);await expect(page.locator('.glow-artwork canvas')).toHaveCount(before);
+});
+test('Canvas uncertain confidence does not become a hot solid interior',async({page})=>{
+ await page.goto('/');const red=await page.evaluate(async()=>{const {createGlowRenderer}=await import('/src/effects/glowRenderer.js');const video=document.createElement('canvas');video.width=video.height=64;const v=video.getContext('2d');v.fillStyle='#606060';v.fillRect(0,0,64,64);const c=document.createElement('canvas');c.getContext('2d');const r=createGlowRenderer(c);r.resize(64,64);r.draw({video,mask:{width:5,height:5,values:new Float32Array(25).fill(.5)},color:'#ff354e',intensity:'SUPERNOVA',opacity:1,time:100});const value=c.getContext('2d').getImageData(32,32,1,1).data[0];r.dispose();return value;});expect(red).toBeLessThan(220);
 });

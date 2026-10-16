@@ -1,0 +1,522 @@
+{
+  "method": "Three sequential runs per backend and renderer, 5s warmup plus 30s sample at 960x720. Synthetic camera and fresh masks every fourth frame. CPU submission and optional asynchronous non-disjoint GPU queries reported separately.",
+  "rows": [
+    {
+      "name": "OLD",
+      "fallback": false,
+      "run": 0,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "samples": 3274,
+        "medianMs": 0.051936,
+        "p95Ms": 0.10224
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "medianMs": null,
+        "reason": "Per-mask preparation is not separately instrumented for legacy or Canvas; renderer CPU includes this work.",
+        "samples": 0,
+        "p95Ms": null,
+        "available": false
+      },
+      "before": {
+        "textures": 2,
+        "framebuffers": 0,
+        "buffers": 1,
+        "programs": 1,
+        "shaders": 2
+      },
+      "after": {
+        "textures": 0,
+        "framebuffers": 0,
+        "buffers": 0,
+        "programs": 0,
+        "shaders": 0
+      }
+    },
+    {
+      "name": "OLD",
+      "fallback": false,
+      "run": 1,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "samples": 3582,
+        "medianMs": 0.04064,
+        "p95Ms": 0.050272
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "medianMs": null,
+        "reason": "Per-mask preparation is not separately instrumented for legacy or Canvas; renderer CPU includes this work.",
+        "samples": 0,
+        "p95Ms": null,
+        "available": false
+      },
+      "before": {
+        "textures": 2,
+        "framebuffers": 0,
+        "buffers": 1,
+        "programs": 1,
+        "shaders": 2
+      },
+      "after": {
+        "textures": 0,
+        "framebuffers": 0,
+        "buffers": 0,
+        "programs": 0,
+        "shaders": 0
+      }
+    },
+    {
+      "name": "OLD",
+      "fallback": false,
+      "run": 2,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0,
+        "p95Ms": 1.4000000059604645
+      },
+      "gpu": {
+        "samples": 3575,
+        "medianMs": 0.040608,
+        "p95Ms": 0.05296
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "medianMs": null,
+        "reason": "Per-mask preparation is not separately instrumented for legacy or Canvas; renderer CPU includes this work.",
+        "samples": 0,
+        "p95Ms": null,
+        "available": false
+      },
+      "before": {
+        "textures": 2,
+        "framebuffers": 0,
+        "buffers": 1,
+        "programs": 1,
+        "shaders": 2
+      },
+      "after": {
+        "textures": 0,
+        "framebuffers": 0,
+        "buffers": 0,
+        "programs": 0,
+        "shaders": 0
+      }
+    },
+    {
+      "name": "OLD",
+      "fallback": true,
+      "run": 0,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "medianMs": null,
+        "reason": "Per-mask preparation is not separately instrumented for legacy or Canvas; renderer CPU includes this work.",
+        "samples": 0,
+        "p95Ms": null,
+        "available": false
+      },
+      "before": null,
+      "after": null
+    },
+    {
+      "name": "OLD",
+      "fallback": true,
+      "run": 1,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 1.4000000059604645
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "medianMs": null,
+        "reason": "Per-mask preparation is not separately instrumented for legacy or Canvas; renderer CPU includes this work.",
+        "samples": 0,
+        "p95Ms": null,
+        "available": false
+      },
+      "before": null,
+      "after": null
+    },
+    {
+      "name": "OLD",
+      "fallback": true,
+      "run": 2,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "medianMs": null,
+        "reason": "Per-mask preparation is not separately instrumented for legacy or Canvas; renderer CPU includes this work.",
+        "samples": 0,
+        "p95Ms": null,
+        "available": false
+      },
+      "before": null,
+      "after": null
+    },
+    {
+      "name": "NEON",
+      "fallback": false,
+      "run": 0,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0,
+        "p95Ms": 0.5
+      },
+      "gpu": {
+        "samples": 3396,
+        "medianMs": 0.009408,
+        "p95Ms": 0.05072
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "samples": 1800,
+        "medianMs": 0.4000000059604645,
+        "p95Ms": 0.5,
+        "available": true
+      },
+      "before": {
+        "backend": "webgl",
+        "textures": 9,
+        "framebuffers": 7,
+        "programs": 3,
+        "shaders": 6,
+        "buffers": 1,
+        "targetBytes": 823296,
+        "textureAllocations": 9,
+        "disposed": false,
+        "auxiliaryBytes": 1130496,
+        "visualBytes": 614400,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.3999999910593033,
+        "drawMs": 0.5
+      },
+      "after": {
+        "backend": "webgl",
+        "textures": 0,
+        "framebuffers": 0,
+        "programs": 0,
+        "shaders": 0,
+        "buffers": 0,
+        "targetBytes": 0,
+        "textureAllocations": 9,
+        "disposed": true,
+        "auxiliaryBytes": 0,
+        "visualBytes": 0,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.3999999910593033,
+        "drawMs": 0.5
+      }
+    },
+    {
+      "name": "NEON",
+      "fallback": false,
+      "run": 1,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0,
+        "p95Ms": 0.5
+      },
+      "gpu": {
+        "samples": 3402,
+        "medianMs": 0.009376,
+        "p95Ms": 0.052192
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "samples": 1800,
+        "medianMs": 0.4000000059604645,
+        "p95Ms": 0.5,
+        "available": true
+      },
+      "before": {
+        "backend": "webgl",
+        "textures": 9,
+        "framebuffers": 7,
+        "programs": 3,
+        "shaders": 6,
+        "buffers": 1,
+        "targetBytes": 823296,
+        "textureAllocations": 9,
+        "disposed": false,
+        "auxiliaryBytes": 1130496,
+        "visualBytes": 614400,
+        "quality": "high",
+        "passes": 14700,
+        "updates": 2100,
+        "maskMs": 0,
+        "drawMs": 0.09999999403953552
+      },
+      "after": {
+        "backend": "webgl",
+        "textures": 0,
+        "framebuffers": 0,
+        "programs": 0,
+        "shaders": 0,
+        "buffers": 0,
+        "targetBytes": 0,
+        "textureAllocations": 9,
+        "disposed": true,
+        "auxiliaryBytes": 0,
+        "visualBytes": 0,
+        "quality": "high",
+        "passes": 14700,
+        "updates": 2100,
+        "maskMs": 0,
+        "drawMs": 0.09999999403953552
+      }
+    },
+    {
+      "name": "NEON",
+      "fallback": false,
+      "run": 2,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0,
+        "p95Ms": 0.5
+      },
+      "gpu": {
+        "samples": 3394,
+        "medianMs": 0.009376,
+        "p95Ms": 0.054528
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.200000002980232,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "samples": 1800,
+        "medianMs": 0.4000000059604645,
+        "p95Ms": 0.5,
+        "available": true
+      },
+      "before": {
+        "backend": "webgl",
+        "textures": 9,
+        "framebuffers": 7,
+        "programs": 3,
+        "shaders": 6,
+        "buffers": 1,
+        "targetBytes": 823296,
+        "textureAllocations": 9,
+        "disposed": false,
+        "auxiliaryBytes": 1130496,
+        "visualBytes": 614400,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.4000000059604645,
+        "drawMs": 0.5
+      },
+      "after": {
+        "backend": "webgl",
+        "textures": 0,
+        "framebuffers": 0,
+        "programs": 0,
+        "shaders": 0,
+        "buffers": 0,
+        "targetBytes": 0,
+        "textureAllocations": 9,
+        "disposed": true,
+        "auxiliaryBytes": 0,
+        "visualBytes": 0,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.4000000059604645,
+        "drawMs": 0.5
+      }
+    },
+    {
+      "name": "NEON",
+      "fallback": true,
+      "run": 0,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "available": false,
+        "samples": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "before": {
+        "backend": "canvas",
+        "canvases": 7,
+        "targetBytes": 2214912,
+        "visualBytes": 921600,
+        "updates": 969,
+        "drawMs": 1.7000000029802322,
+        "disposed": false
+      },
+      "after": {
+        "backend": "canvas",
+        "canvases": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 969,
+        "drawMs": 1.7000000029802322,
+        "disposed": true
+      }
+    },
+    {
+      "name": "NEON",
+      "fallback": true,
+      "run": 1,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "available": false,
+        "samples": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "before": {
+        "backend": "canvas",
+        "canvases": 7,
+        "targetBytes": 2214912,
+        "visualBytes": 921600,
+        "updates": 969,
+        "drawMs": 1.6000000089406967,
+        "disposed": false
+      },
+      "after": {
+        "backend": "canvas",
+        "canvases": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 969,
+        "drawMs": 1.6000000089406967,
+        "disposed": true
+      }
+    },
+    {
+      "name": "NEON",
+      "fallback": true,
+      "run": 2,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "available": false,
+        "samples": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "before": {
+        "backend": "canvas",
+        "canvases": 7,
+        "targetBytes": 2214912,
+        "visualBytes": 921600,
+        "updates": 971,
+        "drawMs": 0.5,
+        "disposed": false
+      },
+      "after": {
+        "backend": "canvas",
+        "canvases": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 971,
+        "drawMs": 0.5,
+        "disposed": true
+      }
+    }
+  ],
+  "canvasRecheck": "Canvas timing rows replaced by isolated three-run recheck after fractional-confidence morphology correction; original WebGL timing and resource soak behavior unchanged."
+}

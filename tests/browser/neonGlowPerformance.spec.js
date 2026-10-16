@@ -4,10 +4,12 @@ test('legacy and neon renderer timing and resource plateau',async({page})=>{
  test.setTimeout(1200000);await page.goto('/');
  page.on('console',message=>{if(message.text().startsWith('[neon profile]'))console.log(message.text());});
  const full=process.env.LUMEN_NEON_PROFILE==='1';
- const rows=await page.evaluate(async full=>{
+ const canvasOnly=process.env.LUMEN_NEON_CANVAS_ONLY==='1';
+ const rows=await page.evaluate(async({full,canvasOnly})=>{
   const {neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const scene=neonGlowScene();const rows=[];
   const legacy=await import('/tests/fixtures/legacyGlowRenderer.js'),current=await import('/src/effects/glowRenderer.js');
   for(const [name,mod] of [['OLD',legacy],['NEON',current]])for(const fallback of [false,true])for(let run=0;run<(full?3:1);run++){
+   if(canvasOnly&&(name!=='NEON'||!fallback))continue;
    const canvas=document.createElement('canvas');let counts={textures:0,framebuffers:0,buffers:0,programs:0,shaders:0};if(fallback)canvas.getContext('2d');else{
     const g=canvas.getContext('webgl',{alpha:false,antialias:false,powerPreference:'low-power'});
     for(const [kind,key] of [['Texture','textures'],['Framebuffer','framebuffers'],['Buffer','buffers'],['Program','programs'],['Shader','shaders']]){const create=g[`create${kind}`].bind(g),remove=g[`delete${kind}`].bind(g);g[`create${kind}`]=(...args)=>{const v=create(...args);if(v)counts[key]++;return v;};g[`delete${kind}`]=v=>{if(v)counts[key]--;return remove(v);};}
@@ -25,9 +27,9 @@ test('legacy and neon renderer timing and resource plateau',async({page})=>{
    const stats=a=>{a.sort((a,b)=>a-b);return {samples:a.length,medianMs:a[Math.floor(a.length*.5)]??null,p95Ms:a[Math.min(a.length-1,Math.floor(a.length*.95))]??null};};
    const before=r.diagnostics?.()||(!fallback?{...counts}:null);r.dispose();rows.push({name,fallback,run,cpu:stats(times),gpu:ext?stats(gpu):{available:false},frameInterval:stats(intervals),maskPreparation:{available:maskTimes.length>0,...stats(maskTimes)},before,after:r.diagnostics?.()||(!fallback?{...counts}:null)});console.log('[neon profile]',JSON.stringify(rows.at(-1)));
   }return rows;
- },full);
- writeFileSync(full?'docs/true-neon-glow-performance.json':'.test-artifacts/neon-timing.json',JSON.stringify({method:full?'Three sequential runs per backend and renderer, 5s warmup plus 30s sample at 960x720. Synthetic camera and fresh masks every fourth frame. CPU submission and optional asynchronous non-disjoint GPU queries reported separately.':'Short diagnostic: 0.5s warmup, 2.5s sample.',rows},null,2));
- expect(rows).toHaveLength(full?12:4);
+ },{full,canvasOnly});
+ writeFileSync(canvasOnly?'docs/true-neon-glow-canvas-recheck.json':full?'docs/true-neon-glow-performance.json':'.test-artifacts/neon-timing.json',JSON.stringify({method:canvasOnly?'Canvas-only three-run recheck after fractional-confidence morphology correction, same 5s warmup and 30s sample at 960x720; synthetic input, fresh mask every fourth RAF.':full?'Three sequential runs per backend and renderer, 5s warmup plus 30s sample at 960x720. Synthetic camera and fresh masks every fourth frame. CPU submission and optional asynchronous non-disjoint GPU queries reported separately.':'Short diagnostic: 0.5s warmup, 2.5s sample.',rows},null,2));
+ expect(rows).toHaveLength(canvasOnly?3:full?12:4);
 });
 
 test('bounded resources across 50 lifecycles and sustained rendering',async({page})=>{

@@ -1,0 +1,283 @@
+{
+  "method": "Sequential fresh contexts; actual segmentation worker/model, synthetic canvas stream; forty returned masks after warmup. All three CHAOS intensities; default NEON visual preset. This measures scheduling, not physical segmentation quality; deterministic mask renderer profiling separately measures bloom workload.",
+  "rows": [
+    {
+      "renderer": "OLD",
+      "intensity": "CALM",
+      "mode": "FREE",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.6000000089407,
+        "p95Ms": 67.20000000298023
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 6.800000002980141,
+        "p95Ms": 7.300000000000182
+      },
+      "mainThreadRAF": {
+        "samples": 636,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 0.30000001192092896
+      }
+    },
+    {
+      "renderer": "OLD",
+      "intensity": "CALM",
+      "mode": "RUSH",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.69999998807907,
+        "p95Ms": 67.20000000298023
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 6.900000000000091,
+        "p95Ms": 7.399999994039717
+      },
+      "mainThreadRAF": {
+        "samples": 634,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 0.30000001192092896
+      }
+    },
+    {
+      "renderer": "OLD",
+      "intensity": "WILD",
+      "mode": "FREE",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.5,
+        "p95Ms": 67.5
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 7.0999999940395355,
+        "p95Ms": 7.900000000000091
+      },
+      "mainThreadRAF": {
+        "samples": 636,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 0.3999999910593033
+      }
+    },
+    {
+      "renderer": "OLD",
+      "intensity": "WILD",
+      "mode": "RUSH",
+      "cadence": {
+        "samples": 40,
+        "medianMs": 66.79999999701977,
+        "p95Ms": 67.19999998807907
+      },
+      "latency": {
+        "samples": 41,
+        "medianMs": 7,
+        "p95Ms": 7.499999997019586
+      },
+      "mainThreadRAF": {
+        "samples": 660,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 0.30000001192092896
+      }
+    },
+    {
+      "renderer": "OLD",
+      "intensity": "MAX",
+      "mode": "FREE",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.69999998807907,
+        "p95Ms": 67.30000001192093
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 7.300000000000182,
+        "p95Ms": 8.000000008940788
+      },
+      "mainThreadRAF": {
+        "samples": 636,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 0.3999999910593033
+      }
+    },
+    {
+      "renderer": "OLD",
+      "intensity": "MAX",
+      "mode": "RUSH",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.70000000298023,
+        "p95Ms": 67.70000000298023
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 7.399999991059303,
+        "p95Ms": 7.800000002980141
+      },
+      "mainThreadRAF": {
+        "samples": 636,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 0.4000000059604645
+      }
+    },
+    {
+      "renderer": "TRUE NEON",
+      "intensity": "CALM",
+      "mode": "FREE",
+      "cadence": {
+        "samples": 40,
+        "medianMs": 66.70000000298023,
+        "p95Ms": 67.6000000089407
+      },
+      "latency": {
+        "samples": 41,
+        "medianMs": 7.0000000059603735,
+        "p95Ms": 7.5000000059603735
+      },
+      "mainThreadRAF": {
+        "samples": 659,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 0.3999999910593033
+      }
+    },
+    {
+      "renderer": "TRUE NEON",
+      "intensity": "CALM",
+      "mode": "RUSH",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.6000000089407,
+        "p95Ms": 67.30000001192093
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 7.299999994039354,
+        "p95Ms": 7.7000000000000455
+      },
+      "mainThreadRAF": {
+        "samples": 633,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 0.4000000059604645
+      }
+    },
+    {
+      "renderer": "TRUE NEON",
+      "intensity": "WILD",
+      "mode": "FREE",
+      "cadence": {
+        "samples": 40,
+        "medianMs": 66.70000000298023,
+        "p95Ms": 67.79999999701977
+      },
+      "latency": {
+        "samples": 41,
+        "medianMs": 7.000000002980414,
+        "p95Ms": 7.70000001192102
+      },
+      "mainThreadRAF": {
+        "samples": 658,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 0.3999999910593033
+      }
+    },
+    {
+      "renderer": "TRUE NEON",
+      "intensity": "WILD",
+      "mode": "RUSH",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.79999999701977,
+        "p95Ms": 67.29999999701977
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 7.100000008940697,
+        "p95Ms": 7.500000005959009
+      },
+      "mainThreadRAF": {
+        "samples": 635,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 0.4000000059604645
+      }
+    },
+    {
+      "renderer": "TRUE NEON",
+      "intensity": "MAX",
+      "mode": "FREE",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.70000000298023,
+        "p95Ms": 67.19999998807907
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 7.599999999999909,
+        "p95Ms": 8.000000005960374
+      },
+      "mainThreadRAF": {
+        "samples": 635,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 0.3999999910593033
+      }
+    },
+    {
+      "renderer": "TRUE NEON",
+      "intensity": "MAX",
+      "mode": "RUSH",
+      "cadence": {
+        "samples": 39,
+        "medianMs": 66.70000000298023,
+        "p95Ms": 67.29999999701977
+      },
+      "latency": {
+        "samples": 40,
+        "medianMs": 7.099999999999909,
+        "p95Ms": 7.5000000059603735
+      },
+      "mainThreadRAF": {
+        "samples": 635,
+        "medianMs": 0.10000000894069672,
+        "p95Ms": 0.3999999910593033
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "mode": "FREE",
+      "intensity": "CALM",
+      "cadenceMedianChangePercent": 0.15015014118033854,
+      "mainThreadP95DeltaMs": 0.09999997913837433
+    },
+    {
+      "mode": "RUSH",
+      "intensity": "CALM",
+      "cadenceMedianChangePercent": -0.14992500623125515,
+      "mainThreadP95DeltaMs": 0.09999999403953552
+    },
+    {
+      "mode": "FREE",
+      "intensity": "WILD",
+      "cadenceMedianChangePercent": 0.30075188418079435,
+      "mainThreadP95DeltaMs": 0
+    },
+    {
+      "mode": "RUSH",
+      "intensity": "WILD",
+      "cadenceMedianChangePercent": 0,
+      "mainThreadP95DeltaMs": 0.09999999403953552
+    },
+    {
+      "mode": "FREE",
+      "intensity": "MAX",
+      "cadenceMedianChangePercent": 2.2340573835322175e-8,
+      "mainThreadP95DeltaMs": 0
+    },
+    {
+      "mode": "RUSH",
+      "intensity": "MAX",
+      "cadenceMedianChangePercent": 0,
+      "mainThreadP95DeltaMs": -1.4901161193847656e-8
+    }
+  ]
+}

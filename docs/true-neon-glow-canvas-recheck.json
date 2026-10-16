@@ -1,0 +1,131 @@
+{
+  "method": "Canvas-only three-run recheck after fractional-confidence morphology correction, same 5s warmup and 30s sample at 960x720; synthetic input, fresh mask every fourth RAF.",
+  "rows": [
+    {
+      "name": "NEON",
+      "fallback": true,
+      "run": 0,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "available": false,
+        "samples": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "before": {
+        "backend": "canvas",
+        "canvases": 7,
+        "targetBytes": 2214912,
+        "visualBytes": 921600,
+        "updates": 969,
+        "drawMs": 1.7000000029802322,
+        "disposed": false
+      },
+      "after": {
+        "backend": "canvas",
+        "canvases": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 969,
+        "drawMs": 1.7000000029802322,
+        "disposed": true
+      }
+    },
+    {
+      "name": "NEON",
+      "fallback": true,
+      "run": 1,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "available": false,
+        "samples": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "before": {
+        "backend": "canvas",
+        "canvases": 7,
+        "targetBytes": 2214912,
+        "visualBytes": 921600,
+        "updates": 969,
+        "drawMs": 1.6000000089406967,
+        "disposed": false
+      },
+      "after": {
+        "backend": "canvas",
+        "canvases": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 969,
+        "drawMs": 1.6000000089406967,
+        "disposed": true
+      }
+    },
+    {
+      "name": "NEON",
+      "fallback": true,
+      "run": 2,
+      "cpu": {
+        "samples": 7200,
+        "medianMs": 0.09999999403953552,
+        "p95Ms": 1.5
+      },
+      "gpu": {
+        "available": false
+      },
+      "frameInterval": {
+        "samples": 7200,
+        "medianMs": 4.199999988079071,
+        "p95Ms": 4.299999997019768
+      },
+      "maskPreparation": {
+        "available": false,
+        "samples": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "before": {
+        "backend": "canvas",
+        "canvases": 7,
+        "targetBytes": 2214912,
+        "visualBytes": 921600,
+        "updates": 971,
+        "drawMs": 0.5,
+        "disposed": false
+      },
+      "after": {
+        "backend": "canvas",
+        "canvases": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 971,
+        "drawMs": 0.5,
+        "disposed": true
+      }
+    }
+  ]
+}

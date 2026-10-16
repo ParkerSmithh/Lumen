@@ -23,3 +23,17 @@ export function createVisualMask(){
  };
 }
 
+// True min/max morphology, not alpha-union/product: a fractional confidence
+// plateau is coverage, never an emissive edge. Writes into caller-owned storage.
+export function writeVisualRim(mask,out,rgb){
+ const {width:w,height:h,data}=mask;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  let lo=1,hi=0;
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+   const nx=x+dx,ny=y+dy,a=nx<0||ny<0||nx>=w||ny>=h?0:data[(ny*w+nx)*4+3]/255;lo=Math.min(lo,a);hi=Math.max(hi,a);
+  }
+  const i=(y*w+x)*4,t=Math.max(0,Math.min(1,(hi-lo-.03)/.77));out[i]=rgb[0];out[i+1]=rgb[1];out[i+2]=rgb[2];out[i+3]=Math.round(t*t*(3-2*t)*255);
+ }
+ return out;
+}
+

@@ -1,0 +1,870 @@
+{
+  "webgl": [
+    {
+      "name": "Red",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 91.45479999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.212599999999995,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 74.2406862745098,
+          "faceContrast": 109.019,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.859599999999993,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Red",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 91.45479999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.212599999999995,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 99.88235294117646,
+          "faceContrast": 104.82999999999998,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.647000000000006,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Red",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 91.45479999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.212599999999995,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 136.0985294117647,
+          "faceContrast": 103.34179999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.009200000000007,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 85.018,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.21259999999998,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 74.2406862745098,
+          "faceContrast": 107.58859999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.144399999999997,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 85.018,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.21259999999998,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 99.88235294117646,
+          "faceContrast": 101.32619999999997,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.64699999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 85.018,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.21259999999998,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 136.0985294117647,
+          "faceContrast": 98.40759999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 20.506600000000006,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Yellow",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 79.2964,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.212600000000037,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 74.2406862745098,
+          "faceContrast": 105.44299999999997,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.14439999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Yellow",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 79.2964,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.212600000000037,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 99.88235294117646,
+          "faceContrast": 95.53239999999997,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.00399999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Yellow",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.33382352941177,
+          "faceContrast": 79.2964,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.212600000000037,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 136.0985294117647,
+          "faceContrast": 91.18339999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 19.863600000000005,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Green",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.21470588235294,
+          "faceContrast": 83.01580000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.78739999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 74.79509803921569,
+          "faceContrast": 105.56380000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.357,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Green",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.21470588235294,
+          "faceContrast": 83.01580000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.78739999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 100.35980392156863,
+          "faceContrast": 96.76999999999998,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 20.8544,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Green",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.21470588235294,
+          "faceContrast": 83.01580000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.78739999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 136.475,
+          "faceContrast": 92.26620000000003,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 20.06700000000002,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Blue",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.116176470588236,
+          "faceContrast": 92.5168,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.715199999999996,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 75.75686274509803,
+          "faceContrast": 108.99539999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.71520000000001,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Blue",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.116176470588236,
+          "faceContrast": 92.5168,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.715199999999996,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 101.19019607843137,
+          "faceContrast": 104.4888,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.92779999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Blue",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.116176470588236,
+          "faceContrast": 92.5168,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.715199999999996,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 137.10196078431372,
+          "faceContrast": 102.05440000000002,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.35299999999998,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Purple",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.116176470588236,
+          "faceContrast": 91.20299999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.21260000000001,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 75.75686274509803,
+          "faceContrast": 109.5754,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.715200000000003,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Purple",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.116176470588236,
+          "faceContrast": 91.20299999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.21260000000001,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 101.19019607843137,
+          "faceContrast": 105.7262,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.643000000000008,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Purple",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 47.116176470588236,
+          "faceContrast": 91.20299999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.21260000000001,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 137.10196078431372,
+          "faceContrast": 103.15659999999998,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.642999999999986,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    }
+  ],
+  "canvas": [
+    {
+      "name": "Red",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.725980392156863,
+          "faceContrast": 61.266,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.362199999999987,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 37.84264705882353,
+          "faceContrast": 113.73939999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 23.36220000000001,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Red",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.725980392156863,
+          "faceContrast": 61.266,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.362199999999987,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 81.77941176470588,
+          "faceContrast": 107.55040000000002,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.009199999999993,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Red",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.725980392156863,
+          "faceContrast": 61.266,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.362199999999987,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 129.02549019607844,
+          "faceContrast": 104.99000000000002,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.511800000000008,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.725980392156863,
+          "faceContrast": 59.835600000000014,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.434399999999997,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 37.84362745098039,
+          "faceContrast": 109.52040000000002,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.719199999999994,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.725980392156863,
+          "faceContrast": 59.835600000000014,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.434399999999997,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 81.77941176470588,
+          "faceContrast": 100.5428,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 20.578799999999987,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.725980392156863,
+          "faceContrast": 59.835600000000014,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.434399999999997,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 129.02549019607844,
+          "faceContrast": 95.83680000000003,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 19.4384,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Yellow",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.75294117647059,
+          "faceContrast": 56.25959999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 11.647000000000006,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 38.042647058823526,
+          "faceContrast": 104.4418,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.93179999999998,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Yellow",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.75294117647059,
+          "faceContrast": 56.25959999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 11.647000000000006,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 81.81519607843137,
+          "faceContrast": 92.53119999999998,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 19.148399999999995,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Yellow",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 29.75294117647059,
+          "faceContrast": 56.25959999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 11.647000000000006,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 129.02549019607844,
+          "faceContrast": 87.18220000000002,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 18.008000000000024,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Green",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 30.61421568627451,
+          "faceContrast": 56.236000000000004,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.284800000000018,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 38.62401960784314,
+          "faceContrast": 105.83939999999997,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.78219999999999,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Green",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 30.61421568627451,
+          "faceContrast": 56.236000000000004,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.284800000000018,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 82.41911764705883,
+          "faceContrast": 94.11780000000002,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 19.139199999999988,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Green",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 30.61421568627451,
+          "faceContrast": 56.236000000000004,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.284800000000018,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 129.40343137254902,
+          "faceContrast": 88.75959999999998,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 18.351799999999997,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Blue",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 31.49019607843137,
+          "faceContrast": 60.238399999999984,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.212599999999995,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 39.38529411764706,
+          "faceContrast": 110.76959999999998,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.42520000000001,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Blue",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 31.49019607843137,
+          "faceContrast": 60.238399999999984,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.212599999999995,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 83.0813725490196,
+          "faceContrast": 102.76039999999999,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 20.565600000000018,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Blue",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 31.49019607843137,
+          "faceContrast": 60.238399999999984,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12.212599999999995,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 129.90539215686275,
+          "faceContrast": 98.97300000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 20.208600000000004,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Purple",
+      "preset": "SOFT",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 31.49019607843137,
+          "faceContrast": 61.53360000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 39.38529411764706,
+          "faceContrast": 111.71700000000003,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 22.927799999999998,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Purple",
+      "preset": "NEON",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 31.49019607843137,
+          "faceContrast": 61.53360000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 83.0813725490196,
+          "faceContrast": 104.1526,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.570800000000006,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    },
+    {
+      "name": "Purple",
+      "preset": "SUPERNOVA",
+      "stats": [
+        {
+          "tag": "OLD",
+          "exterior": 31.49019607843137,
+          "faceContrast": 61.53360000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 12,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        },
+        {
+          "tag": "TRUE NEON",
+          "exterior": 129.90539215686275,
+          "faceContrast": 101.15780000000001,
+          "sourceFaceContrast": 121.9914,
+          "textureContrast": 21.00120000000001,
+          "sourceTextureContrast": 25.072200000000002,
+          "clippedFraction": 0
+        }
+      ]
+    }
+  ]
+}

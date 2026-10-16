@@ -1,0 +1,26 @@
+{
+    "notes":  "Headless automated measurements, not physical-webcam acceptance. Available adapters are not an assertion of the active WebGL adapter. GPU timing uses the tested context EXT_disjoint_timer_query; Canvas GPU timings are unavailable.",
+    "reportDate":  "2026-10-16",
+    "cpu":  "Intel(R) Core(TM) Ultra 7 265K",
+    "nodeVersion":  "v24.21.0",
+    "os":  {
+               "Caption":  "Microsoft Windows 11 Pro",
+               "Version":  "10.0.26200"
+           },
+    "availableAdapters":  [
+                              {
+                                  "Name":  "Meta Virtual Monitor",
+                                  "DriverVersion":  "11.1.45.729"
+                              },
+                              {
+                                  "Name":  "NVIDIA GeForce RTX 5070 Ti",
+                                  "DriverVersion":  "32.0.16.1088"
+                              },
+                              {
+                                  "Name":  "Intel(R) Graphics",
+                                  "DriverVersion":  "32.0.101.5869"
+                              }
+                          ],
+    "browserVersion":  "155.0.4283.62",
+    "browserChannel":  "msedge"
+}
