@@ -1,0 +1,12 @@
+export function createGlowTargets(gl){
+ const textures=[],framebuffers=[],programs=[],shaders=[],buffers=[];let bytes=0,disposed=false,allocations=0;
+ const api={
+ texture(){const t=gl.createTexture();if(!t)throw Error('Glow texture unavailable');textures.push(t);allocations++;gl.bindTexture(gl.TEXTURE_2D,t);for(const p of [gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER])gl.texParameteri(gl.TEXTURE_2D,p,gl.LINEAR);for(const p of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,p,gl.CLAMP_TO_EDGE);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,null);return t;},
+ target(){const texture=api.texture(),framebuffer=gl.createFramebuffer();if(!framebuffer)throw Error('Glow framebuffer unavailable');framebuffers.push(framebuffer);return {texture,framebuffer,width:0,height:0};},
+ resize(t,w,h){if(t.width===w&&t.height===h)return;bytes-=t.width*t.height*4;t.width=w;t.height=h;bytes+=w*h*4;gl.bindTexture(gl.TEXTURE_2D,t.texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.bindFramebuffer(gl.FRAMEBUFFER,t.framebuffer);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t.texture,0);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Glow framebuffer incomplete');},
+ program(vertex,fragment){const p=gl.createProgram();programs.push(p);for(const [type,source] of [[gl.VERTEX_SHADER,vertex],[gl.FRAGMENT_SHADER,fragment]]){const s=gl.createShader(type);shaders.push(s);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));gl.attachShader(p,s);}gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;},
+ buffer(){const b=gl.createBuffer();buffers.push(b);return b;},
+ stats(){return {textures:textures.length,framebuffers:framebuffers.length,programs:programs.length,shaders:shaders.length,buffers:buffers.length,targetBytes:bytes,textureAllocations:allocations,disposed};},
+ dispose(){if(disposed)return;disposed=true;for(const t of textures)gl.deleteTexture(t);for(const f of framebuffers)gl.deleteFramebuffer(f);for(const p of programs)gl.deleteProgram(p);for(const s of shaders)gl.deleteShader(s);for(const b of buffers)gl.deleteBuffer(b);textures.length=framebuffers.length=programs.length=shaders.length=buffers.length=0;bytes=0;}
+ };return api;
+}

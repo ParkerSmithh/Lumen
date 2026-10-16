@@ -6,6 +6,7 @@ import { useBodyTracking } from './hooks/useBodyTracking';
 import { useHandTracking } from './hooks/useHandTracking';
 import { useArtworkGuidance } from './hooks/useArtworkGuidance';
 import { GlowMode } from './modes/GlowMode';
+import {GlowIntensityControl} from './effects/GlowIntensityControl';
 import { FlowMode } from './modes/FlowMode';
 import { SlashMode } from './modes/SlashMode';
 import { ModeBoundary } from './ModeBoundary';
@@ -41,6 +42,7 @@ function LumenApp() {
   const tracking = useBodyTracking(camera.videoRef, camera.status === 'ready' && !gallery && mode === 'GLOW',poseEnabled);
   const hands = useHandTracking(camera.videoRef, camera.status === 'ready' && !gallery && !mouseMode && mode !== 'GLOW');
   const [color, setColor] = useState(colors[5]);
+  const [glowIntensity,setGlowIntensity]=useState('NEON');
   const [preview, setPreview] = useState(false);
   const [modeError, setModeError] = useState('');
   const [reloadNeeded, setReloadNeeded] = useState(false);
@@ -91,7 +93,7 @@ function LumenApp() {
     <video ref={camera.videoRef} className={`camera-input${camera.status === 'ready' && !gallery && mode !== 'GLOW' ? ' camera-preview' : ''}`} muted playsInline aria-label="Live webcam preview" aria-hidden={gallery || camera.status !== 'ready' || mode === 'GLOW'} />
     <div className="mode-stage" inert={gallery} aria-hidden={gallery} style={gallery?{visibility:"hidden"}:undefined} key={`${mode}:${renderAttempt}`}>
       <ModeBoundary onFailure={boundaryFailed}>
-        {mode === 'GLOW' ? <GlowMode instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} energyRush={energyRush} onExitEnergy={()=>setEnergyRush(false)} onCamera={enter} poseEnabled={poseEnabled} onPoseToggle={setPoseEnabled} poseStatus={tracking.poseStatus} poseRef={tracking.poseRef} echoSession={echoSession} onChooseInput={value=>setMouseMode(value==='assist')} maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
+        {mode === 'GLOW' ? <GlowMode intensity={glowIntensity} instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} energyRush={energyRush} onExitEnergy={()=>setEnergyRush(false)} onCamera={enter} poseEnabled={poseEnabled} onPoseToggle={setPoseEnabled} poseStatus={tracking.poseStatus} poseRef={tracking.poseRef} echoSession={echoSession} onChooseInput={value=>setMouseMode(value==='assist')} maskRef={tracking.maskRef} videoRef={camera.videoRef} cameraReady={camera.status === 'ready'} color={color[1]} preview={preview} />
           : mode === 'FLOW' ? <FlowMode echoSession={echoSession} instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} onCamera={enter} onChooseInput={value=>setMouseMode(value==='assist')} cameraReady={camera.status === 'ready'} videoRef={camera.videoRef} trackingError={hands.status === 'error'} handRef={hands.handRef} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onInteraction={interacted} />
           : mode === 'SLASH' ? <SlashMode echoSession={echoSession} instructionCamera={{status:camera.status,error:camera.error,trackingStatus:tracker.status,trackingError:tracker.error}} onCamera={enter} onChooseInput={value=>setMouseMode(value==='assist')} videoRef={camera.videoRef} handRef={hands.handRef} cameraReady={camera.status === 'ready'} color={color[1]} mouseMode={mouseMode} onFailure={renderingFailed} onStateChange={state => setSlashOverlay(state.phase !== 'playing' || state.paused)} onSessionStart={() => { setSlashHit(false); setSlashSession(value => value + 1); setGuideInteraction(null); }} onSlash={hit => { if (hit) setSlashHit(true); interacted(); }} />
           : <Suspense fallback={<div className="mode-loading" aria-live="polite">Preparing matter…</div>}>
@@ -110,6 +112,7 @@ function LumenApp() {
     {mode==='GLOW'&&!energyRush&&!entry&&<button className="glow-play" onClick={()=>setEnergyRush(true)}>PLAY ENERGY RUSH</button>}
     {!energyRush&&<InteractionGuide mode={mode} mouseMode={mouseMode} quiet={guideQuiet} />}
     <footer><TrackingStatus camera={camera.status} tracking={tracker.status} assisted={mouseMode} frameMotion={mode==='SLASH'} body={mode==='GLOW'} error={error}/><div className="color-picker"><span>EMISSION <b>{color[0]}</b></span><div role="group" aria-label="Light color">{colors.map(entry => <button key={entry[0]} className="color" style={{ '--swatch': entry[1] }} aria-label={entry[0]} aria-pressed={color[0] === entry[0]} onClick={() => setColor(entry)} />)}</div></div>
+      {mode === 'GLOW' && !entry && <GlowIntensityControl value={glowIntensity} onChange={setGlowIntensity}/>}
       {mode !== 'GLOW' && <div className="flow-controls"><span>{mode === 'FLOW' ? 'LIGHT, IN MOTION' : mode === 'SLASH' ? 'DIGITAL MATTER' : 'MATTER, IN MOTION'}</span><button aria-pressed={mouseMode} onClick={() => { setMouseMode(value => !value); setSlashHit(false); }}>{mouseMode ? 'Use camera interaction' : 'Mouse / touch fallback'}</button></div>}
       <div className="camera-controls">{active ? <button onClick={camera.stop}>Stop camera</button> : preview || (mode !== 'GLOW' && mouseMode) ? <button className="camera-connect" disabled={camera.status === 'loading'} onClick={enter}>{camera.status === 'error' ? 'RETRY CAMERA' : 'ENABLE CAMERA'} <span aria-hidden="true">↗</span></button> : <span>CAMERA PROCESSED ON YOUR DEVICE</span>}<button aria-label="Fullscreen" onClick={() => { (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.())?.catch(() => {}); }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" /></svg></button></div>
     </footer></div>
@@ -117,3 +120,4 @@ function LumenApp() {
     {view==='convergence'&&<Suspense fallback={<section className="echo-loading"><p>Gathering light...</p><button onClick={closeEchoes}>BACK TO LUMEN</button></section>}><Convergence session={echoSession} onBack={closeEchoes}/></Suspense>}
   </main>;
 }
+
