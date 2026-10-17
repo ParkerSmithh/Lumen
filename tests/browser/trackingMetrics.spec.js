@@ -2,6 +2,8 @@ import {test,expect} from '@playwright/test';import fs from 'node:fs';
 test('measure shared worker capture-to-result cadence without inference backlog',async({page})=>{
  test.setTimeout(180000);
  await page.addInitScript(()=>{
+ // Each timing case starts unconfigured; return persistence is tested separately.
+ localStorage.removeItem('lumen.camera.v1');
  navigator.mediaDevices.getUserMedia=async()=>{const c=document.createElement('canvas');c.width=640;c.height=480;const ctx=c.getContext('2d');ctx.fillStyle='#555';let raf;const paint=()=>{ctx.fillRect(0,0,640,480);raf=requestAnimationFrame(paint);};paint();const stream=c.captureStream(30);stream.getTracks()[0].addEventListener('ended',()=>cancelAnimationFrame(raf));return stream;};
  });
  const results=[];

@@ -14,7 +14,7 @@ export function createCameraController({
   const saved = createCameraPreferences(storage);
   let prefs = saved.read();
   let verifiedSelection = {deviceId:prefs.deviceId, facingMode:prefs.facingMode};
-  const restoring = prefs.remember && prefs.autoReconnect && visible();
+  const restoring = prefs.remember && prefs.autoReconnect && prefs.startupConfirmed && visible();
   let snapshot = {status:restoring ? 'loading' : 'idle', error:'', detail:restoring ? 'Checking camera permission' : 'Camera off', prefs, devices:[], permission:'unknown', storageAvailable:saved.available,
     metrics:{attempts:0, activeStreams:0, maxActiveStreams:0, lastStartMs:null, recoveryMs:null}};
   const listeners = new Set();
@@ -85,7 +85,7 @@ export function createCameraController({
 
   function start({automatic = false, recovering = false} = {}) {
     if (!initialized) return Promise.resolve();
-    if (automatic && (suppressed || !prefs.remember || !prefs.autoReconnect || !visible())) return Promise.resolve();
+    if (automatic && (suppressed || !prefs.remember || !prefs.autoReconnect || !prefs.startupConfirmed || !visible())) return Promise.resolve();
     if (!automatic) { suppressed = false; recoveryUsed = false; }
     if (stream?.getVideoTracks().some(t => t.readyState === 'live')) return Promise.resolve();
     if (task) return task;
@@ -102,7 +102,7 @@ export function createCameraController({
       });
       const valid = () => initialized && token === generation && !cancelled;
       const automaticBlocked = () => {
-        if (!automatic || (visible() && !suppressed && prefs.remember && prefs.autoReconnect && permissionStatus?.state === 'granted')) return false;
+        if (!automatic || (visible() && !suppressed && prefs.remember && prefs.autoReconnect && prefs.startupConfirmed && permissionStatus?.state === 'granted')) return false;
         release();
         publish({status:'idle', detail:'Automatic reconnection paused. Reconnect camera when ready.'});
         return true;
@@ -151,7 +151,7 @@ export function createCameraController({
         if (!valid()) return;
         if (automaticBlocked()) return;
         lastSettings = stream.getVideoTracks()[0]?.getSettings?.() || {};
-        prefs = {...prefs, deviceId:lastSettings.deviceId || prefs.deviceId, facingMode:['user','environment'].includes(lastSettings.facingMode) ? lastSettings.facingMode : prefs.facingMode};
+        prefs = {...prefs, startupConfirmed:prefs.remember, deviceId:lastSettings.deviceId || prefs.deviceId, facingMode:['user','environment'].includes(lastSettings.facingMode) ? lastSettings.facingMode : prefs.facingMode};
         verifiedSelection = {deviceId:prefs.deviceId, facingMode:prefs.facingMode};
         if (prefs.remember) persist();
         publish({status:'ready', detail:'Camera live · tracking initializes in the selected experience', prefs,
@@ -177,7 +177,7 @@ export function createCameraController({
 
   function setPreferences(change) {
     const remember = typeof change.remember === 'boolean' ? change.remember : prefs.remember;
-    prefs = {...prefs, remember, autoReconnect:remember && (typeof change.autoReconnect === 'boolean' ? change.autoReconnect : prefs.autoReconnect)};
+    prefs = {...prefs, remember, startupConfirmed:remember && (prefs.startupConfirmed || snapshot.status === 'ready' && !!stream), autoReconnect:remember && (typeof change.autoReconnect === 'boolean' ? change.autoReconnect : prefs.autoReconnect)};
     if (remember && !prefs.deviceId && stream) {
       lastSettings = stream.getVideoTracks()[0]?.getSettings?.() || {};
       prefs = {...prefs, deviceId:lastSettings.deviceId || '', facingMode:lastSettings.facingMode === 'environment' ? 'environment' : 'user'};
@@ -205,7 +205,7 @@ export function createCameraController({
       initialized = true;
       media?.addEventListener?.('devicechange', refreshDevices);
       const token = generation;
-      if (prefs.remember && prefs.autoReconnect && !suppressed) return start({automatic:true});
+      if (prefs.remember && prefs.autoReconnect && prefs.startupConfirmed && !suppressed) return start({automatic:true});
       await queryPermission(token);
       if (token === generation && initialized) await refreshDevices();
     },
@@ -213,7 +213,7 @@ export function createCameraController({
     stop() { suppressed = true; selectionGeneration++; release(); publish({status:'idle', error:'', detail:'Camera disconnected by you. Reconnect when ready.'}); },
     forget() {
       selectionGeneration++;
-      prefs = defaultCameraPreferences(); lastSettings = null;
+      prefs = {...defaultCameraPreferences(), remember:false, autoReconnect:false}; lastSettings = null;
       verifiedSelection = {deviceId:'', facingMode:'user'};
       if (snapshot.status === 'loading') { release(); publish({status:'idle', error:'', detail:'Camera off'}); }
       persist();

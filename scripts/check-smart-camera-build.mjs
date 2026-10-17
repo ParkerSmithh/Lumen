@@ -54,7 +54,7 @@ try {
   await dialog.getByRole('button',{name:'Reconnect Camera',exact:true}).click();
   await expect(dialog.getByRole('status')).toContainText(/tracking active|move into view/, {timeout:30000});
   await dialog.getByRole('button',{name:'Forget Preference',exact:true}).click();
-  expect(await page.evaluate(()=>localStorage.getItem('lumen.camera.v1'))).toBeNull();
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('lumen.camera.v1')))).toEqual({version:1,remember:false,autoReconnect:false,deviceId:'',facingMode:'user',startupConfirmed:false});
   await dialog.getByRole('button',{name:'Disconnect Camera',exact:true}).click();
   await expect.poll(()=>page.evaluate(()=>cameraBuildCheck.workers)).toBe(0);
   const resources=await page.evaluate(()=>cameraBuildCheck);

@@ -17,6 +17,7 @@ export function CameraSettings({camera, tracking, gate}) {
     {open && createPortal(<dialog ref={dialog} className="camera-settings" aria-labelledby="camera-settings-title" onCancel={event => {event.preventDefault();close();}} onClose={() => {gate?.set(false, 'camera-settings');setOpen(false);trigger.current?.focus({preventScroll:true});}}>
       <div className="camera-settings-heading"><h2 id="camera-settings-title">Camera settings</h2><button aria-label="Close camera settings" onClick={close}>×</button></div>
       <p className="camera-settings-status" role="status" aria-live="polite">{input}</p>
+      {camera.prefs.remember && camera.prefs.autoReconnect && !camera.prefs.startupConfirmed && <p className="camera-settings-note">First connection is manual. Connecting remembers this camera and enables future auto-reconnect when browser permission allows. You can turn either option off below before connecting.</p>}
       {connected && !camera.prefs.remember && <p className="camera-settings-note">For quicker return visits, enable Remember My Camera and Auto-Reconnect below.</p>}
       <label className="camera-settings-field">Change Camera <span>Preferred webcam</span>
         <select aria-label="Preferred webcam" value={camera.prefs.deviceId} onChange={event => camera.selectCamera(event.target.value)}>
@@ -33,10 +34,10 @@ export function CameraSettings({camera, tracking, gate}) {
       <p className="camera-settings-note">Camera permission stays under your browser’s control. If automatic startup is restricted, choose Reconnect Camera. Video is processed on your device and is never saved or uploaded by LUMEN.</p>
       {!camera.storageAvailable && <p className="camera-settings-storage" role="note">Storage is unavailable. Changes work for this session only. Previously saved choices may remain; clear this site’s data in browser settings to remove them if saving or forgetting fails.</p>}
       <div className="camera-settings-actions">
-        {connected || busy ? <button onClick={camera.stop}>Disconnect Camera</button> : <button onClick={() => camera.start()}>{camera.prefs.remember || camera.metrics.attempts > 0 ? 'Reconnect Camera' : 'Connect Camera'}</button>}
+        {connected || busy ? <button onClick={camera.stop}>Disconnect Camera</button> : <button onClick={() => camera.start()}>{camera.prefs.startupConfirmed || camera.metrics.attempts > 0 ? 'Reconnect Camera' : 'Connect Camera'}</button>}
         <button onClick={camera.forget}>Forget Preference</button>
       </div>
-      <p className="camera-settings-note">Disconnect keeps the camera off for this session until you reconnect. Forget removes your saved choice and automatic-start preference; use Disconnect to stop the current camera.</p>
+      <p className="camera-settings-note">Disconnect keeps the camera off for this session until you reconnect. Forget clears the saved camera and keeps both options off on future visits; use Disconnect to stop the current camera.</p>
     </dialog>, document.body)}
   </>;
 }

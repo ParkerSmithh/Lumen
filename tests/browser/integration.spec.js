@@ -56,7 +56,12 @@ test('GLOW guidance fades after presence, while failures and retries stay visibl
 
 test('changing input source cancels a pending fade and camera errors override quiet guidance', async ({ page }) => {
   await controlledTracking(page);
-  await page.goto('/'); await page.getByRole('button', { name: 'FLOW', exact: true }).click();
+  await page.goto('/');
+  // This case exercises persistent camera-error guidance, not automatic recovery.
+  await page.getByRole('button', { name:'Camera settings', exact:true }).click();
+  await page.getByLabel('Auto-Reconnect', {exact:true}).uncheck();
+  await page.getByRole('button', {name:'Close camera settings', exact:true}).click();
+  await page.getByRole('button', { name: 'FLOW', exact: true }).click();
   await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await page.waitForFunction(() => window.testWorkers.some(worker => !worker.body && !worker.closed));
   await page.evaluate(() => window.handSample()); await page.waitForTimeout(60);
@@ -125,7 +130,7 @@ for (const failure of ['construction', 'stall']) test(`body tracking ${failure} 
   await page.getByRole('button', { name: 'FLOW', exact: true }).click();
   await expect(page.locator('#fluid')).toBeVisible();
   await page.getByRole('button', { name: 'Stop camera' }).click();
-  await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
+  await page.getByRole('button', { name: 'RECONNECT CAMERA', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.cameraCalls)).toBe(2);
   expect(await page.evaluate(() => window.cameraTracks[0].readyState)).toBe('ended');
   expect(errors).toEqual([]);

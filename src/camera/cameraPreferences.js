@@ -1,5 +1,5 @@
 const KEY = 'lumen.camera.v1';
-export const defaultCameraPreferences = () => ({version:1, remember:false, autoReconnect:false, deviceId:'', facingMode:'user'});
+export const defaultCameraPreferences = () => ({version:1, remember:true, autoReconnect:true, deviceId:'', facingMode:'user', startupConfirmed:false});
 
 export function sanitizeCameraPreferences(value) {
   if (!value || value.version !== 1 || typeof value.remember !== 'boolean' || typeof value.autoReconnect !== 'boolean') return defaultCameraPreferences();
@@ -8,6 +8,9 @@ export function sanitizeCameraPreferences(value) {
     version:1, remember, autoReconnect:remember && value.autoReconnect,
     deviceId:remember && typeof value.deviceId === 'string' && value.deviceId.length <= 512 ? value.deviceId : '',
     facingMode:remember && value.facingMode === 'environment' ? 'environment' : 'user',
+    // Legacy v1 records were explicitly opted in. Fresh defaults require a
+    // disclosed successful manual connection before automatic startup.
+    startupConfirmed:remember && (value.startupConfirmed === undefined || value.startupConfirmed === true),
   };
 }
 
@@ -27,8 +30,8 @@ export function createCameraPreferences(provider = () => globalThis.localStorage
       try {
         const storage = provider();
         if (!storage) throw Error('Storage unavailable');
-        if (value.remember) storage.setItem(KEY, JSON.stringify(sanitizeCameraPreferences(value)));
-        else storage.removeItem(KEY);
+        // Anonymous OFF flags preserve an opt-out despite the new ON defaults.
+        storage.setItem(KEY, JSON.stringify(sanitizeCameraPreferences(value)));
         available = true;
       } catch { available = false; }
     },

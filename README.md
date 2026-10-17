@@ -21,13 +21,13 @@ The modes share one camera stream. **Stop camera** releases capture; you can ent
 
 ### Remember your webcam
 
-Open **Camera settings** (the camera icon next to Fullscreen). Connect once, choose **Change Camera / Preferred webcam**, then enable **Remember My Camera** and, optionally, **Auto-Reconnect**. Both settings start off. LUMEN stores only the selected device identifier, facing preference and opt-in flags in this browser; it never saves or uploads camera footage.
+Open **Camera settings** (the camera icon next to Fullscreen). **Remember My Camera** and **Auto-Reconnect** start on for an unconfigured browser. The first connection remains manual, even when browser permission is already granted; connection controls disclose future automatic reconnection. Turn either option off before connecting if desired. Connect once and choose **Change Camera / Preferred webcam**. LUMEN stores only the selected device identifier, facing preference, settings and a successful-connection flag; it never saves or uploads camera footage.
 
 On returning visits, automatic startup occurs only when camera permission can be confirmed as already granted. If permission checking is unsupported, permission is blocked, the saved camera is unavailable, or browser policy requires interaction, use **Reconnect Camera** or choose another device. Browser permission remains under your control. Front/rear selection is available through **Mobile camera facing**.
 
-**Disconnect Camera** releases capture and keeps it off until you explicitly reconnect in the current page session. **Forget Preference** removes the saved camera and automatic-start opt-in; it leaves an already connected camera running until you disconnect. Disabling Remember also removes the persisted preference and disables Auto-Reconnect. If storage is unavailable, settings work only for the current page session. Camera settings pause games; closing settings does not automatically resume a paused round.
+**Disconnect Camera** releases capture and keeps it off until you explicitly reconnect in the current page session. **Forget Preference** clears the saved camera and turns both settings off; it leaves an already connected camera running until you disconnect. Disabling Remember also clears the persisted device and disables Auto-Reconnect. An anonymous OFF record prevents these choices from being replaced by the new defaults on return. If storage is unavailable, settings work only for the current page session. Camera settings pause games; closing settings does not automatically resume a paused round. Existing saved settings are respected; legacy absence of a record is treated as unconfigured and still requires manual first connection.
 
-See [Smart Camera validation](docs/smart-camera-validation.md) and [physical acceptance checklist](docs/smart-camera-webcam-acceptance.md). Physical-device verification is separate from automated synthetic-camera tests.
+See the [approved defaults update](docs/smart-camera-defaults-update.md), [historical Smart Camera validation](docs/smart-camera-validation.md) and [physical acceptance checklist](docs/smart-camera-webcam-acceptance.md). Physical-device verification is separate from automated synthetic-camera tests.
 
 ## Technology
 

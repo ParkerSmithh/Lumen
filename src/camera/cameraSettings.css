@@ -1,4 +1,6 @@
 .camera-settings-open{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+.camera-connect{position:relative}
+.camera-connect-notice{position:absolute;right:0;bottom:calc(100% + 8px);width:180px;white-space:normal;font-size:10px;line-height:1.3;letter-spacing:0;text-transform:none;text-align:left;color:#ddd3e7;background:#100d18;padding:6px;border-radius:4px;pointer-events:none}
 dialog.camera-settings{position:fixed;inset:0;box-sizing:border-box;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:24px;overflow:auto;background:#100d18;color:#f3edf9;border:1px solid #79658e;border-radius:12px;text-align:left;box-shadow:0 24px 80px #000a;font:14px/1.5 Arial,sans-serif;z-index:100}
 .camera-settings::backdrop{background:#000b}
 dialog.camera-settings{pointer-events:auto}

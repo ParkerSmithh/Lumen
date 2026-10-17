@@ -20,6 +20,7 @@ export function getGameInstructions(gameId, assisted=false) {
 
 // Camera availability and tracker detection are deliberately separate claims.
 export function instructionReadiness(gameId,assisted,ready,camera={}) {
+ if(camera.connectionNotice)return `${camera.connectionNotice} ${instructionReadiness(gameId,assisted,ready,{...camera,connectionNotice:''})}`;
  if(assisted)return `${GAME_INSTRUCTIONS[gameId].assistedLabel||'Keyboard / touch'} ready. Camera optional.`;
  if(camera.error)return `${camera.error} Choose ${GAME_INSTRUCTIONS[gameId].assistedLabel||'keyboard / touch'} to play without a camera.`;
  if(camera.status==='loading')return 'Waiting for camera permission. You can choose another input method.';

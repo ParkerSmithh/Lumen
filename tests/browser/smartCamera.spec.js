@@ -37,7 +37,8 @@ async function open(page){await page.getByRole('button',{name:'Camera settings',
 
 test('camera preferences are explicit, selection survives reload and capture stops on disconnect',async({page})=>{
  await installCamera(page);await page.goto('/');expect(await page.evaluate(()=>cameraTest.attempts)).toBe(0);
- await open(page);await expect(settings(page).getByLabel('Remember My Camera',{exact:true})).not.toBeChecked();await expect(settings(page).getByLabel('Auto-Reconnect',{exact:true})).toBeDisabled();
+ await expect(page.getByText('Connecting remembers this camera and enables future auto-reconnect.')).toBeVisible();
+ await open(page);await expect(settings(page).getByLabel('Remember My Camera',{exact:true})).toBeChecked();await expect(settings(page).getByLabel('Auto-Reconnect',{exact:true})).toBeChecked();
  await settings(page).getByRole('button',{name:'Connect Camera',exact:true}).click();await expect(settings(page).getByRole('status')).toContainText('tracking active');
  await settings(page).getByLabel('Remember My Camera',{exact:true}).check();await settings(page).getByLabel('Auto-Reconnect',{exact:true}).check();await settings(page).getByLabel('Preferred webcam',{exact:true}).selectOption('usb');
  await expect.poll(()=>page.evaluate(()=>cameraTest.requests.at(-1).video.deviceId?.exact)).toBe('usb');
@@ -45,10 +46,34 @@ test('camera preferences are explicit, selection survives reload and capture sto
  await page.reload();await expect(page.getByRole('status',{name:'Input status'})).toContainText('Body tracking active');expect(await page.evaluate(()=>cameraTest.attempts)).toBe(1);
  await open(page);await settings(page).getByRole('button',{name:'Disconnect Camera',exact:true}).click();await page.getByRole('button',{name:'Close camera settings'}).click();
  for(const mode of ['FLOW','SLASH','LAUNCH','GLOW'])await page.getByRole('button',{name:mode,exact:true}).click();expect(await page.evaluate(()=>cameraTest.attempts)).toBe(1);expect(await page.evaluate(()=>cameraTest.active)).toBe(0);expect(await page.evaluate(()=>cameraTest.workers)).toBe(0);
- await open(page);await settings(page).getByRole('button',{name:'Reconnect Camera',exact:true}).click();await expect.poll(()=>page.evaluate(()=>cameraTest.active)).toBe(1);await settings(page).getByRole('button',{name:'Forget Preference',exact:true}).click();expect(await page.evaluate(()=>localStorage.getItem('lumen.camera.v1'))).toBeNull();
+ await open(page);await settings(page).getByRole('button',{name:'Reconnect Camera',exact:true}).click();await expect.poll(()=>page.evaluate(()=>cameraTest.active)).toBe(1);await settings(page).getByRole('button',{name:'Forget Preference',exact:true}).click();
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('lumen.camera.v1')))).toEqual({version:1,remember:false,autoReconnect:false,deviceId:'',facingMode:'user',startupConfirmed:false});
+ await page.reload();expect(await page.evaluate(()=>cameraTest.attempts)).toBe(0);await open(page);await expect(settings(page).getByLabel('Remember My Camera',{exact:true})).not.toBeChecked();await expect(settings(page).getByLabel('Auto-Reconnect',{exact:true})).toBeDisabled();
+});
+test('editing default opt-ins before first capture cannot trigger automatic first connection',async({page})=>{
+ await installCamera(page);await page.goto('/');await open(page);await expect(settings(page).getByText(/First connection is manual/)).toBeVisible();
+ await settings(page).getByLabel('Auto-Reconnect',{exact:true}).uncheck();await settings(page).getByLabel('Auto-Reconnect',{exact:true}).check();
+ await page.reload();expect(await page.evaluate(()=>cameraTest.attempts)).toBe(0);await open(page);await expect(settings(page).getByLabel('Auto-Reconnect',{exact:true})).toBeChecked();
+ await settings(page).getByRole('button',{name:'Connect Camera',exact:true}).click();await expect(settings(page).getByRole('status')).toContainText('tracking active');
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('lumen.camera.v1')).startupConfirmed)).toBe(true);
+ await page.reload();await expect.poll(()=>page.evaluate(()=>cameraTest.attempts)).toBe(1);
+});
+test('explicit default opt-outs survive refresh without restoring capture',async({page})=>{
+ await installCamera(page);await page.goto('/');await open(page);await settings(page).getByLabel('Auto-Reconnect',{exact:true}).uncheck();await page.reload();await open(page);await expect(settings(page).getByLabel('Remember My Camera',{exact:true})).toBeChecked();await expect(settings(page).getByLabel('Auto-Reconnect',{exact:true})).not.toBeChecked();
+ await settings(page).getByLabel('Remember My Camera',{exact:true}).uncheck();await page.reload();expect(await page.evaluate(()=>cameraTest.attempts)).toBe(0);await open(page);await expect(settings(page).getByLabel('Remember My Camera',{exact:true})).not.toBeChecked();await expect(settings(page).getByLabel('Auto-Reconnect',{exact:true})).toBeDisabled();
 });
 for(const permission of ['prompt','denied'])test(`return with ${permission} permission offers manual reconnect without capture`,async({page})=>{
  await installCamera(page,{saved,permission});await page.goto('/');await open(page);await expect(settings(page).getByText(/browser.*permission|permission.*browser/i).first()).toBeVisible();expect(await page.evaluate(()=>cameraTest.attempts)).toBe(0);await settings(page).getByRole('button',{name:'Reconnect Camera',exact:true}).click();await expect.poll(()=>page.evaluate(()=>cameraTest.attempts)).toBe(1);
+});
+for(const path of ['preview','tutorial','fallback'])test(`first connection disclosure remains visible through ${path}`,async({page})=>{
+ await installCamera(page);await page.goto('/');
+ if(path==='preview')await page.getByRole('button',{name:'Preview light',exact:true}).click();
+ if(path==='tutorial')await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();
+ if(path==='fallback'){await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();}
+ const scope=path==='tutorial'?page.getByRole('dialog',{name:'ENERGY RUSH',exact:true}):page;
+ await expect(scope.getByText(/Connecting remembers this camera and enables future auto-reconnect/)).toBeVisible();
+ if(path!=='tutorial')await expect(scope.getByRole('button',{name:'ENABLE CAMERA',exact:true})).toHaveAccessibleDescription(/Connecting remembers this camera/);
+ expect(await page.evaluate(()=>cameraTest.attempts)).toBe(0);
 });
 test('revocation and removed preferred camera stop safely without falling back',async({page})=>{
  await installCamera(page,{saved});await page.goto('/');await expect(page.getByRole('status',{name:'Input status'})).toContainText('Body tracking active');await page.evaluate(()=>cameraTest.revoke());await expect.poll(()=>page.evaluate(()=>cameraTest.active)).toBe(0);await open(page);await expect(settings(page).getByRole('status')).toContainText(/permission/i);expect(await page.evaluate(()=>cameraTest.attempts)).toBe(1);
