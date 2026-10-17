@@ -1,0 +1,21 @@
+.camera-settings-open{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+dialog.camera-settings{position:fixed;inset:0;box-sizing:border-box;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:24px;overflow:auto;background:#100d18;color:#f3edf9;border:1px solid #79658e;border-radius:12px;text-align:left;box-shadow:0 24px 80px #000a;font:14px/1.5 Arial,sans-serif;z-index:100}
+.camera-settings::backdrop{background:#000b}
+dialog.camera-settings{pointer-events:auto}
+.camera-settings-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.camera-settings h2{margin:0;font-size:24px;font-weight:500;letter-spacing:0}
+.camera-settings button,.camera-settings select{box-sizing:border-box;min-height:44px;border:1px solid #89759d;border-radius:6px;padding:10px 12px;background:#251d30;color:#f3edf9;font:inherit;text-transform:none;letter-spacing:0;cursor:pointer}
+.camera-settings-heading button{min-width:44px;font-size:24px;padding:0}
+.camera-settings-status{margin:16px 0;padding:12px;background:#221b2c;border-radius:6px}
+.camera-settings-field{display:block;margin:16px 0;font-size:14px}
+.camera-settings-field>span{display:block;font-size:12px;color:#c5b9d1}
+.camera-settings select{display:block;width:100%;margin-top:6px}
+.camera-settings-check{display:flex;align-items:flex-start;gap:12px;margin:16px 0;min-height:44px;cursor:pointer}
+.camera-settings-check input{width:22px;height:22px;flex:none;margin:2px 0;accent-color:#d8bbff}
+.camera-settings-check small{display:block;margin-top:4px;color:#c5b9d1;font-size:13px}
+.camera-settings-note{font-size:13px;color:#c5b9d1;margin:16px 0 0}
+.camera-settings-storage{color:#ffe4b0;font-size:13px}
+.camera-settings-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.camera-settings-actions button:first-child{background:#d8bbff;color:#1a1027;border-color:#d8bbff}
+.camera-settings :focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-height:500px){dialog.camera-settings{padding:16px;max-height:calc(100dvh - 16px)}.camera-settings-field{margin:10px 0}}

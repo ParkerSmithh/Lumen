@@ -19,6 +19,18 @@ The modes share one camera stream. **Stop camera** releases capture; you can ent
 
 ## Technology
 
+### Remember your webcam
+
+Open **Camera settings** (the camera icon next to Fullscreen). Connect once, choose **Change Camera / Preferred webcam**, then enable **Remember My Camera** and, optionally, **Auto-Reconnect**. Both settings start off. LUMEN stores only the selected device identifier, facing preference and opt-in flags in this browser; it never saves or uploads camera footage.
+
+On returning visits, automatic startup occurs only when camera permission can be confirmed as already granted. If permission checking is unsupported, permission is blocked, the saved camera is unavailable, or browser policy requires interaction, use **Reconnect Camera** or choose another device. Browser permission remains under your control. Front/rear selection is available through **Mobile camera facing**.
+
+**Disconnect Camera** releases capture and keeps it off until you explicitly reconnect in the current page session. **Forget Preference** removes the saved camera and automatic-start opt-in; it leaves an already connected camera running until you disconnect. Disabling Remember also removes the persisted preference and disables Auto-Reconnect. If storage is unavailable, settings work only for the current page session. Camera settings pause games; closing settings does not automatically resume a paused round.
+
+See [Smart Camera validation](docs/smart-camera-validation.md) and [physical acceptance checklist](docs/smart-camera-webcam-acceptance.md). Physical-device verification is separate from automated synthetic-camera tests.
+
+## Technology
+
 FLOW, SLASH, and LAUNCH open at **START** and share a monotonic countdown and pause/resume clock. FLOW lasts 90 seconds; SLASH and LAUNCH last 120 seconds. Leaving a game resets it to READY. LIGHT TRACE counts only fresh ordered movement, with accuracy measured from distance to the guide. KINETIC uses stationary Three.js targets and swept ball collisions; existing overlaps are excluded until balls leave the target.
 
 SLASH opens at **START**, counts down **3–2–1**, then runs for **2:00**. Every destroyed object counts once, including multiple objects in one swipe. **PLAY AGAIN** clears the scene and restarts the countdown. Leaving SLASH resets the session. A hidden tab or interrupted camera pauses the clock; restore input and select **RESUME**. Missed hand detections alone do not pause camera-motion interaction.

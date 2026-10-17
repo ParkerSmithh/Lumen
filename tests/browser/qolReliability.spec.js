@@ -53,7 +53,12 @@ test('cancel and retry camera retain only the newest stream',async({page})=>{
   window.Worker=class{postMessage(m){m.frame?.close();if(m.type==='init')queueMicrotask(()=>this.onmessage?.({data:{type:'ready'}}));}terminate(){this.onmessage=null;}};
  });
  await page.goto('/');await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();await page.getByRole('button',{name:'Stop camera',exact:true}).click();await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
- await page.evaluate(()=>{window.oldStops=0;window.requests[0]({getTracks:()=>[{stop:()=>window.oldStops++}]});const c=document.createElement('canvas');c.width=640;c.height=480;const draw=()=>{c.getContext('2d').fillRect(0,0,640,480);requestAnimationFrame(draw);};draw();window.newStream=c.captureStream(30);window.requests[1](window.newStream);});
+ // Replacement waits for the cancelled browser request to settle: never open
+ // two permission requests at once. Resolve the stale request before the new one.
+ expect(await page.evaluate(()=>window.requests.length)).toBe(1);
+ await page.evaluate(()=>{window.oldStops=0;window.requests[0]({getTracks:()=>[{stop:()=>window.oldStops++}]});});
+ await expect.poll(()=>page.evaluate(()=>window.requests.length)).toBe(2);
+ await page.evaluate(()=>{const c=document.createElement('canvas');c.width=640;c.height=480;const draw=()=>{c.getContext('2d').fillRect(0,0,640,480);requestAnimationFrame(draw);};draw();window.newStream=c.captureStream(30);window.requests[1](window.newStream);});
  await expect(page.getByRole('status',{name:'Input status'})).toContainText('Camera ready');expect(await page.evaluate(()=>window.oldStops)).toBe(1);
  expect(await page.locator('video').evaluate(video=>video.srcObject===window.newStream)).toBe(true);await page.getByRole('button',{name:'Stop camera',exact:true}).click();expect(await page.evaluate(()=>window.newStream.getTracks().every(t=>t.readyState==='ended'))).toBe(true);
 });

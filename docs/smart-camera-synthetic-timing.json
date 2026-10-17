@@ -1,0 +1,21 @@
+{
+  "environment": "Headless Edge; synthetic canvas stream, mocked permissions and tracker; not physical webcam latency",
+  "timing": {
+    "navigationToVideoMs": 446.59999999403954,
+    "videoToFirstMaskMs": 9.099999994039536,
+    "attempts": 1,
+    "peakStreams": 1,
+    "peakWorkers": 1
+  },
+  "recovery": {
+    "lossToVideoMs": 17.30000001192093,
+    "videoToFirstMaskMs": 6.5,
+    "lossToFirstMaskMs": 23.80000001192093
+  },
+  "cleanup": {
+    "activeStreams": 0,
+    "workers": 0,
+    "peakStreams": 1,
+    "attempts": 52
+  }
+}
