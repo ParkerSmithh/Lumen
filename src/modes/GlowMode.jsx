@@ -23,7 +23,13 @@ function previewMask() {
 export function GlowMode({ intensity='NEON', maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus,instructionCamera,onChooseInput }) {
   const game=useEnergyRush({enabled:energyRush,cameraReady,preview,videoRef,echoSession,onExit:onExitEnergy,color});
   useEffect(()=>{if(energyRush)onChooseInput?.(game.inputMode);},[energyRush,game.inputMode]);
-  const instructions=useGameInstructions('ENERGY_RUSH',{echoSession,color,instructionCamera,assisted:game.inputMode==='assist',ready:game.inputMode==='assist'||cameraReady&&!preview&&game.grid.fresh(performance.now()),readiness:game.inputMode==='assist'?'Keyboard / touch ready':cameraReady&&!preview?'Waiting for fresh body tracking':'Enable camera or choose keyboard / touch',onCamera,onChooseInput:mode=>game.chooseInput(mode),start:game.start,back:game.exit,running:!['READY','RESULTS'].includes(game.display.phase)});
+  const backFromInstructions=()=>{
+    game.exit();
+    // The launch control remounts after exiting; the dialog's original trigger
+    // was removed when entering ENERGY RUSH, so restore focus after that commit.
+    requestAnimationFrame(()=>document.querySelector('button.glow-play')?.focus({preventScroll:true}));
+  };
+  const instructions=useGameInstructions('ENERGY_RUSH',{echoSession,color,instructionCamera,assisted:game.inputMode==='assist',ready:game.inputMode==='assist'||cameraReady&&!preview&&game.grid.fresh(performance.now()),readiness:game.inputMode==='assist'?'Keyboard / touch ready':cameraReady&&!preview?'Waiting for fresh body tracking':'Enable camera or choose keyboard / touch',onCamera,onChooseInput:mode=>game.chooseInput(mode),start:game.start,back:backFromInstructions,running:!['READY','RESULTS'].includes(game.display.phase)});
   useEffect(()=>{if(energyRush&&instructions.first)instructions.show();},[energyRush]);
   const gameRef=useRef(game);gameRef.current=game;
   const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady,energyRush,intensity }); settings.current = { color, preview, cameraReady,energyRush,intensity };
