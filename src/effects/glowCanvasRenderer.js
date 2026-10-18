@@ -2,16 +2,18 @@ import {fitContain} from '../tracking/utils.js';
 import {createVisualMask,writeVisualRim} from './glowMask.js';
 import {resolveGlowProfile,paletteLight} from './glowProfiles.js';
 import {ambientMeter} from './glowExposure.js';
+import {createBodyCanvasFilter} from './bodyCanvasFilter.js';
+import {resolveBodyProfile} from './bodyIllumination.js';
 export function createCanvasRenderer(canvas){
- const ctx=canvas.getContext('2d'),visual=createVisualMask(),meter=ambientMeter();
+ const ctx=canvas.getContext('2d'),visual=createVisualMask(),meter=ambientMeter(),bodyFilter=createBodyCanvasFilter();
  const make=()=>{const c=document.createElement('canvas');c.width=c.height=1;return c;};
- const coverage=make(),rim=make(),tint=make(),scratch=make(),blooms=[make(),make(),make()];const owned=[coverage,rim,tint,scratch,...blooms];
+ const coverage=make(),rim=make(),tint=make(),scratch=make(),emission=make(),blooms=[make(),make(),make()];const owned=[coverage,rim,tint,scratch,emission,...blooms];
  let disposed=false,revision=-1,key='',last=-Infinity,updates=0,drawMs=0,rimImage=null;
  const size=(c,w,h)=>{if(c.width!==w||c.height!==h){c.width=w;c.height=h;}};
  const paint=(c,input,color)=>{const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.drawImage(input,0,0,c.width,c.height);x.globalCompositeOperation='source-in';x.fillStyle=color;x.fillRect(0,0,c.width,c.height);x.globalCompositeOperation='source-over';};
  return {
  resize(w,h){if(disposed)return;w=Math.max(1,Math.round(w));h=Math.max(1,Math.round(h));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;key='';}},
- draw({video,mask,color='#ff354e',opacity=1,energy=1,bodyAura=0,time=performance.now(),intensity='NEON',reducedMotion=false,quality='low'}){
+ draw({video,mask,color='#ff354e',opacity=1,energy=1,bodyAura=0,time=performance.now(),intensity='NEON',bodyBrightness='RADIANT',reducedMotion=false,quality='low'}){
   if(disposed)return;const start=performance.now(),m=visual.update(mask,time),profile=resolveGlowProfile(intensity,reducedMotion?'low':quality),live=video&&(video.readyState===undefined||video.readyState>=2);
   const r=fitContain(video?.videoWidth||video?.width||mask?.sourceWidth||640,video?.videoHeight||video?.height||mask?.sourceHeight||480,canvas.width,canvas.height),darkness=meter(live?video:null,mask);
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.fillStyle='#050407';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(canvas.width,0);ctx.scale(-1,1);
@@ -30,7 +32,11 @@ export function createCanvasRenderer(canvas){
    }
    // Camera texture multiplied by color and screened through the mask preserves shading.
    size(tint,Math.min(640,Math.max(1,Math.round(r.width))),Math.min(480,Math.max(1,Math.round(r.height))));const t=tint.getContext('2d');t.clearRect(0,0,tint.width,tint.height);
-   if(live){t.drawImage(video,0,0,tint.width,tint.height);t.globalCompositeOperation='screen';t.globalAlpha=(.18+darkness*.10)*profile.lighting;t.fillStyle=color;t.fillRect(0,0,tint.width,tint.height);t.globalAlpha=1;}else{t.fillStyle=color;t.fillRect(0,0,tint.width,tint.height);}
+   if(live){t.drawImage(video,0,0,tint.width,tint.height);t.globalCompositeOperation='destination-in';t.drawImage(coverage,0,0,tint.width,tint.height);t.globalCompositeOperation='copy';t.filter=bodyFilter.update(color,bodyBrightness,tint.width/(video.videoWidth||video.width||640));t.drawImage(tint,0,0);t.filter='none';t.globalCompositeOperation='source-over';}else{t.fillStyle=color;t.fillRect(0,0,tint.width,tint.height);}
+   if(live){
+    const scale=Math.min(1,128/Math.max(tint.width,tint.height));size(emission,Math.max(1,Math.round(tint.width*scale)),Math.max(1,Math.round(tint.height*scale)));const e=emission.getContext('2d');e.clearRect(0,0,emission.width,emission.height);e.drawImage(video,0,0,emission.width,emission.height);e.globalCompositeOperation='destination-in';e.drawImage(coverage,0,0,emission.width,emission.height);e.globalCompositeOperation='copy';e.filter='blur(2px)';e.drawImage(emission,0,0);e.filter='none';e.globalCompositeOperation='source-atop';e.globalAlpha=.35;e.fillStyle=color;e.fillRect(0,0,emission.width,emission.height);e.globalAlpha=1;e.globalCompositeOperation='destination-in';e.drawImage(coverage,0,0,emission.width,emission.height);e.globalCompositeOperation='source-over';
+    t.globalCompositeOperation='screen';t.globalAlpha=resolveBodyProfile(bodyBrightness).scatter;t.drawImage(emission,0,0,tint.width,tint.height);t.globalAlpha=1;
+   }
    t.globalCompositeOperation='destination-in';t.drawImage(coverage,0,0,tint.width,tint.height);t.globalCompositeOperation='source-over';ctx.globalAlpha=opacity;ctx.drawImage(tint,r.x,r.y,r.width,r.height);
    ctx.globalCompositeOperation='screen';for(let i=2;i>=0;i--){ctx.globalAlpha=Math.min(1,opacity*profile.bloom*(i===0?.72:.8)*Math.min(energy,1.5)/4);for(let repeat=0;repeat<4;repeat++)ctx.drawImage(blooms[i],r.x,r.y,r.width,r.height);}
    ctx.globalAlpha=Math.min(1,opacity*profile.rim*.55);ctx.drawImage(rim,r.x,r.y,r.width,r.height);ctx.globalAlpha=opacity*.55;ctx.drawImage(rim,r.x,r.y,r.width,r.height);
@@ -39,8 +45,8 @@ export function createCanvasRenderer(canvas){
   ctx.restore();drawMs=performance.now()-start;
  },
  resetVisual(){visual.reset();meter.reset();revision=-1;key='';},
- diagnostics(){return {backend:'canvas',canvases:disposed?0:owned.length,targetBytes:owned.reduce((n,c)=>n+c.width*c.height*4,0),visualBytes:visual.stats().bytes+(rimImage?.data.byteLength||0),updates,drawMs,disposed};},
- dispose(){if(disposed)return;disposed=true;visual.dispose();rimImage=null;meter.dispose();for(const c of owned)c.width=c.height=0;}
+ diagnostics(){return {backend:'canvas',canvases:disposed?0:owned.length,filterNodes:bodyFilter.nodes,targetBytes:owned.reduce((n,c)=>n+c.width*c.height*4,0),visualBytes:visual.stats().bytes+(rimImage?.data.byteLength||0),updates,drawMs,disposed};},
+ dispose(){if(disposed)return;disposed=true;visual.dispose();rimImage=null;meter.dispose();bodyFilter.dispose();for(const c of owned)c.width=c.height=0;}
  };
 }
 

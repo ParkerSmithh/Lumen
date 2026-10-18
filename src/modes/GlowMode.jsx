@@ -20,7 +20,7 @@ function previewMask() {
   const pixels = ctx.getImageData(0,0,320,400).data;
   return { width: 320, height: 400, sourceWidth: 640, sourceHeight: 800, values: Float32Array.from({ length: 320*400 }, (_,i) => pixels[i*4+3]/255), timestamp: Infinity };
 }
-export function GlowMode({ intensity='NEON', maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus,instructionCamera,onChooseInput }) {
+export function GlowMode({ bodyBrightness='RADIANT', intensity='NEON', maskRef, videoRef, cameraReady, color, preview, poseRef, echoSession,energyRush=false,onExitEnergy,onCamera,poseEnabled,onPoseToggle,poseStatus,instructionCamera,onChooseInput }) {
   const game=useEnergyRush({enabled:energyRush,cameraReady,preview,videoRef,echoSession,onExit:onExitEnergy,color});
   useEffect(()=>{if(energyRush)onChooseInput?.(game.inputMode);},[energyRush,game.inputMode]);
   const backFromInstructions=()=>{
@@ -32,7 +32,7 @@ export function GlowMode({ intensity='NEON', maskRef, videoRef, cameraReady, col
   const instructions=useGameInstructions('ENERGY_RUSH',{echoSession,color,instructionCamera,assisted:game.inputMode==='assist',ready:game.inputMode==='assist'||cameraReady&&!preview&&game.grid.fresh(performance.now()),readiness:game.inputMode==='assist'?'Keyboard / touch ready':cameraReady&&!preview?'Waiting for fresh body tracking':'Enable camera or choose keyboard / touch',onCamera,onChooseInput:mode=>game.chooseInput(mode),start:game.start,back:backFromInstructions,running:!['READY','RESULTS'].includes(game.display.phase)});
   useEffect(()=>{if(energyRush&&instructions.first)instructions.show();},[energyRush]);
   const gameRef=useRef(game);gameRef.current=game;
-  const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady,energyRush,intensity }); settings.current = { color, preview, cameraReady,energyRush,intensity };
+  const hostRef = useRef(null); const settings = useRef({ color, preview, cameraReady,energyRush,intensity,bodyBrightness }); settings.current = { color, preview, cameraReady,energyRush,intensity,bodyBrightness };
   useEffect(() => {
     const host = hostRef.current;
     let canvas, renderer, raf, previousMask, opacity = 0,lastDraw=0,lastVideo=null,lastStream=null,lastPreview=null,lastCameraReady=null,bodyCenter={x:.5,y:.5};
@@ -82,7 +82,7 @@ export function GlowMode({ intensity='NEON', maskRef, videoRef, cameraReady, col
       const dt=Math.min(100,Math.max(0,time-(lastDraw||time)));lastDraw=time;
       opacity += ((mask ? 1 : 0) - opacity) * (1-Math.exp(-dt/(mask?90:110)));
       if(!mask&&opacity<=.005)previousMask=null;
-      const drive=echoSession?.beyond.bodyshift.snapshot('GLOW').overdrive?.active,fever=settings.current.energyRush&&gameRef.current.engine.snapshot.fever;renderFrame({intensity:settings.current.intensity,bodyAura:echoSession?.beyond.bodyshift.enabled?(reduced.matches?.35:({CALM:.4,WILD:1,MAX:1.35}[echoSession.beyond.chaos.preferenceIntensity()]||1)):0,energy:reduced.matches?1:drive||fever?1.9:echoSession?.beyond.chaos.snapshot('GLOW').surge?1.9:({CALM:.85,WILD:1.35,MAX:1.6}[echoSession?.beyond.chaos.preferenceIntensity()]||1),video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
+      const drive=echoSession?.beyond.bodyshift.snapshot('GLOW').overdrive?.active,fever=settings.current.energyRush&&gameRef.current.engine.snapshot.fever;renderFrame({intensity:settings.current.intensity,bodyBrightness:settings.current.bodyBrightness,bodyAura:echoSession?.beyond.bodyshift.enabled?(reduced.matches?.35:({CALM:.4,WILD:1,MAX:1.35}[echoSession.beyond.chaos.preferenceIntensity()]||1)):0,energy:reduced.matches?1:drive||fever?1.9:echoSession?.beyond.chaos.snapshot('GLOW').surge?1.9:({CALM:.85,WILD:1.35,MAX:1.6}[echoSession?.beyond.chaos.preferenceIntensity()]||1),video: settings.current.cameraReady && !settings.current.preview ? video : null, mask: opacity > .005 ? previousMask : null, color: settings.current.color, time, reducedMotion: reduced.matches, opacity });
       if(echoContext&&echoSession){
         if(fresh&&settings.current.cameraReady&&!settings.current.preview){presence.sample(live,{time,color:settings.current.color,epoch:echoSession.store.epoch});presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,live,reduced.matches);}
         else{if(!settings.current.preview)echoSession.beyond.bodyshift.sample('GLOW',{valid:false},time,settings.current.color);echoSession.beyond.presence({valid:false},time);presence.clear();if(settings.current.preview)presence.draw(echoContext,echoCanvas.width,echoCanvas.height,time,illustrated,reduced.matches);else echoContext.clearRect(0,0,echoCanvas.width,echoCanvas.height);}

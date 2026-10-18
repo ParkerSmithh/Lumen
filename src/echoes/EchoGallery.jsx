@@ -53,7 +53,7 @@ export function EchoGallery({ store, session, onConverge, onBack }) {
     }
   };
   const modes = ['GLOW', 'FLOW', 'SLASH', 'LAUNCH'].filter(mode => records.some(record => record.mode === mode));
-  return <section className="echo-gallery" aria-labelledby="echo-gallery-title">
+  return <section onKeyDown={event=>{if(event.key==='Escape'){event.stopPropagation();if(confirmClear)setConfirmClear(false);else onBack();}}} className="echo-gallery" aria-labelledby="echo-gallery-title">
     <header className="echo-gallery-header">
       <button className="echo-gallery-back" ref={backRef} onClick={onBack}>BACK TO LUMEN</button>
       <div className="echo-gallery-heading"><h1 id="echo-gallery-title">ECHOES</h1></div>

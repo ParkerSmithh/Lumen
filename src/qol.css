@@ -100,3 +100,19 @@ button:disabled{opacity:.5}
  main:has(.energy-ui) .tracking-status{top:auto;bottom:-2px}
 }
 @media(prefers-reduced-motion:reduce){.tracking-status{transition:none}}
+
+/* Reserve real space on short screens instead of stacking controls at fixed y offsets. */
+@media(max-height:600px) and (min-width:481px){
+ main .pulse-control{top:auto;bottom:108px;right:24px}
+ main:has(.invitation) .invitation{top:136px;bottom:112px;left:24px;right:220px;width:auto;transform:none;overflow-y:auto;overscroll-behavior:contain;padding:4px 12px 12px}
+
+
+}
+@media(max-height:600px) and (min-width:801px){
+ main:has(.invitation) .invitation{top:142px;right:160px;left:160px}
+ main:has(.invitation) .chaos-control{top:64px}
+}
+.echo-loading{padding:24px;gap:16px;overflow:auto}
+.echo-loading h2{font-size:32px;letter-spacing:-.02em;margin:0}
+.echo-loading p{max-width:50ch;line-height:1.6}
+.echo-loading button{min-height:44px;padding:12px 20px;border:1px solid #93869e;border-radius:8px}

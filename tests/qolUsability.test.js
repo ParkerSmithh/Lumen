@@ -32,3 +32,9 @@ test('LAUNCH assisted instructions describe pressing and release instead of a fi
  assert.match(getGameInstructions('LAUNCH',true).subtitle,/PRESS.*RELEASE/);
  assert.match(getGameInstructions('LAUNCH',false).subtitle,/CLOSE FIST.*OPEN HAND/);
 });
+
+test('tracking recovery tells body and hand users how to return into frame',()=>{
+ assert.match(trackingNotice({camera:'ready',tracking:'searching',seen:true,body:true}),/step back/);
+ assert.match(trackingNotice({camera:'ready',tracking:'searching',seen:true}),/raise your hand/);
+ assert.match(trackingNotice({camera:'ready',tracking:'loading',body:true}),/body tracking/);
+});

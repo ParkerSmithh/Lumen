@@ -8,7 +8,7 @@ for(const fallback of [false,true]) test(`GLOW darkens dim rooms and strengthens
  },fallback);expect(pixels.dark[0]).toBeGreaterThan(70);expect(pixels.detail[0]-pixels.dark[0]).toBeGreaterThan(30);expect(pixels.room[0]).toBeLessThan(8);expect(pixels.halo[0]).toBeGreaterThan(pixels.room[0]+15);
 });
 
-for(const fallback of [false,true]) test(`GLOW adapts smoothly to lights switching off (${fallback?'Canvas':'WebGL'})`,async({page})=>{
+for(const fallback of [false,true]) test(`GLOW adapts background while subject lighting stays stable (${fallback?'Canvas':'WebGL'})`,async({page})=>{
  await page.goto('/');const result=await page.evaluate(async fallback=>{
   const {createGlowRenderer}=await import('/src/effects/glowRenderer.js');
   const source=document.createElement('canvas');source.width=160;source.height=120;
@@ -18,9 +18,9 @@ for(const fallback of [false,true]) test(`GLOW adapts smoothly to lights switchi
   const mask={values,width:160,height:120,sourceWidth:160,sourceHeight:120};
   let clock=0;Object.defineProperty(performance,'now',{value:()=>clock,configurable:true});
   const read=document.createElement('canvas');read.width=160;read.height=120;const ctx=read.getContext('2d');
-  function draw(background){c.fillStyle=background;c.fillRect(0,0,160,120);c.fillStyle='#303030';c.fillRect(0,0,80,120);r.draw({video:source,mask,color:'#ff354e',opacity:1});ctx.drawImage(canvas,0,0);return ctx.getImageData(110,80,1,1).data[0];}
+  function draw(background){c.fillStyle=background;c.fillRect(0,0,160,120);c.fillStyle='#303030';c.fillRect(0,0,80,120);r.draw({video:source,mask,color:'#ff354e',opacity:1});ctx.drawImage(canvas,0,0);return {subject:ctx.getImageData(110,80,1,1).data[0],room:ctx.getImageData(20,80,1,1).data[0]};}
   const bright=draw('#808080');clock=200;const first=draw('#0c0c0c');clock=400;const second=draw('#0c0c0c');let settled;for(let i=0;i<20;i++){clock+=200;settled=draw('#0c0c0c');}
   r.dispose();return {bright,first,second,settled};
  },fallback);
- expect(result.second).toBeGreaterThan(result.first);expect(result.settled).toBeGreaterThan(result.second+5);
+ expect(Math.abs(result.settled.subject-result.bright.subject)).toBeLessThanOrEqual(2);expect(result.second.room).toBeLessThanOrEqual(result.first.room);expect(result.settled.room).toBeLessThan(result.first.room);expect(result.first.room).toBeLessThan(result.bright.room);
 });

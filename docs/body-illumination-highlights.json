@@ -1,0 +1,258 @@
+{
+  "webgl": [
+    {
+      "name": "Red",
+      "bodyBrightness": "NATURAL",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Red",
+      "bodyBrightness": "RADIANT",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Red",
+      "bodyBrightness": "BLAZING",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Orange",
+      "bodyBrightness": "NATURAL",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Orange",
+      "bodyBrightness": "RADIANT",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Orange",
+      "bodyBrightness": "BLAZING",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Yellow",
+      "bodyBrightness": "NATURAL",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Yellow",
+      "bodyBrightness": "RADIANT",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Yellow",
+      "bodyBrightness": "BLAZING",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Green",
+      "bodyBrightness": "NATURAL",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Green",
+      "bodyBrightness": "RADIANT",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Green",
+      "bodyBrightness": "BLAZING",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Blue",
+      "bodyBrightness": "NATURAL",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Blue",
+      "bodyBrightness": "RADIANT",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Blue",
+      "bodyBrightness": "BLAZING",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Purple",
+      "bodyBrightness": "NATURAL",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Purple",
+      "bodyBrightness": "RADIANT",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    },
+    {
+      "name": "Purple",
+      "bodyBrightness": "BLAZING",
+      "contrast": 15,
+      "bright": 246,
+      "dark": 231
+    }
+  ],
+  "canvas": [
+    {
+      "name": "Red",
+      "bodyBrightness": "NATURAL",
+      "contrast": 14.666666666666657,
+      "bright": 246,
+      "dark": 231.33333333333334
+    },
+    {
+      "name": "Red",
+      "bodyBrightness": "RADIANT",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Red",
+      "bodyBrightness": "BLAZING",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Orange",
+      "bodyBrightness": "NATURAL",
+      "contrast": 14.666666666666657,
+      "bright": 246,
+      "dark": 231.33333333333334
+    },
+    {
+      "name": "Orange",
+      "bodyBrightness": "RADIANT",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Orange",
+      "bodyBrightness": "BLAZING",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Yellow",
+      "bodyBrightness": "NATURAL",
+      "contrast": 14.666666666666657,
+      "bright": 246,
+      "dark": 231.33333333333334
+    },
+    {
+      "name": "Yellow",
+      "bodyBrightness": "RADIANT",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Yellow",
+      "bodyBrightness": "BLAZING",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Green",
+      "bodyBrightness": "NATURAL",
+      "contrast": 14.666666666666657,
+      "bright": 246,
+      "dark": 231.33333333333334
+    },
+    {
+      "name": "Green",
+      "bodyBrightness": "RADIANT",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Green",
+      "bodyBrightness": "BLAZING",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Blue",
+      "bodyBrightness": "NATURAL",
+      "contrast": 14.666666666666657,
+      "bright": 246,
+      "dark": 231.33333333333334
+    },
+    {
+      "name": "Blue",
+      "bodyBrightness": "RADIANT",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Blue",
+      "bodyBrightness": "BLAZING",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Purple",
+      "bodyBrightness": "NATURAL",
+      "contrast": 14.666666666666657,
+      "bright": 246,
+      "dark": 231.33333333333334
+    },
+    {
+      "name": "Purple",
+      "bodyBrightness": "RADIANT",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    },
+    {
+      "name": "Purple",
+      "bodyBrightness": "BLAZING",
+      "contrast": 14,
+      "bright": 246,
+      "dark": 232
+    }
+  ]
+}

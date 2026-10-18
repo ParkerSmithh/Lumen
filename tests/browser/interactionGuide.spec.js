@@ -35,7 +35,8 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 480, height: 640 
       expect(guide.x).toBeGreaterThanOrEqual(0);
       expect(guide.x + guide.width).toBeLessThanOrEqual(viewport.width);
       expect(guide.y + guide.height).toBeLessThan(footer.y);
-      if (mode === 'GLOW') {
+      // The welcome intentionally replaces the empty camera field; compare field geometry only in live/preview GLOW.
+      if (mode === 'GLOW' && await page.locator('main').getAttribute('data-entry') !== 'true') {
         const frame = await page.locator('.glow-field').boundingBox();
         expect(guide.y).toBeGreaterThanOrEqual(frame.y + frame.height);
       }

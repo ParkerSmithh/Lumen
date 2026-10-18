@@ -1,3 +1,4 @@
+import {resolveBodyProfile,bodyLight} from './bodyIllumination.js';
 import {fitContain} from '../tracking/utils.js';
 import {createVisualMask} from './glowMask.js';
 import {resolveGlowProfile,paletteLight} from './glowProfiles.js';
@@ -24,8 +25,9 @@ export function createGlowRenderer(canvas){
  let revision=-1,key='',disposed=false,quality='high',slow=0,fast=0,passes=0,updates=0,maskMs=0,drawMs=0,maskBytes=0,lastFrame=0;const exposure=ambientMeter();
  return {
  resize(w,h){if(disposed)return;w=Math.max(1,Math.round(w));h=Math.max(1,Math.round(h));if(canvas.width===w&&canvas.height===h)return;canvas.width=w;canvas.height=h;key='';},
- draw({video,mask,color='#ff354e',opacity=1,energy=1,bodyAura=0,time=performance.now(),reducedMotion=false,intensity='NEON',quality:forcedQuality}){
+ draw({video,mask,color='#ff354e',opacity=1,energy=1,bodyAura=0,time=performance.now(),reducedMotion=false,intensity='NEON',bodyBrightness='RADIANT',quality:forcedQuality}){
   if(disposed||gl.isContextLost())return;const start=performance.now(),profile=resolveGlowProfile(intensity,forcedQuality||(reducedMotion?'low':quality));
+  const body=resolveBodyProfile(bodyBrightness);
   const live=video&&(video.readyState===undefined||video.readyState>=2);const maskStart=performance.now();const m=visual.update(mask,time);maskMs=performance.now()-maskStart;
   const r=fitContain(video?.videoWidth||video?.width||mask?.sourceWidth||640,video?.videoHeight||video?.height||mask?.sourceHeight||480,canvas.width,canvas.height);
   if(live){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,cameraTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,video);}
@@ -47,8 +49,9 @@ export function createGlowRenderer(canvas){
    }
   }else{revision=-1;key='';}
   use(finalProgram);bind(finalProgram,'camera',cameraTexture,0);bind(finalProgram,'silhouette',shape.texture,1);bind(finalProgram,'innerGlow',levels[0][1].texture,2);bind(finalProgram,'midGlow',levels[1][1].texture,3);bind(finalProgram,'outerGlow',levels[2][1].texture,4);
-  gl.uniform2f(loc(finalProgram,'resolution'),canvas.width,canvas.height);gl.uniform4f(loc(finalProgram,'rect'),r.x,r.y,r.width,r.height);gl.uniform3fv(loc(finalProgram,'color'),paletteLight(color));
-  for(const [n,v] of Object.entries({opacity:m?Math.max(0,Math.min(1,opacity)):0,live:live?1:0,darkness:exposure(live?video:null,mask),rimStrength:profile.rim,bloomStrength:profile.bloom,lighting:profile.lighting,energy,aura:bodyAura,phase:reducedMotion?0:time*.0016}))f(finalProgram,n,v);
+  gl.uniform2f(loc(finalProgram,'resolution'),canvas.width,canvas.height);gl.uniform2f(loc(finalProgram,'cameraSize'),video?.videoWidth||video?.width||640,video?.videoHeight||video?.height||480);gl.uniform4f(loc(finalProgram,'rect'),r.x,r.y,r.width,r.height);gl.uniform3fv(loc(finalProgram,'color'),paletteLight(color));
+  gl.uniform3fv(loc(finalProgram,'bodyColor'),bodyLight(color));
+  for(const [n,v] of Object.entries({bodyPower:body.power,bodyFill:body.fill,bodyScatter:body.scatter,bodyDetail:body.detail,bodyChroma:body.chroma,opacity:m?Math.max(0,Math.min(1,opacity)):0,live:live?1:0,darkness:exposure(live?video:null,mask),rimStrength:profile.rim,bloomStrength:profile.bloom,lighting:profile.lighting,energy,aura:bodyAura,phase:reducedMotion?0:time*.0016}))f(finalProgram,n,v);
   render();drawMs=performance.now()-start;
   // Submission timing is a fallback signal, never a claimed GPU duration.
   const gap=lastFrame?time-lastFrame:0;lastFrame=time;

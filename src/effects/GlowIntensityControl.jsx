@@ -1,4 +1,4 @@
 import './glowControls.css';
-export function GlowIntensityControl({value,onChange}){
- return <div className="glow-intensity" data-energy-exclude><span>GLOW INTENSITY</span><div role="group" aria-label="Glow intensity">{['SOFT','NEON','SUPERNOVA'].map(preset=><button key={preset} aria-pressed={value===preset} title={preset==='NEON'?'Recommended glow intensity':undefined} onClick={()=>onChange(preset)}>{preset}{preset==='NEON'&&<small>RECOMMENDED</small>}</button>)}</div></div>;
+export function GlowIntensityControl({value,onChange,bodyBrightness,onBodyChange}){
+ return <div className="glow-settings" data-energy-exclude><div className="glow-intensity"><span>GLOW INTENSITY</span><div role="group" aria-label="Glow intensity">{['SOFT','NEON','SUPERNOVA'].map(preset=><button key={preset} aria-pressed={value===preset} title={preset==='NEON'?'Recommended glow intensity':undefined} onClick={()=>onChange(preset)}>{preset}{preset==='NEON'&&<small>RECOMMENDED</small>}</button>)}</div></div><div className="body-brightness"><span>BODY BRIGHTNESS</span><div role="group" aria-label="Body brightness">{['NATURAL','RADIANT','BLAZING'].map(preset=><button key={preset} aria-pressed={bodyBrightness===preset} onClick={()=>onBodyChange(preset)}>{preset}{preset==='RADIANT'&&<small>RECOMMENDED</small>}</button>)}</div></div></div>;
 }

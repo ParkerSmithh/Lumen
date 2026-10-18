@@ -1,0 +1,213 @@
+{
+  "budgets": {
+    "webglCpuDeltaP95Ms": 0.5,
+    "webglGpuDeltaP95Ms": 0.5,
+    "canvasCpuDeltaP95Ms": 2
+  },
+  "deltas": [
+    {
+      "backend": "WebGL",
+      "run": 0,
+      "cpuDeltaMs": 0,
+      "gpuDeltaMs": -0.005184000000000001,
+      "resources": {
+        "backend": "webgl",
+        "textures": 9,
+        "framebuffers": 7,
+        "programs": 3,
+        "shaders": 6,
+        "buffers": 1,
+        "targetBytes": 823296,
+        "textureAllocations": 9,
+        "disposed": false,
+        "auxiliaryBytes": 1130496,
+        "visualBytes": 614400,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.29999999701976776,
+        "drawMs": 0.3999999910593033
+      },
+      "disposed": {
+        "backend": "webgl",
+        "textures": 0,
+        "framebuffers": 0,
+        "programs": 0,
+        "shaders": 0,
+        "buffers": 0,
+        "targetBytes": 0,
+        "textureAllocations": 9,
+        "disposed": true,
+        "auxiliaryBytes": 0,
+        "visualBytes": 0,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.29999999701976776,
+        "drawMs": 0.3999999910593033
+      }
+    },
+    {
+      "backend": "WebGL",
+      "run": 1,
+      "cpuDeltaMs": -0.09999999403953552,
+      "gpuDeltaMs": 0.0071359999999999965,
+      "resources": {
+        "backend": "webgl",
+        "textures": 9,
+        "framebuffers": 7,
+        "programs": 3,
+        "shaders": 6,
+        "buffers": 1,
+        "targetBytes": 823296,
+        "textureAllocations": 9,
+        "disposed": false,
+        "auxiliaryBytes": 1130496,
+        "visualBytes": 614400,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.29999999701976776,
+        "drawMs": 0.3999999910593033
+      },
+      "disposed": {
+        "backend": "webgl",
+        "textures": 0,
+        "framebuffers": 0,
+        "programs": 0,
+        "shaders": 0,
+        "buffers": 0,
+        "targetBytes": 0,
+        "textureAllocations": 9,
+        "disposed": true,
+        "auxiliaryBytes": 0,
+        "visualBytes": 0,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0.29999999701976776,
+        "drawMs": 0.3999999910593033
+      }
+    },
+    {
+      "backend": "WebGL",
+      "run": 2,
+      "cpuDeltaMs": 0,
+      "gpuDeltaMs": 0.008128000000000003,
+      "resources": {
+        "backend": "webgl",
+        "textures": 9,
+        "framebuffers": 7,
+        "programs": 3,
+        "shaders": 6,
+        "buffers": 1,
+        "targetBytes": 823296,
+        "textureAllocations": 9,
+        "disposed": false,
+        "auxiliaryBytes": 1130496,
+        "visualBytes": 614400,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0,
+        "drawMs": 0
+      },
+      "disposed": {
+        "backend": "webgl",
+        "textures": 0,
+        "framebuffers": 0,
+        "programs": 0,
+        "shaders": 0,
+        "buffers": 0,
+        "targetBytes": 0,
+        "textureAllocations": 9,
+        "disposed": true,
+        "auxiliaryBytes": 0,
+        "visualBytes": 0,
+        "quality": "high",
+        "passes": 14707,
+        "updates": 2101,
+        "maskMs": 0,
+        "drawMs": 0
+      }
+    },
+    {
+      "backend": "Canvas",
+      "run": 0,
+      "cpuDeltaMs": 0.20000000298023224,
+      "gpuDeltaMs": null,
+      "resources": {
+        "backend": "canvas",
+        "canvases": 8,
+        "filterNodes": 21,
+        "targetBytes": 2264064,
+        "visualBytes": 921600,
+        "updates": 970,
+        "drawMs": 0.4000000059604645,
+        "disposed": false
+      },
+      "disposed": {
+        "backend": "canvas",
+        "canvases": 0,
+        "filterNodes": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 970,
+        "drawMs": 0.4000000059604645,
+        "disposed": true
+      }
+    },
+    {
+      "backend": "Canvas",
+      "run": 1,
+      "cpuDeltaMs": 1.4901161193847656e-8,
+      "gpuDeltaMs": null,
+      "resources": {
+        "backend": "canvas",
+        "canvases": 8,
+        "filterNodes": 21,
+        "targetBytes": 2264064,
+        "visualBytes": 921600,
+        "updates": 971,
+        "drawMs": 0.5999999940395355,
+        "disposed": false
+      },
+      "disposed": {
+        "backend": "canvas",
+        "canvases": 0,
+        "filterNodes": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 971,
+        "drawMs": 0.5999999940395355,
+        "disposed": true
+      }
+    },
+    {
+      "backend": "Canvas",
+      "run": 2,
+      "cpuDeltaMs": 1.4901161193847656e-8,
+      "gpuDeltaMs": null,
+      "resources": {
+        "backend": "canvas",
+        "canvases": 8,
+        "filterNodes": 21,
+        "targetBytes": 2264064,
+        "visualBytes": 921600,
+        "updates": 972,
+        "drawMs": 0.5999999940395355,
+        "disposed": false
+      },
+      "disposed": {
+        "backend": "canvas",
+        "canvases": 0,
+        "filterNodes": 0,
+        "targetBytes": 0,
+        "visualBytes": 0,
+        "updates": 972,
+        "drawMs": 0.5999999940395355,
+        "disposed": true
+      }
+    }
+  ]
+}
