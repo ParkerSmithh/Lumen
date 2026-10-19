@@ -1,6 +1,7 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';import fs from 'node:fs';
 test('measure arcade high-load effects and moving target evaluation',async({page})=>{
- await page.goto('/');const result=await page.evaluate(async()=>{
+ await page.goto('/');await enterArtwork(page);const result=await page.evaluate(async()=>{
   const {createSlashScene}=await import('/src/effects/slashScene.js'),{createKineticTargets}=await import('/src/game/kineticTargets.js'),{shapePath,createTraceEvaluator}=await import('/src/game/lightTrace.js');
   const summary=a=>{a.sort((a,b)=>a-b);return {medianMs:a[Math.floor(a.length/2)],p95Ms:a[Math.floor(a.length*.95)]};};
   const canvas=document.createElement('canvas');canvas.width=1366;canvas.height=768;const scene=createSlashScene(canvas.getContext('2d'),{arcade:true,random:()=>.1});scene.setSize(1366,768,{x:0,y:0,width:1366,height:768});scene.setCombo(10);scene.setOverload(true);const drawing=[];let maxObjects=0,maxParticles=0;

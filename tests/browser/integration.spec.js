@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startArtworkGame} from './startArtworkGame';
 import { test, expect } from '@playwright/test';
 
@@ -46,7 +47,7 @@ async function controlledTracking(page, body = 'tracking') {
 
 test('GLOW guidance fades after presence, while failures and retries stay visible', async ({ page }) => {
   await controlledTracking(page);
-  await page.goto('/'); await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
+  await page.goto('/');await enterArtwork(page); await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await expect(page.getByRole('status',{name:'Artwork guidance'})).toHaveClass(/quiet/, { timeout: 6000 });
   await page.evaluate(() => window.testWorkers.find(worker => !worker.closed && worker.body).onerror());
   await expect(page.getByRole('status',{name:'Artwork guidance'})).not.toHaveClass(/quiet/);
@@ -56,7 +57,7 @@ test('GLOW guidance fades after presence, while failures and retries stay visibl
 
 test('changing input source cancels a pending fade and camera errors override quiet guidance', async ({ page }) => {
   await controlledTracking(page);
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   // This case exercises persistent camera-error guidance, not automatic recovery.
   await page.getByRole('button', { name:'Camera settings', exact:true }).click();
   await page.getByLabel('Auto-Reconnect', {exact:true}).uncheck();
@@ -78,16 +79,16 @@ test('changing input source cancels a pending fade and camera errors override qu
 
 test('LAUNCH loads on demand and a failed import leaves other modes available', async ({ page }) => {
   const requests = []; page.on('request', request => requests.push(request.url()));
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   expect(requests.some(url => url.includes('/modes/LaunchMode') || url.includes('/effects/Ballpit'))).toBe(false);
   await page.route('**/src/modes/LaunchMode*', route => route.abort());
-  await page.getByRole('button', { name: 'LAUNCH', exact: true }).click();
+  await page.getByRole('button', { name:'KINETIC', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Reload artwork' })).toBeVisible();
   await expect(page.getByRole('status',{name:'Artwork guidance'})).not.toHaveClass(/quiet/);
   await page.unroute('**/src/modes/LaunchMode*');
-  await page.getByRole('button', { name: 'Reload artwork' }).click();
+  await page.getByRole('button', { name: 'Reload artwork' }).click();await enterArtwork(page);
   await expect(page.getByRole('heading', { name: 'LUMEN' })).toBeVisible();
-  await page.getByRole('button', { name: 'LAUNCH', exact: true }).click();
+  await page.getByRole('button', { name:'KINETIC', exact: true }).click();
   await expect(page.locator('.launch-artwork canvas')).toBeVisible();
   await page.getByRole('button', { name: 'SLASH', exact: true }).click();
   await expect(page.locator('.slash-artwork')).toBeVisible();
@@ -97,9 +98,9 @@ test('LAUNCH loads on demand and a failed import leaves other modes available', 
 
 test('keyboard navigation and reduced motion preserve immediate mode changes', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
-  await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'GLOW', exact: true })).toBeFocused();
-  await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
+  await page.goto('/');await enterArtwork(page);
+  await expect(page.getByRole('button', { name: 'GLOW', exact: true })).toBeFocused();
+  await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'FLOW', exact: true })).toHaveAttribute('aria-current', 'page');
   expect(await page.locator('.mode-stage').evaluate(element => getComputedStyle(element).animationName)).toBe('none');
   await expect(page.locator('#fluid')).toBeVisible();
@@ -107,7 +108,7 @@ test('keyboard navigation and reduced motion preserve immediate mode changes', a
 
 test('a previous mode or input source cannot fade the current instruction', async ({ page }) => {
   await controlledTracking(page);
-  await page.goto('/'); await page.getByRole('button', { name: 'FLOW', exact: true }).click();
+  await page.goto('/');await enterArtwork(page); await page.getByRole('button', { name: 'FLOW', exact: true }).click();
   await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await page.waitForFunction(() => window.testWorkers.some(worker => !worker.body && !worker.closed));
   // Supply actual movement so FLOW starts its guidance fade.
@@ -124,7 +125,7 @@ test('a previous mode or input source cannot fade the current instruction', asyn
 for (const failure of ['construction', 'stall']) test(`body tracking ${failure} is recoverable without losing navigation`, async ({ page }) => {
   await controlledTracking(page, failure);
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/'); await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
+  await page.goto('/');await enterArtwork(page); await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Retry body tracking' })).toBeVisible({ timeout: 12000 });
   await expect(page.getByRole('status',{name:'Artwork guidance'})).not.toContainText(/npm|worker|WASM|model|asset/i);
   await page.getByRole('button', { name: 'FLOW', exact: true }).click();
@@ -137,11 +138,11 @@ for (const failure of ['construction', 'stall']) test(`body tracking ${failure} 
 });
 
 test('short and narrow viewports keep controls in the immersive viewport', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   for (const size of [{ width: 1366, height: 768 }, { width: 390, height: 480 }, { width: 800, height: 400 }]) {
     await page.setViewportSize(size);
     expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight && document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    for (const name of ['GLOW', 'FLOW', 'SLASH', 'LAUNCH']) {
+    for (const name of ['GLOW', 'FLOW', 'SLASH', 'KINETIC']) {
       const bounds = await page.getByRole('button', { name, exact: true }).boundingBox();
       expect(bounds.x).toBeGreaterThanOrEqual(0); expect(bounds.x + bounds.width).toBeLessThanOrEqual(size.width);
     }

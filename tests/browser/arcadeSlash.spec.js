@@ -1,10 +1,11 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startGame} from './startGame.js';
 import {test,expect} from '@playwright/test';
 import {installArcadeClock,slashPointerStep} from './arcadeClock.js';
 for(const driverDelay of [0,150])test('SLASH truthful multi-hit count, combo score, expiration and overload; driver delay '+driverDelay,async({page})=>{
  await page.addInitScript(()=>{Math.random=()=>.5;});
  await installArcadeClock(page);
- await page.goto('/?debugSlash');await page.getByRole('button',{name:'SLASH',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.arcadeAdvance(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
+ await page.goto('/?debugSlash');await enterArtwork(page);await page.getByRole('button',{name:'SLASH',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.arcadeAdvance(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
  for(let n=0;n<60;n++){await page.evaluate(()=>window.arcadeAdvance(.1));await page.evaluate(()=>new Promise(requestAnimationFrame));}
  await page.evaluate(()=>window.arcadeClock.hold());
  const objects=await page.evaluate(()=>window.__lumenSlash.inspect().objects);expect(objects.length).toBe(3);

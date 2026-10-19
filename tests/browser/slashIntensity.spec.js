@@ -1,8 +1,9 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 
 test('peak SLASH keeps eight targets responsive and cuts them with the existing curved swept path', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const result = await page.evaluate(async () => {
     const { createSlashScene } = await import('/src/effects/slashScene.js');
     const { createSlashGame } = await import('/src/game/slashGame.js');

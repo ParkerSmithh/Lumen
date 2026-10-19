@@ -1,7 +1,8 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 test('legacy and neon renderer timing and resource plateau',async({page})=>{
- test.setTimeout(1200000);await page.goto('/');
+ test.setTimeout(1200000);await page.goto('/');await enterArtwork(page);
  page.on('console',message=>{if(message.text().startsWith('[neon profile]'))console.log(message.text());});
  const full=process.env.LUMEN_NEON_PROFILE==='1';
  const canvasOnly=process.env.LUMEN_NEON_CANVAS_ONLY==='1';
@@ -33,7 +34,7 @@ test('legacy and neon renderer timing and resource plateau',async({page})=>{
 });
 
 test('bounded resources across 50 lifecycles and sustained rendering',async({page})=>{
- test.setTimeout(700000);await page.goto('/');const full=process.env.LUMEN_NEON_PROFILE==='1';
+ test.setTimeout(700000);await page.goto('/');await enterArtwork(page);const full=process.env.LUMEN_NEON_PROFILE==='1';
  page.on('console',message=>{if(message.text().startsWith('[neon profile]'))console.log(message.text());});
  const result=await page.evaluate(async full=>{
   const {createGlowRenderer}=await import('/src/effects/glowRenderer.js');const {neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const scene=neonGlowScene(),c=document.createElement('canvas');const cycles=[];

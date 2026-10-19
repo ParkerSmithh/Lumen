@@ -1,3 +1,4 @@
+import {enterArtwork} from '../tests/browser/enterArtwork.js';
 import {startGame} from '../tests/browser/startGame.js';
 import { shapePath } from '../src/game/lightTrace.js';
 import { installFrameClock } from '../tests/browser/frameClock.js';
@@ -26,7 +27,7 @@ try {
     // MediaPipe sends this harmless initialization notice through console.error.
     if (message.type() === 'error' && !message.text().startsWith('INFO: Created TensorFlow Lite XNNPACK delegate for CPU.')) errors.push(message.text());
   });
-  await page.goto(target+'?debugTracking&debugTrace&debugKinetic');
+  await page.goto(target+'?debugTracking&debugTrace&debugKinetic');await enterArtwork(page);
   if(await page.locator('[aria-label="Development tracking diagnostics"]').count()||await page.evaluate(()=>!!window.__lumenTracking||!!window.__lumenSlash))throw new Error('Development diagnostics escaped into production.');
   await expect(page.getByRole('heading', { name: 'LUMEN' })).toBeVisible();
   const localHTML = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
@@ -73,7 +74,7 @@ try {
   await expect(page.getByLabel('Interaction guide')).toContainText('SHOW YOURSELF');
   await page.screenshot({ path: '.test-artifacts/repair-glow-1366.png' });
   for (const mode of ['FLOW', 'SLASH', 'LAUNCH']) {
-    await page.getByRole('button', { name: mode, exact: true }).click();
+    await page.getByRole('button', { name:mode==='LAUNCH'?'KINETIC':mode, exact: true }).click();
     await expect(page.getByRole('button',{name:'Blue',exact:true})).toHaveAttribute('aria-pressed','true');
     if(await page.locator('[aria-label="Development tracking diagnostics"]').count()||await page.evaluate(()=>!!window.__lumenTrace||!!window.__lumenKinetic))throw new Error('Production diagnostic overlay');
     for(const label of ({FLOW:['POINT + MOVE'],SLASH:['SWIPE TO SLASH'],LAUNCH:['POINT + RAPID PUSH','CLOSE HAND','MOVE + RELEASE']})[mode])await expect(page.getByLabel('Interaction guide')).toContainText(label);
@@ -89,9 +90,15 @@ try {
       await page.waitForFunction(start => performance.now() - start >= 1400, started, { timeout: 60000 });
     } else await page.waitForTimeout(1400);
     if (mode === 'SLASH') {
-      await page.mouse.move(1366 * .3, 768 * .535); await page.mouse.down();
-      for (let x = 1366 * .32; x < 1366 * .72; x += 1366 * .025) { await page.mouse.move(x, 768 * .535); await page.waitForTimeout(16); }
-      await page.mouse.up();
+      // Deliver real pointer samples at render cadence: the detector rejects
+      // coalesced teleports and implausible speeds, especially on software GPUs.
+      for(const y of [.535,.48,.59,.535]){
+        await page.mouse.move(1366 * .3,768*y);await page.mouse.down();
+        await page.evaluate(()=>new Promise(requestAnimationFrame));
+        for(let x=1366*.34;x<1366*.80;x+=1366*.04){await page.mouse.move(x,768*y);await page.evaluate(()=>new Promise(requestAnimationFrame));}
+        await page.mouse.up();
+        if((await page.getByRole('status',{name:'Artwork guidance'}).textContent()).includes('Cut registered'))break;
+      }
       await expect(page.getByRole('status',{name:'Artwork guidance'})).toContainText('Cut registered');
     } else {
       if(mode==='LAUNCH')await page.mouse.click(420,360);
@@ -104,7 +111,7 @@ try {
   for (const size of [{ width: 1440, height: 900 }, { width: 1920, height: 1080 }, { width: 390, height: 480 }, { width: 800, height: 400 }]) {
     await page.setViewportSize(size);
     for (const mode of ['GLOW', 'FLOW', 'SLASH', 'LAUNCH']) {
-      await page.getByRole('button', { name: mode, exact: true }).click();
+      await page.getByRole('button', { name:mode==='LAUNCH'?'KINETIC':mode, exact: true }).click();
       if (mode === 'LAUNCH') await expect(page.locator('.launch-artwork canvas')).toBeVisible();
       const layout = await page.evaluate(() => ({ scroll: document.documentElement.scrollHeight > innerHeight || document.documentElement.scrollWidth > innerWidth,
         controls: [...document.querySelectorAll('nav button, footer button')].map(element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, bottom: r.bottom }; }) }));
@@ -127,7 +134,7 @@ try {
     await gamePage.evaluate(seconds => window.advanceGameTime(seconds), seconds);
     await gamePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   };
-  await gamePage.goto(target + '?debugSlash&debugEchoes');
+  await gamePage.goto(target + '?debugSlash&debugEchoes');await enterArtwork(gamePage);
   if (await gamePage.evaluate(() => !!window.__lumenSlash||!!window.__lumenEchoes)) throw new Error('SLASH diagnostics escaped into production.');
   await gamePage.getByRole('button', { name: 'SLASH', exact: true }).click();
   await gamePage.getByRole('button',{name:'PLAY',exact:true}).click();await expect(gamePage.getByRole('button',{name:'START GAME',exact:true})).toBeDisabled();await gamePage.getByRole('button',{name:'BACK',exact:true}).click();
@@ -145,7 +152,7 @@ try {
   await gamePage.getByRole('button', { name: 'SLASH', exact: true }).click();
   await expect(gamePage.getByRole('button', { name: 'PLAY', exact: true })).toBeVisible();
   for(const [mode,duration] of [['FLOW',90],['LAUNCH',120]]){
-    await gamePage.getByRole('button',{name:mode,exact:true}).click();
+    await gamePage.getByRole('button',{name:mode==='LAUNCH'?'KINETIC':mode,exact:true}).click();
     await gamePage.getByRole('button',{name:'PLAY',exact:true}).click();await expect(gamePage.getByRole('button',{name:'START GAME',exact:true})).toBeDisabled();await gamePage.getByRole('button',{name:'BACK',exact:true}).click();
     await gamePage.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();
     await startGame(gamePage);await advance(3);

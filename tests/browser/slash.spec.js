@@ -1,9 +1,10 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test,expect } from '@playwright/test';
 import { startSlashSession } from './slashSession.js';
 test('SLASH activates, fractures with a deliberate drag, and resets',async({page})=>{
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.goto('/');await page.getByRole('button',{name:'SLASH',exact:true}).click();
-  await expect(page.getByRole('button',{name:'LAUNCH',exact:true})).toBeEnabled();
+  await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'SLASH',exact:true}).click();
+  await expect(page.getByRole('button',{name:'KINETIC',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Mouse / touch fallback'}).click();
   await startSlashSession(page);
   const started=await page.evaluate(()=>performance.now());

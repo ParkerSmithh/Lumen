@@ -1,7 +1,8 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test, expect } from '@playwright/test';
 
 test('gravity-enabled Ballpit bounces at all six walls and retains collisions after cluster throws and rapid spawning', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const result = await page.evaluate(async () => {
     const { createBallpit } = await import('/src/effects/Ballpit.jsx');
     const host = document.createElement('div');

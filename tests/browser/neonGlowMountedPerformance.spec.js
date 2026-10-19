@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 import {startGame} from './startGame.js';
@@ -13,7 +14,7 @@ test('OLD versus TRUE NEON mounted FREE GLOW and ENERGY RUSH tracking budget',as
    const Native=Worker;window.Worker=class extends Native{constructor(...args){super(...args);if(String(args[0]).includes('segmentation.worker'))this.addEventListener('message',({data})=>{if(data.type==='mask'){window.neonBench.masks.push({time:data.timestamp,returned:now()});if(window.neonBench.masks.length>100)window.neonBench.masks.shift();}});}};
    navigator.mediaDevices.getUserMedia=async()=>{const c=document.createElement('canvas');c.width=640;c.height=480;const x=c.getContext('2d');const draw=()=>{x.fillStyle='#263549';x.fillRect(0,0,640,480);x.fillStyle='#ac8972';x.fillRect(250,60,140,350);nativeRAF(draw);};draw();return c.captureStream(30);};
   });
-  await page.goto('/');await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();await page.getByRole('button',{name:intensity,exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.neonBench.masks.length),{timeout:20000}).toBeGreaterThan(10);
+  await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();await page.getByRole('button',{name:intensity,exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.neonBench.masks.length),{timeout:20000}).toBeGreaterThan(10);
   if(mode==='RUSH'){await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await page.getByRole('button',{name:'Keyboard / touch',exact:true}).click();await startGame(page);}
   const row=await page.evaluate(async()=>{
    const b=window.neonBench;b.masks=[];b.buckets.clear();const start=performance.now();while(b.masks.length<40&&performance.now()-start<15000)await new Promise(r=>setTimeout(r,100));

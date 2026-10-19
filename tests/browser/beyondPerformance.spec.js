@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startGame} from './startGame.js';
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
@@ -117,8 +118,8 @@ test('compare actual mode frame cost with BEYOND enabled and disabled', async ({
       const page = await context.newPage();
       try {
         await page.addInitScript(installBenchmark);
-        await page.goto('/?debugBeyond&debugSlash&debugKinetic&debugTrace' + (enabled ? '' : '&beyondOff'));
-        if (mode !== 'GLOW') await page.getByRole('button', { name: mode, exact: true }).click();
+        await page.goto('/?debugBeyond&debugSlash&debugKinetic&debugTrace' + (enabled ? '' : '&beyondOff'));await enterArtwork(page);
+        if (mode !== 'GLOW') await page.getByRole('button', { name:mode==='LAUNCH'?'KINETIC':mode, exact: true }).click();
         if (mode === 'GLOW') {
           await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
           await expect(page.getByRole('button', { name: 'Stop camera' })).toBeVisible();

@@ -1,6 +1,7 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 for(const fallback of [false,true]) test(`GLOW darkens dim rooms and strengthens the person (${fallback?'Canvas':'WebGL'})`,async({page})=>{
- await page.goto('/');const pixels=await page.evaluate(async fallback=>{
+ await page.goto('/');await enterArtwork(page);const pixels=await page.evaluate(async fallback=>{
  const {createGlowRenderer}=await import('/src/effects/glowRenderer.js');const source=document.createElement('canvas');source.width=160;source.height=120;const c=source.getContext('2d');c.fillStyle='#0c0c0c';c.fillRect(0,0,160,120);c.fillStyle='#646464';c.fillRect(20,40,20,20);
  const values=new Float32Array(160*120);for(let y=0;y<120;y++)for(let x=0;x<80;x++)values[y*160+x]=1;
  const canvas=document.createElement('canvas');if(fallback)canvas.getContext('2d');const r=createGlowRenderer(canvas);r.resize(160,120);r.draw({video:source,mask:{values,width:160,height:120,sourceWidth:160,sourceHeight:120},color:'#ff354e',opacity:1});
@@ -9,7 +10,7 @@ for(const fallback of [false,true]) test(`GLOW darkens dim rooms and strengthens
 });
 
 for(const fallback of [false,true]) test(`GLOW adapts background while subject lighting stays stable (${fallback?'Canvas':'WebGL'})`,async({page})=>{
- await page.goto('/');const result=await page.evaluate(async fallback=>{
+ await page.goto('/');await enterArtwork(page);const result=await page.evaluate(async fallback=>{
   const {createGlowRenderer}=await import('/src/effects/glowRenderer.js');
   const source=document.createElement('canvas');source.width=160;source.height=120;
   const c=source.getContext('2d'),canvas=document.createElement('canvas');if(fallback)canvas.getContext('2d');

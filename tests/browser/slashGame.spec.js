@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startGame} from './startGame.js';
 import { test, expect } from '@playwright/test';
 
@@ -28,7 +29,7 @@ async function setup(page, camera = false) {
       };
     }
   }, { camera });
-  await page.goto('/?debugSlash');
+  await page.goto('/?debugSlash');await enterArtwork(page);
   await page.getByRole('button',{name:'SLASH',exact:true}).click();
   if(camera)await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   else await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();

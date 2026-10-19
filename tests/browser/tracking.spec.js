@@ -1,8 +1,9 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test, expect } from '@playwright/test';
 test('real model initializes and processes an input frame', async ({ browser }) => {
   const context = await browser.newContext({ permissions: ['camera'] });
   const page = await context.newPage();
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const result = await page.evaluate(async () => {
     const worker = new Worker('/segmentation.worker.js');
     return await new Promise(resolve => {

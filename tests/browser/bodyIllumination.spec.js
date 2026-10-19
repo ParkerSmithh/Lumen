@@ -1,15 +1,16 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 
 test('body brightness defaults to RADIANT and stays independent across modes',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'Preview light'}).click();const body=page.getByRole('group',{name:'Body brightness'}),glow=page.getByRole('group',{name:'Glow intensity'});
+ await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'Preview light'}).click();const body=page.getByRole('group',{name:'Body brightness'}),glow=page.getByRole('group',{name:'Glow intensity'});
  await expect(body.getByRole('button',{name:/RADIANT/})).toHaveAttribute('aria-pressed','true');await body.getByRole('button',{name:'BLAZING',exact:true}).click();await expect(glow.getByRole('button',{name:/NEON/})).toHaveAttribute('aria-pressed','true');
  await glow.getByRole('button',{name:'SOFT',exact:true}).click();await expect(body.getByRole('button',{name:'BLAZING',exact:true})).toHaveAttribute('aria-pressed','true');
  await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'GLOW',exact:true}).click();await page.getByRole('button',{name:'Preview light'}).click();await expect(body.getByRole('button',{name:'BLAZING',exact:true})).toHaveAttribute('aria-pressed','true');
 });
 
 for(const fallback of [false,true])test(`interior responds every draw without mask refresh or exposure pumping ${fallback?'Canvas':'WebGL'}`,async({page})=>{
- await page.goto('/');const result=await page.evaluate(async fallback=>{
+ await page.goto('/');await enterArtwork(page);const result=await page.evaluate(async fallback=>{
   const {createGlowRenderer}=await import('/src/effects/glowRenderer.js'),{neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const scene=neonGlowScene(),c=document.createElement('canvas');if(fallback)c.getContext('2d');const r=createGlowRenderer(c);r.resize(320,240);const read=document.createElement('canvas');read.width=320;read.height=240;const x=read.getContext('2d');let time=100;
   const sample=opts=>{r.draw({video:scene.camera,mask:scene.mask,color:'#4d9fff',opacity:1,time:time++,...opts});x.drawImage(c,0,0);return Array.from(x.getImageData(160,150,1,1).data).slice(0,3).reduce((a,v)=>a+v,0);};
   scene.camera.getContext('2d').fillStyle='#404040';scene.camera.getContext('2d').fillRect(130,140,60,30);const a=sample({}),updates=r.diagnostics().updates;scene.camera.getContext('2d').fillStyle='#505050';scene.camera.getContext('2d').fillRect(130,140,60,30);const b=sample({}),steps=[];
@@ -21,12 +22,12 @@ for(const fallback of [false,true])test(`interior responds every draw without ma
 });
 
 for(const [width,height] of [[390,844],[375,667],[844,390],[667,375]])test(`both visual control groups remain reachable at ${width}x${height}`,async({page})=>{
- await page.setViewportSize({width,height});await page.goto('/');await page.getByRole('button',{name:'Preview light'}).click();const settings=await page.locator('.glow-settings').boundingBox(),play=await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).boundingBox(),palette=await page.locator('.color-picker').boundingBox();
+ await page.setViewportSize({width,height});await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'Preview light'}).click();const settings=await page.locator('.glow-settings').boundingBox(),play=await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).boundingBox(),palette=await page.locator('.color-picker').boundingBox();
  const overlap=(a,b)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;expect(settings.x).toBeGreaterThanOrEqual(0);expect(settings.y).toBeGreaterThanOrEqual(0);expect(settings.x+settings.width).toBeLessThanOrEqual(width);expect(settings.y+settings.height).toBeLessThanOrEqual(height);expect(overlap(settings,play)).toBe(false);expect(overlap(settings,palette)).toBe(false);await page.getByRole('group',{name:'Body brightness'}).getByRole('button',{name:'BLAZING',exact:true}).click();
 });
 
 test('GPU detail scale follows camera pixels across output resolutions',async({page})=>{
- await page.goto('/');const error=await page.evaluate(async()=>{
+ await page.goto('/');await enterArtwork(page);const error=await page.evaluate(async()=>{
   const {createGlowRenderer}=await import('/src/effects/glowRenderer.js'),{neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const scene=neonGlowScene(),source=scene.camera.getContext('2d'),images=[];
   for(let y=110;y<180;y++)for(let x=120;x<200;x++){const v=40+(x*31+y*17)%73;source.fillStyle='rgb('+v+','+v+','+v+')';source.fillRect(x,y,1,1);}
   for(const scale of [1,3]){const c=document.createElement('canvas'),r=createGlowRenderer(c);r.resize(320*scale,240*scale);r.draw({video:scene.camera,mask:scene.mask,color:'#ff354e',opacity:1,time:100});const read=document.createElement('canvas');read.width=320;read.height=240;const x=read.getContext('2d');x.drawImage(c,0,0,320,240);images.push(x.getImageData(140,135,40,30).data);r.dispose();}
@@ -35,29 +36,29 @@ test('GPU detail scale follows camera pixels across output resolutions',async({p
 });
 
 for(const fallback of [false,true])test(`outside background cannot modulate fully covered inner edge ${fallback?'Canvas':'WebGL'}`,async({page})=>{
- await page.goto('/');const values=await page.evaluate(async fallback=>{const {createGlowRenderer}=await import('/src/effects/glowRenderer.js');const video=document.createElement('canvas');video.width=160;video.height=120;const v=video.getContext('2d'),c=document.createElement('canvas');if(fallback)c.getContext('2d');const r=createGlowRenderer(c);r.resize(160,120);const values=new Float32Array(160*120);for(let y=0;y<120;y++)for(let x=0;x<80;x++)values[y*160+x]=1;const mask={width:160,height:120,values};const read=document.createElement('canvas');read.width=160;read.height=120;const ctx=read.getContext('2d'),out=[];
+ await page.goto('/');await enterArtwork(page);const values=await page.evaluate(async fallback=>{const {createGlowRenderer}=await import('/src/effects/glowRenderer.js');const video=document.createElement('canvas');video.width=160;video.height=120;const v=video.getContext('2d'),c=document.createElement('canvas');if(fallback)c.getContext('2d');const r=createGlowRenderer(c);r.resize(160,120);const values=new Float32Array(160*120);for(let y=0;y<120;y++)for(let x=0;x<80;x++)values[y*160+x]=1;const mask={width:160,height:120,values};const read=document.createElement('canvas');read.width=160;read.height=120;const ctx=read.getContext('2d'),out=[];
   for(const background of ['#111111','#ffffff']){v.fillStyle=background;v.fillRect(0,0,160,120);v.fillStyle='#303030';v.fillRect(0,0,80,120);r.draw({video,mask,color:'#ff354e',opacity:1,time:100});ctx.drawImage(c,0,0);out.push(Array.from(ctx.getImageData(82,60,1,1).data).slice(0,3));}r.dispose();return out;
  },fallback);for(let i=0;i<3;i++)expect(Math.abs(values[0][i]-values[1][i])).toBeLessThanOrEqual(2);
 });
 
 for(const [width,height] of [[667,375],[844,390]])test(`compact ENERGY RUSH reserves the HUD at ${width}x${height}`,async({page})=>{
- await page.setViewportSize({width,height});await page.goto('/');await page.getByRole('button',{name:'Preview light'}).click();await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await expect(page.locator('.glow-settings')).toBeHidden();await expect(page.locator('.energy-top')).toBeVisible();
+ await page.setViewportSize({width,height});await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'Preview light'}).click();await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await expect(page.locator('.glow-settings')).toBeHidden();await expect(page.locator('.energy-top')).toBeVisible();
 });
 
 for(const fallback of [false,true])test(`near-white subject texture survives highlight rolloff ${fallback?'Canvas':'WebGL'}`,async({page})=>{
- await page.goto('/');const rows=await page.evaluate(async fallback=>{const {createGlowRenderer}=await import('/src/effects/glowRenderer.js'),{neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const {colors}=await import('/src/colors.js'),out=[];
+ await page.goto('/');await enterArtwork(page);const rows=await page.evaluate(async fallback=>{const {createGlowRenderer}=await import('/src/effects/glowRenderer.js'),{neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const {colors}=await import('/src/colors.js'),out=[];
   for(const [name,color] of colors)for(const bodyBrightness of ['NATURAL','RADIANT','BLAZING']){const scene=neonGlowScene(),v=scene.camera.getContext('2d');v.fillStyle='#ebebeb';v.fillRect(125,115,70,70);for(let y=115;y<185;y+=5){v.fillStyle='#fafafa';v.fillRect(125,y,70,2);}const c=document.createElement('canvas');if(fallback)c.getContext('2d');const r=createGlowRenderer(c);r.resize(320,240);r.draw({video:scene.camera,mask:scene.mask,color,bodyBrightness,opacity:1,time:100});const read=document.createElement('canvas');read.width=320;read.height=240;const x=read.getContext('2d');x.drawImage(c,0,0);const l=y=>Array.from(x.getImageData(160,y,1,1).data).slice(0,3).reduce((n,v)=>n+v,0)/3;out.push({name,bodyBrightness,contrast:Math.abs(l(120)-l(122)),bright:l(120),dark:l(122)});r.dispose();}return out;
  },fallback);writeFileSync(`.test-artifacts/body-highlights-${fallback?'canvas':'webgl'}.json`,JSON.stringify(rows,null,2));for(const row of rows){expect(row.contrast,JSON.stringify(row)).toBeGreaterThanOrEqual(15*.7);expect(row.bright).toBeLessThan(254);}
 });
 
 test('Canvas filter DOM and owned buffers stay bounded across 50 lifecycles',async({page})=>{
- await page.goto('/');const report=await page.evaluate(async()=>{const {createCanvasRenderer}=await import('/src/effects/glowCanvasRenderer.js'),{neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const scene=neonGlowScene(),canvas=document.createElement('canvas'),cycles=[];const count=()=>document.querySelectorAll('filter[id^="lumen-body-"]').length,baseline=count();
+ await page.goto('/');await enterArtwork(page);const report=await page.evaluate(async()=>{const {createCanvasRenderer}=await import('/src/effects/glowCanvasRenderer.js'),{neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const scene=neonGlowScene(),canvas=document.createElement('canvas'),cycles=[];const count=()=>document.querySelectorAll('filter[id^="lumen-body-"]').length,baseline=count();
   for(let i=0;i<50;i++){const r=createCanvasRenderer(canvas);r.resize(640,480);let peak=0;for(let j=0;j<6;j++){r.draw({video:scene.camera,mask:scene.mask,color:j%2?'#ff354e':'#4d9fff',bodyBrightness:['NATURAL','RADIANT','BLAZING'][j%3],time:i*100+j});peak=Math.max(peak,r.diagnostics().targetBytes);}const active=count();r.dispose();r.dispose();cycles.push({peak,active,after:count(),stats:r.diagnostics()});}return {baseline,cycles};
  });writeFileSync('.test-artifacts/body-canvas-lifecycle.json',JSON.stringify(report,null,2));for(const s of report.cycles){expect(s.active).toBe(report.baseline+1);expect(s.after).toBe(report.baseline);expect(s.stats.canvases).toBe(0);expect(s.stats.targetBytes).toBe(0);expect(s.peak).toBeLessThan(3*1024*1024);}expect(new Set(report.cycles.map(s=>s.peak)).size).toBe(1);
 });
 
 for(const fallback of [false,true])test(`body illumination brightness/detail and independent levels ${fallback?'Canvas':'WebGL'}`,async({page})=>{
- test.setTimeout(120000);await page.goto('/');
+ test.setTimeout(120000);await page.goto('/');await enterArtwork(page);
  const rows=await page.evaluate(async fallback=>{
   const {neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const {colors}=await import('/src/colors.js');
   const before=await import('/tests/fixtures/deployedNeon/glowRenderer.js'),after=await import('/src/effects/glowRenderer.js');

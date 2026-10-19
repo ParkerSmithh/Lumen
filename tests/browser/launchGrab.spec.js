@@ -1,6 +1,7 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 test('Ballpit carries exactly one projected candidate with bounded throw, preserving colors',async({page})=>{
- await page.goto('/');const r=await page.evaluate(async()=>{
+ await page.goto('/');await enterArtwork(page);const r=await page.evaluate(async()=>{
  const {createBallpit}=await import('/src/effects/Ballpit.jsx');const {Color,Matrix4,Vector3}=await import('/node_modules/three/build/three.module.js');
  const host=document.createElement('div');host.style.cssText='position:absolute;width:640px;height:480px';document.body.append(host);const canvas=document.createElement('canvas');host.append(canvas);const pointerRef={current:null},pit=createBallpit(canvas,{count:5,maxActive:4,interactiveCreation:true,followCursor:false,gravity:.01,minSize:.25,maxSize:.25,colors:[0xffffff,0xffffff]}, {current:{pointerRef}});const step=pit.three.onBeforeRender;pit.three.onBeforeRender=()=>{};pit.three.camera.updateMatrixWorld();let seq=0,clock=performance.now()-200;const tick=()=>step({delta:1/60,elapsed:0});
  const feed=(x,y,grab)=>{pointerRef.current={active:true,source:'hand',x,y,timestamp:clock+(seq+1)*25,sequence:++seq,aspect:4/3,grab,suppressForce:!!grab.active};};
@@ -15,7 +16,7 @@ test('Ballpit carries exactly one projected candidate with bounded throw, preser
 });
 
 test('projected selection respects depth and brief stale hold cannot throw',async({page})=>{
- await page.goto('/');const result=await page.evaluate(async()=>{
+ await page.goto('/');await enterArtwork(page);const result=await page.evaluate(async()=>{
   const {createBallpit}=await import('/src/effects/Ballpit.jsx');const host=document.createElement('div');host.style.cssText='position:absolute;width:640px;height:480px';document.body.append(host);const canvas=document.createElement('canvas');host.append(canvas);
   const pointerRef={current:null},pit=createBallpit(canvas,{count:4,maxActive:3,maxZ:3,interactiveCreation:true,followCursor:false,gravity:0,minSize:.25,maxSize:.25,colors:[0xffffff,0xffffff]}, {current:{pointerRef}}),step=pit.three.onBeforeRender;pit.three.onBeforeRender=()=>{};
   const physics=pit.spheres.physics;let sequence=0;const time=performance.now()-100;

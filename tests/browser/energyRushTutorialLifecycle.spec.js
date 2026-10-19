@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test, expect} from '@playwright/test';
 import {chooseEnergyRushAssist} from './energyRushTutorial.js';
 import {installArcadeClock} from './arcadeClock.js';
@@ -28,7 +29,7 @@ test('benchmark input selection belongs to the tutorial when the background has 
 for (const reducedMotion of ['no-preference', 'reduce']) test(`ENERGY RUSH first tutorial, keyboard dismissal, review and replay (${reducedMotion})`, async ({page}) => {
   await installArcadeClock(page);
   await page.emulateMedia({reducedMotion});
-  await page.goto('/?debugEnergy');
+  await page.goto('/?debugEnergy');await enterArtwork(page);
   await page.evaluate(() => window.arcadeClock.hold());
   const entry = page.getByRole('button', {name:'PLAY ENERGY RUSH', exact:true});
   const dialog = page.getByRole('dialog', {name:'ENERGY RUSH', exact:true});
