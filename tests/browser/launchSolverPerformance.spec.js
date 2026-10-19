@@ -1,8 +1,9 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 
 test('original Ballpit solver stays within frame budget at 150 balls without a GPU', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const results = await page.evaluate(async () => {
     const { BallpitPhysics } = await import('/src/effects/Ballpit.jsx');
     const { createGrabController } = await import('/src/effects/grabController.js');

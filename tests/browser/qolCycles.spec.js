@@ -1,10 +1,11 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 import {installArcadeClock} from './arcadeClock.js';
 test('repeated all-game pause instruction finish replay navigation keeps scores and canvas ownership bounded',async({page})=>{
  test.setTimeout(180000);
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await installArcadeClock(page);await page.goto('/');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await installArcadeClock(page);await page.goto('/');await enterArtwork(page);
  for(const mode of ['GLOW','FLOW','SLASH','LAUNCH']){
-  await page.getByRole('button',{name:mode,exact:true}).click();const energy=mode==='GLOW';
+  await page.getByRole('button',{name:mode==='LAUNCH'?'KINETIC':mode,exact:true}).click();const energy=mode==='GLOW';
   await page.getByRole('button',{name:energy?'PLAY ENERGY RUSH':'PLAY',exact:true}).click();await page.getByRole('button',{name:energy||mode==='LAUNCH'?'Keyboard / touch':'Mouse / touch',exact:true}).click();await page.getByRole('button',{name:'START GAME',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
   let canvases;
   // ENERGY RUSH deliberately pauses wall-time gaps >250ms. Drive admitted

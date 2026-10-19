@@ -1,13 +1,14 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startArtworkGame} from './startArtworkGame';
 import { test, expect } from '@playwright/test';
 
 test('each mode keeps its own concise gesture reminder', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const guide = page.getByRole('region', { name: 'Interaction guide' });
   await expect(guide).toContainText('SHOW YOURSELF');
   await expect(guide).toContainText('Step into view');
   for (const [mode, text] of [['FLOW', 'POINT + MOVE'], ['SLASH', 'SWIPE TO SLASH'], ['LAUNCH', 'POINT + RAPID PUSH']]) {
-    await page.getByRole('button', { name: mode, exact: true }).click();
+    await page.getByRole('button', { name:mode==='LAUNCH'?'KINETIC':mode, exact: true }).click();
     await expect(guide).toContainText(text);
   }
   await expect(guide).toContainText('CLOSE HAND');
@@ -27,9 +28,9 @@ test('each mode keeps its own concise gesture reminder', async ({ page }) => {
 for (const viewport of [{ width: 1366, height: 768 }, { width: 480, height: 640 }, { width: 800, height: 500 }]) {
   test(`guide stays above footer at ${viewport.width}×${viewport.height}`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await page.goto('/');
+    await page.goto('/');await enterArtwork(page);
     for (const mode of ['GLOW', 'LAUNCH']) {
-      if (mode !== 'GLOW') await page.getByRole('button', { name: mode, exact: true }).click();
+      if (mode !== 'GLOW') await page.getByRole('button', { name:mode==='LAUNCH'?'KINETIC':mode, exact: true }).click();
       const guide = await page.getByRole('region', { name: 'Interaction guide' }).boundingBox();
       const footer = await page.locator('footer').boundingBox();
       expect(guide.x).toBeGreaterThanOrEqual(0);

@@ -1,7 +1,8 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 test('deployed versus body illumination timing and resource cleanup',async({page})=>{
- test.setTimeout(1200000);await page.goto('/');
+ test.setTimeout(1200000);await page.goto('/');await enterArtwork(page);
  page.on('console',message=>{if(message.text().startsWith('[neon profile]'))console.log(message.text());});
  const full=process.env.LUMEN_BODY_PROFILE==='1';
  const canvasOnly=process.env.LUMEN_BODY_CANVAS_ONLY==='1';

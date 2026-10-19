@@ -1,9 +1,10 @@
+import {enterArtwork} from './enterArtwork.js';
 ﻿import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 
 test('compare bounded ECHOES overhead at SLASH caps and 150-ball LAUNCH load', async ({ page }) => {
   test.setTimeout(120000);
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const results = await page.evaluate(async () => {
     const { createSlashScene } = await import('/src/effects/slashScene.js');
     const { BallpitPhysics } = await import('/src/effects/Ballpit.jsx');

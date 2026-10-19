@@ -1,8 +1,9 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 import {installArcadeClock} from './arcadeClock.js';
 import {startGame} from './startGame.js';
 test('keyboard acquires one visible ball and C cannot erase a held ball',async({page})=>{
- await installArcadeClock(page);await page.goto('/?debugKinetic');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.advance(3.1));await expect(page.getByLabel('Time remaining')).toBeVisible();
+ await installArcadeClock(page);await page.goto('/?debugKinetic');await enterArtwork(page);await page.getByRole('button',{name:'KINETIC',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.advance(3.1));await expect(page.getByLabel('Time remaining')).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>!!window.__lumenKinetic.instance.target)).toBe(true);
  const separation=await page.evaluate(()=>{
   const pit=window.__lumenKinetic.instance,p=pit.spheres.physics,target=pit.target,y=-pit.three.size.wHeight*.1;

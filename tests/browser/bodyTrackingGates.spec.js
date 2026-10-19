@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
 
@@ -5,7 +6,7 @@ import { writeFileSync } from 'node:fs';
 // tracking-cost paths, landmark reliability, or two-hand identity stability.
 test('real local CPU models report synthetic-frame costs without claiming quality acceptance', async ({ page }, testInfo) => {
   test.setTimeout(180000);
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const report = await page.evaluate(async () => {
     const vision = await import('/vision/vision_bundle.mjs').catch(() => null);
     if (!vision) {
@@ -94,7 +95,7 @@ test('optional GLOW pose shares one camera and serializes inference without degr
       stream.getVideoTracks()[0].addEventListener('ended', () => cancelAnimationFrame(raf)); return stream;
     };
   });
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.bodyTrackingProbe.masks.length), { timeout: 60000 }).toBeGreaterThanOrEqual(45);
   const off = await page.evaluate(() => window.bodyTrackingProbe.masks.slice(-40));

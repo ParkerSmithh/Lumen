@@ -1,6 +1,7 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 test('Ballpit starts empty, activates only requested spheres, retains colors and recycles',async({page})=>{
- await page.goto('/');const result=await page.evaluate(async()=>{
+ await page.goto('/');await enterArtwork(page);const result=await page.evaluate(async()=>{
  const {createBallpit}=await import('/src/effects/Ballpit.jsx');const {Color}=await import('/node_modules/three/build/three.module.js');
  const host=document.createElement('div');host.style.cssText='width:640px;height:480px';document.body.append(host);const canvas=document.createElement('canvas');host.append(canvas);
  const instance=createBallpit(canvas,{count:4,maxActive:3,interactiveCreation:true,followCursor:false,colors:[0x663399,0xaaaaee]});

@@ -1,3 +1,4 @@
+import {enterArtwork} from '../tests/browser/enterArtwork.js';
 import {preview} from 'vite';
 import {chromium, expect} from '@playwright/test';
 import {browserOptions} from './browser-options.mjs';
@@ -36,7 +37,7 @@ try {
       terminate(){if(this.counted){stats.workers--;this.counted=false;}super.terminate();}
     };
   });
-  await page.goto('http://127.0.0.1:4174/Lumen/');
+  await page.goto('http://127.0.0.1:4174/Lumen/');await enterArtwork(page);
   const input=page.getByRole('status',{name:'Input status'});
   await expect(input).toContainText(/Camera ready|Body tracking active/, {timeout:30000});
   expect(await page.evaluate(()=>cameraBuildCheck.attempts)).toBe(1);
@@ -48,7 +49,7 @@ try {
   await expect.poll(()=>page.evaluate(()=>cameraBuildCheck.workers)).toBe(0);
   expect(await page.evaluate(()=>cameraBuildCheck.active)).toBe(0);
   await page.getByRole('button',{name:'Close camera settings'}).click();
-  for(const mode of ['FLOW','SLASH','LAUNCH','GLOW'])await page.getByRole('button',{name:mode,exact:true}).click();
+  for(const mode of ['FLOW','SLASH','LAUNCH','GLOW'])await page.getByRole('button',{name:mode==='LAUNCH'?'KINETIC':mode,exact:true}).click();
   expect(await page.evaluate(()=>cameraBuildCheck.attempts)).toBe(1);
   await page.getByRole('button',{name:'Camera settings',exact:true}).click();
   await dialog.getByRole('button',{name:'Reconnect Camera',exact:true}).click();

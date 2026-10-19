@@ -1,8 +1,9 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startGame} from './startGame.js';
 import {test,expect} from '@playwright/test';
 async function setup(page){
  await page.addInitScript(()=>{let offset=0;const now=performance.now.bind(performance),raf=requestAnimationFrame.bind(window);performance.now=()=>now()+offset;window.requestAnimationFrame=f=>raf(t=>f(t+offset));window.arcadeAdvance=s=>offset+=s*1000;});
- await page.goto('/?debugTrace');await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.arcadeAdvance(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
+ await page.goto('/?debugTrace');await enterArtwork(page);await page.getByRole('button',{name:'FLOW',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.arcadeAdvance(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
 }
 test('quality score, chain, skip isolation and completed-only personal bests',async({page})=>{
  await setup(page);const path=await page.evaluate(()=>window.__lumenTrace.target());

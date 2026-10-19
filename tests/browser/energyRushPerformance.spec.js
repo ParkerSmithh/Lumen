@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startGame} from './startGame.js';
 import {chooseEnergyRushAssist} from './energyRushTutorial.js';
 import {test,expect} from '@playwright/test';
@@ -13,7 +14,7 @@ test('mounted FREE GLOW and ENERGY RUSH share real segmentation cadence under CA
    const Native=window.Worker;window.Worker=class extends Native{constructor(...args){super(...args);if(String(args[0]).includes('segmentation.worker'))this.addEventListener('message',({data})=>{if(data.type==='mask'){window.energyTiming.masks.push({timestamp:data.timestamp,returned:nativeNow()});if(window.energyTiming.masks.length>100)window.energyTiming.masks.shift();}});}};
    navigator.mediaDevices.getUserMedia=async()=>{const c=document.createElement('canvas');c.width=640;c.height=480;const ctx=c.getContext('2d');const draw=()=>{ctx.fillStyle='#263549';ctx.fillRect(0,0,640,480);ctx.fillStyle='#ac8972';ctx.fillRect(250,60,140,350);nativeRAF(draw);};draw();return c.captureStream(30);};
   });
-  await page.goto('/?debugEnergy');await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();await page.getByRole('button',{name:intensity,exact:true}).click();
+  await page.goto('/?debugEnergy');await enterArtwork(page);await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();await page.getByRole('button',{name:intensity,exact:true}).click();
   await expect.poll(()=>page.evaluate(()=>window.energyTiming.masks.length),{timeout:15000}).toBeGreaterThan(10);
   if(mode==='RUSH'){await page.getByRole('button',{name:'PLAY ENERGY RUSH',exact:true}).click();await chooseEnergyRushAssist(page);await startGame(page);await expect(page.getByRole('button',{name:'PAUSE',exact:true})).toBeVisible({timeout:10000});}
   const row=await page.evaluate(async({mode,intensity})=>{

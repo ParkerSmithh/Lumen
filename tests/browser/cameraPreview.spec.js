@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test, expect } from '@playwright/test';
 
 test('compact webcam follows active hand modes and stops with the camera', async ({ page }) => {
@@ -14,14 +15,14 @@ test('compact webcam follows active hand modes and stops with the camera', async
       return stream;
     };
   });
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const video = page.locator('video');
   await expect(video).toBeHidden();
   await page.getByRole('button', { name: 'FLOW', exact: true }).click();
   await expect(video).toBeHidden();
   await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
   for (const mode of ['FLOW', 'SLASH', 'LAUNCH']) {
-    await page.getByRole('button', { name: mode, exact: true }).click();
+    await page.getByRole('button', { name:mode==='LAUNCH'?'KINETIC':mode, exact: true }).click();
     await expect(video).toBeVisible();
     await expect.poll(() => video.evaluate(element => element.readyState)).toBeGreaterThanOrEqual(2);
     for (const viewport of [{ width: 1366, height: 768 }, { width: 390, height: 844 }, { width: 667, height: 375 }]) {

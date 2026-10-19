@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test,expect } from '@playwright/test';
 
 async function syntheticCamera(page) {
@@ -50,7 +51,7 @@ async function syntheticCamera(page) {
 
 test('hand model infers no hand; mode switching keeps one camera and releases resources',async({page})=>{
   await syntheticCamera(page);
-  await page.goto('/');await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
+  await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   await expect(page.getByRole('status',{name:'Artwork guidance'})).toContainText('Step into view');
   const glowResources=await page.evaluate(()=>window.glResources);
   for(let i=0;i<3;i++){
@@ -68,7 +69,7 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
     await expect.poll(()=>page.evaluate(()=>window.gridContexts)).toBe(1);
     await expect.poll(()=>page.evaluate(()=>window.glResources-window.gridResources)).toBe(0);
     for(const next of ['LAUNCH','FLOW','LAUNCH']){
-      await page.getByRole('button',{name:next,exact:true}).click();
+      await page.getByRole('button',{name:next==='LAUNCH'?'KINETIC':next,exact:true}).click();
       await expect(page.getByRole('status',{name:'Artwork guidance'})).toContainText('Raise your index finger');
       expect(await page.evaluate(()=>window.cameraCalls)).toBe(1);
       expect(await page.evaluate(()=>window.createdWorkers)).toBe(createdWorkers);
@@ -97,7 +98,7 @@ test('hand model infers no hand; mode switching keeps one camera and releases re
 test('missing hand model offers retry and GLOW still runs',async({page})=>{
   await syntheticCamera(page);
   await page.route('**/models/hand_landmarker.task',route=>route.fulfill({status:404,body:'Missing model'}));
-  await page.goto('/');await page.getByRole('button',{name:'FLOW',exact:true}).click();
+  await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'FLOW',exact:true}).click();
   await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   await expect(page.getByRole('status',{name:'Artwork guidance'})).toContainText('Hand tracking is unavailable');
   await expect(page.getByRole('button',{name:'Retry hand tracking'})).toBeVisible();

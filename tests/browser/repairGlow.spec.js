@@ -1,7 +1,8 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test, expect } from '@playwright/test';
 
 for (const fallback of [false, true]) test(`GLOW preserves mirrored scene and internal detail (${fallback ? 'Canvas' : 'WebGL'})`, async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const result = await page.evaluate(async fallback => {
     const { createGlowRenderer } = await import('/src/effects/glowRenderer.js');
     const source = document.createElement('canvas'); source.width = 80; source.height = 60;

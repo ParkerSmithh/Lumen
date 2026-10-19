@@ -4,11 +4,10 @@ test('welcome and mode cards explore without requesting a camera',async({page})=
   await page.addInitScript(()=>{window.captureAttempts=0;navigator.mediaDevices.getUserMedia=async()=>{window.captureAttempts++;throw new DOMException('Test denial','NotAllowedError');};});
   await page.goto('/');
   await expect(page.getByRole('heading',{name:'LUMEN',exact:true}).last()).toBeVisible();
-  await page.getByRole('button',{name:'ENTER LUMEN',exact:true}).click();
-  const picker=page.getByRole('dialog',{name:'Choose your light.'});
+  const picker=page.getByRole('region',{name:'Experience selection'});
   await expect(picker).toBeVisible();
-  for(const name of ['Explore GLOW','Explore FLOW','Explore SLASH','Explore LAUNCH'])await expect(picker.getByRole('button',{name,exact:true})).toBeVisible();
-  await picker.getByRole('button',{name:'Explore FLOW',exact:true}).click();
+  for(const name of ['Choose GLOW','Choose FLOW','Choose SLASH','Choose KINETIC','Choose ENERGY RUSH'])await expect(picker.getByRole('button',{name:name==='LAUNCH'?'KINETIC':name,exact:true})).toBeVisible();
+  await picker.getByRole('button',{name:'Choose FLOW',exact:true}).click();await page.getByRole('button',{name:'Explore without camera',exact:true}).click();
   await expect(page.getByRole('button',{name:'FLOW',exact:true})).toHaveAttribute('aria-current','page');
   expect(await page.evaluate(()=>window.captureAttempts)).toBe(0);
   await page.getByRole('button',{name:'EXPLORE MODES',exact:true}).click();
@@ -31,7 +30,7 @@ test('About explains local processing and restores focus without changing camera
 test('mode picker remains scrollable and keyboard accessible on short screens with reduced motion',async({page})=>{
   await page.setViewportSize({width:667,height:375});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');
   await page.getByRole('button',{name:'EXPLORE MODES',exact:true}).click();
-  const picker=page.getByRole('dialog',{name:'Choose your light.'});
-  await picker.getByRole('button',{name:'Explore LAUNCH',exact:true}).click();
-  await expect(picker).toHaveCount(0);await expect(page.getByRole('button',{name:'LAUNCH',exact:true})).toBeFocused();
+  const picker=page.getByRole('region',{name:'Experience selection'});
+  await picker.getByRole('button',{name:'Choose KINETIC',exact:true}).click();await page.getByRole('button',{name:'Explore without camera',exact:true}).click();
+  await expect(picker).toHaveCount(0);await expect(page.getByRole('button',{name:'KINETIC',exact:true})).toBeFocused();
 });

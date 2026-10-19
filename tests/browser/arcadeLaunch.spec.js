@@ -1,7 +1,8 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startGame} from './startGame.js';
 import {test,expect} from '@playwright/test';
 for(const reset of [false,true])test('actual boundary reflection earns one bank bonus'+(reset?' after count reset':''),async({page})=>{
- await page.goto('/');const result=await page.evaluate(async reset=>{
+ await page.goto('/');await enterArtwork(page);const result=await page.evaluate(async reset=>{
   const {createBallpit}=await import('/src/effects/Ballpit.jsx'),{createLaunchArcade}=await import('/src/game/launchArcade.js');
   Math.random=()=>.5;const host=document.createElement('div');host.style.cssText='position:absolute;width:1000px;height:560px';document.body.append(host);const canvas=document.createElement('canvas');host.append(canvas);let elapsed=0,walls=0;const arcade=createLaunchArcade();
   const gameRef={current:{session:1,state:()=>({phase:'playing',paused:false,elapsed,progress:elapsed/120}),color:()=> '#4d9fff',created:slot=>arcade.created(slot),grabbed:slot=>arcade.grabbed(slot),wallBounce:slot=>{walls++;arcade.wallBounce(slot,elapsed);},hit:event=>{arcade.hit(event,elapsed);return true;},reach:()=>({x:.25,y:.25,width:.5,height:.5})}};
@@ -14,7 +15,7 @@ for(const reset of [false,true])test('actual boundary reflection earns one bank 
 });
 test('moving and bonus targets, scores, replay and local records run through the mode',async({page})=>{
  await page.addInitScript(()=>{Math.random=()=>.5;let offset=0;const now=performance.now.bind(performance),raf=requestAnimationFrame.bind(window);performance.now=()=>now()+offset;window.requestAnimationFrame=f=>raf(t=>f(t+offset));window.advanceArcade=s=>offset+=s*1000;});
- await page.goto('/?debugKinetic');await page.getByRole('button',{name:'LAUNCH',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.advanceArcade(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
+ await page.goto('/?debugKinetic');await enterArtwork(page);await page.getByRole('button',{name:'KINETIC',exact:true}).click();await page.getByRole('button',{name:'Mouse / touch fallback',exact:true}).click();await startGame(page);await page.evaluate(()=>window.advanceArcade(3));await expect(page.getByLabel('Time remaining')).toBeVisible();
  await page.mouse.click(683,384);await expect(page.getByLabel('Score',{exact:true})).toHaveText('100');await expect(page.getByLabel('TARGETS HIT',{exact:true})).toHaveText('1');
  await page.evaluate(()=>window.advanceArcade(50));
  await page.evaluate(()=>{const pit=window.__lumenKinetic.instance;pit.spheres.physics.positionData.fill(0);pit.spheres.physics.config.activeCount=1;});

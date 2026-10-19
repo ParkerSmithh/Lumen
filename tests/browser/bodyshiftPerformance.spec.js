@@ -1,3 +1,4 @@
+import {enterArtwork} from './enterArtwork.js';
 import {startGame} from './startGame.js';
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
@@ -127,8 +128,8 @@ test('matched BODYSHIFT off on with CHAOS WILD MAX', async ({ browser }) => {
       try {
         await page.addInitScript(installBenchmark);
         await page.addInitScript(value => localStorage.setItem('lumen-chaos-intensity-v1', value), enabled ? intensity : 'WILD');
-        await page.goto('/?debugBeyond&debugChaos&debugSlash&debugKinetic&debugTrace&debugBodyshift' + (bodyEnabled ? '' : '&bodyOff'));
-        if (mode !== 'GLOW') await page.getByRole('button', { name: mode, exact: true }).click();
+        await page.goto('/?debugBeyond&debugChaos&debugSlash&debugKinetic&debugTrace&debugBodyshift' + (bodyEnabled ? '' : '&bodyOff'));await enterArtwork(page);
+        if (mode !== 'GLOW') await page.getByRole('button', { name:mode==='LAUNCH'?'KINETIC':mode, exact: true }).click();
         if (mode === 'GLOW') {
           await page.getByRole('button', { name: 'ENABLE CAMERA', exact: true }).click();
           await expect(page.getByRole('button', { name: 'Stop camera' })).toBeVisible();
@@ -200,7 +201,7 @@ test('matched BODYSHIFT off on with CHAOS WILD MAX', async ({ browser }) => {
 // Deliberately isolated public scene workload: forces all visual flags together,
 // without claiming that this configures an actual mounted game's CHAOS state.
 test('bounded twelve-crystal storm overload surge scene workload', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const result = await page.evaluate(async () => {
     const { createSlashScene } = await import('/src/effects/slashScene.js');
     const canvas=document.createElement('canvas');canvas.width=1366;canvas.height=768;
@@ -228,7 +229,7 @@ test('bounded twelve-crystal storm overload surge scene workload', async ({ page
 });
 
 test('CHAOS meter updates without idle React commits',async({page})=>{
- await page.goto('/');const result=await page.evaluate(async()=>{
+ await page.goto('/');await enterArtwork(page);const result=await page.evaluate(async()=>{
   const React=await import('/node_modules/.vite/deps/react.js'),DOM=await import('/node_modules/.vite/deps/react-dom_client.js'),{ChaosControl}=await import('/src/beyond/ChaosControl.jsx'),{createEchoSession}=await import('/src/echoes/echoRuntime.js');
   const react=React.default||React,host=document.createElement('div');document.body.append(host);const root=(DOM.createRoot||DOM.default.createRoot)(host),session=createEchoSession(),durations=[];
   root.render(react.createElement(react.Profiler,{id:'chaos',onRender:(id,phase,duration)=>durations.push(duration)},react.createElement(ChaosControl,{session,mode:'FLOW'})));
@@ -252,7 +253,7 @@ test('actual GLOW segmentation worker cadence matched BODYSHIFT off on',async({b
  test.setTimeout(180000);const results=[];
  for(const intensity of ['OFF','ON']){const context=await browser.newContext({viewport:{width:1366,height:768},deviceScaleFactor:1});const page=await context.newPage();try{
   await page.addInitScript(installRealSegmentationBenchmark);await page.addInitScript(value=>localStorage.setItem('lumen-chaos-intensity-v1',value),'WILD');
-  await page.goto('/?debugChaos&debugBodyshift'+(intensity==='OFF'?'&bodyOff':''));await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
+  await page.goto('/?debugChaos&debugBodyshift'+(intensity==='OFF'?'&bodyOff':''));await enterArtwork(page);await page.getByRole('button',{name:'ENABLE CAMERA',exact:true}).click();
   await expect.poll(()=>page.evaluate(()=>window.__realSegmentationBench.count()),{timeout:90000,intervals:[250]}).toBeGreaterThanOrEqual(45);
   const result=await page.evaluate(()=>window.__realSegmentationBench.snapshot());expect(result.returnedMasks).toBe(40);for(const metric of [result.latency,result.returnedMaskCadence,result.captureCadence,result.mainThreadRAF]){expect(metric.samples).toBeGreaterThan(0);expect(Number.isFinite(metric.p95Ms)).toBe(true);}
   results.push({intensity,...result});

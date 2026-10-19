@@ -1,10 +1,11 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 test('deterministic fixture really separates bright and dark backgrounds',async({page})=>{
- await page.goto('/');const pixels=await page.evaluate(async()=>{const {neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');return [false,true].map(bright=>Array.from(neonGlowScene({bright}).camera.getContext('2d').getImageData(10,150,1,1).data));});expect(pixels[0].slice(0,3)).toEqual([16,20,27]);expect(pixels[1].slice(0,3)).toEqual([196,200,204]);
+ await page.goto('/');await enterArtwork(page);const pixels=await page.evaluate(async()=>{const {neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');return [false,true].map(bright=>Array.from(neonGlowScene({bright}).camera.getContext('2d').getImageData(10,150,1,1).data));});expect(pixels[0].slice(0,3)).toEqual([16,20,27]);expect(pixels[1].slice(0,3)).toEqual([196,200,204]);
 });
 for(const fallback of [false,true])test(`OLD versus TRUE NEON six colors and three presets (${fallback?'Canvas':'WebGL'})`,async({page})=>{
- await page.goto('/');const report=await page.evaluate(async fallback=>{
+ await page.goto('/');await enterArtwork(page);const report=await page.evaluate(async fallback=>{
   const {neonGlowScene}=await import('/tests/fixtures/neonGlowScene.js');const {colors}=await import('/src/colors.js');const legacy=await import('/tests/fixtures/legacyGlowRenderer.js'),neon=await import('/src/effects/glowRenderer.js');document.body.replaceChildren();document.body.style.cssText='margin:0;background:#08090d;color:white;font:14px sans-serif';const rows=[];
   for(const [name,color] of colors)for(const preset of ['SOFT','NEON','SUPERNOVA']){
    const line=document.createElement('div');line.style.cssText='display:flex;gap:8px;align-items:center';const label=document.createElement('span');label.textContent=`${name} ${preset}`;label.style.width='150px';line.append(label);document.body.append(line);

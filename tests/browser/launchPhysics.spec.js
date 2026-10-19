@@ -1,6 +1,7 @@
+import {enterArtwork} from './enterArtwork.js';
 import { test,expect } from '@playwright/test';
 test('the supplied solver receives one local flick impulse, retains gentle control and clamps collisions',async({page})=>{
-  await page.goto('/');
+  await page.goto('/');await enterArtwork(page);
   const result=await page.evaluate(async()=>{
     const {createBallpit}=await import('/src/effects/Ballpit.jsx');
     const host=document.createElement('div');host.style.cssText='position:absolute;width:640px;height:480px';document.body.append(host);

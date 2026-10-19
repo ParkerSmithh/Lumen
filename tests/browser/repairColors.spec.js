@@ -1,7 +1,8 @@
+import {enterArtwork} from './enterArtwork.js';
 import {test,expect} from '@playwright/test';
 test('selected color survives every mode and camera frame stays contained',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'Blue',exact:true}).click();
- for(const mode of ['FLOW','SLASH','LAUNCH','GLOW']){await page.getByRole('button',{name:mode,exact:true}).click();await expect(page.getByRole('button',{name:'Blue',exact:true})).toHaveAttribute('aria-pressed','true');}
+ await page.goto('/');await enterArtwork(page);await page.getByRole('button',{name:'Blue',exact:true}).click();
+ for(const mode of ['FLOW','SLASH','LAUNCH','GLOW']){await page.getByRole('button',{name:mode==='LAUNCH'?'KINETIC':mode,exact:true}).click();await expect(page.getByRole('button',{name:'Blue',exact:true})).toHaveAttribute('aria-pressed','true');}
  await page.getByRole('button',{name:'Preview light'}).click();
  for(const size of [{width:1366,height:768},{width:390,height:844},{width:800,height:400}]){
   await page.setViewportSize(size);
